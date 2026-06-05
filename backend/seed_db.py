@@ -3,7 +3,7 @@ import django
 import random
 from decimal import Decimal
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'janhavi_backend.settings.development')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'janhavi_backend.settings')
 django.setup()
 
 from products.models import Category, Product, ProductImage
