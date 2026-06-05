@@ -1,0 +1,15 @@
+# Exclude local environment and database
+venv/
+db.sqlite3
+.env
+.git
+.gitignore
+
+# Exclude caches and static files
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+staticfiles/
+media/
