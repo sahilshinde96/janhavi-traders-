@@ -31,24 +31,32 @@ class SendOTPView(APIView):
         OTP.objects.create(identifier=identifier, code=code)
 
         if otp_type == 'email':
-            try:
-                send_mail(
-                    subject='Your Janhavi Traders OTP',
-                    message=(
-                        f'Hello,\n\n'
-                        f'Your one-time password for Janhavi Traders is:\n\n'
-                        f'  {code}\n\n'
-                        f'This OTP is valid for {settings.OTP_EXPIRY_MINUTES} minutes.\n'
-                        f'Do not share this with anyone.\n\n'
-                        f'— Team Janhavi Traders'
-                    ),
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[identifier],
-                    fail_silently=False,
-                )
-            except Exception as e:
-                # In development, OTP is printed to console
-                print(f'\n[EMAIL] [DEV] OTP for {identifier}: {code}\n')
+            # Check if SMTP credentials are configured to avoid hanging timeouts
+            email_user = getattr(settings, 'EMAIL_HOST_USER', '')
+            email_password = getattr(settings, 'EMAIL_HOST_PASSWORD', '')
+            
+            if email_user and email_password:
+                try:
+                    send_mail(
+                        subject='Your Janhavi Traders OTP',
+                        message=(
+                            f'Hello,\n\n'
+                            f'Your one-time password for Janhavi Traders is:\n\n'
+                            f'  {code}\n\n'
+                            f'This OTP is valid for {settings.OTP_EXPIRY_MINUTES} minutes.\n'
+                            f'Do not share this with anyone.\n\n'
+                            f'— Team Janhavi Traders'
+                        ),
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[identifier],
+                        fail_silently=False,
+                    )
+                except Exception as e:
+                    # Fallback to console print if SMTP fails
+                    print(f'\n[EMAIL] [DEV] (SMTP Failed) OTP for {identifier}: {code}\n')
+            else:
+                # Fallback to console print if SMTP is not configured in environment
+                print(f'\n[EMAIL] [DEV] (No SMTP Configured) OTP for {identifier}: {code}\n')
 
         else:
             # SMS: log to console (integrate Fast2SMS/Twilio in production)
