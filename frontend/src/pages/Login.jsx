@@ -95,9 +95,9 @@ export default function Login() {
 
         {step === 1 ? (
           <>
-            <h2 style={{ fontWeight: 700, fontSize: '1.3rem', marginBottom: 6 }}>Sign In</h2>
+            <h2 style={{ fontWeight: 700, fontSize: '1.3rem', marginBottom: 6 }}>Sign In / Register</h2>
             <p style={{ color: 'var(--color-text-medium)', fontSize: '0.875rem', marginBottom: 24 }}>
-              We'll send you a one-time password
+              Enter your email or phone. New users will be registered automatically!
             </p>
 
             {/* Type toggle */}
@@ -196,7 +196,10 @@ export default function Login() {
           </>
         )}
 
-        <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--color-text-light)', marginTop: 24 }}>
+        <p style={{ textAlign: 'center', fontSize: '0.825rem', color: 'var(--color-primary)', fontWeight: 500, marginTop: 24 }}>
+          Don't have an account? Just enter your details above to sign up instantly!
+        </p>
+        <p style={{ textAlign: 'center', fontSize: '0.7rem', color: 'var(--color-text-light)', marginTop: 12 }}>
           By signing in, you agree to our Terms & Privacy Policy
         </p>
       </div>
