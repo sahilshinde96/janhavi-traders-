@@ -48,9 +48,12 @@ class SendOTPView(APIView):
         OTP.objects.create(identifier=identifier, code=code)
 
         if otp_type == 'email':
-            # Check if SMTP credentials are configured to avoid hanging timeouts
+            # Check if SMTP credentials or HTTPS API keys are configured
             email_user = getattr(settings, 'EMAIL_HOST_USER', '')
             email_password = getattr(settings, 'EMAIL_HOST_PASSWORD', '')
+            resend_key = getattr(settings, 'RESEND_API_KEY', '')
+            brevo_key = getattr(settings, 'BREVO_API_KEY', '')
+            has_credentials = (email_user and email_password) or resend_key or brevo_key
             
             subject = 'Your Janhavi Traders OTP'
             message = (
@@ -64,18 +67,18 @@ class SendOTPView(APIView):
             from_email = settings.DEFAULT_FROM_EMAIL
             recipient_list = [identifier]
             
-            if email_user and email_password:
-                # Run the SMTP connection in a background thread to prevent Gunicorn workers from hanging/timing out
+            if has_credentials:
+                # Run the sending connection in a background thread to prevent Gunicorn workers from hanging/timing out
                 threading.Thread(
                     target=send_otp_email_async,
                     args=(subject, message, from_email, recipient_list, code),
                     daemon=True
                 ).start()
                 # Also print to logs immediately as backup
-                print(f'\n[EMAIL] [DEV] (SMTP Triggered) OTP for {identifier}: {code}\n')
+                print(f'\n[EMAIL] [DEV] (SMTP/HTTPS Triggered) OTP for {identifier}: {code}\n')
             else:
-                # Fallback to console print if SMTP is not configured in environment
-                print(f'\n[EMAIL] [DEV] (No SMTP Configured) OTP for {identifier}: {code}\n')
+                # Fallback to console print if SMTP/HTTPS is not configured in environment
+                print(f'\n[EMAIL] [DEV] (No SMTP/HTTPS Configured) OTP for {identifier}: {code}\n')
 
         else:
             # SMS: log to console (integrate Fast2SMS/Twilio in production)
