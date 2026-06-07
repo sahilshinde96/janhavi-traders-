@@ -1,7 +1,14 @@
 import axios from 'axios';
 
+// Normalize the API URL. Ensure it has a trailing /api suffix even if configured with just the root domain.
+let rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+if (rawApiUrl && !rawApiUrl.endsWith('/api') && !rawApiUrl.endsWith('/api/')) {
+  rawApiUrl = rawApiUrl.replace(/\/$/, '') + '/api';
+}
+const API_URL = rawApiUrl;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+  baseURL: API_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -21,7 +28,7 @@ api.interceptors.response.use(
         const refresh = localStorage.getItem('refresh_token');
         if (!refresh) throw new Error('No refresh token');
         const { data } = await axios.post(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/auth/token/refresh/`,
+          `${API_URL}/auth/token/refresh/`,
           { refresh }
         );
         localStorage.setItem('access_token', data.access);
