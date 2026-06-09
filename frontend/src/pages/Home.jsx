@@ -4,11 +4,6 @@ import api from '../api/axios';
 import ProductGrid from '../components/product/ProductGrid';
 import hero1 from '../assets/hero1.jpg';
 
-const CATEGORIES = [
-  { name: 'Makeup', slug: 'makeup', emoji: '💄', desc: 'Lips, Eyes & Face', gradient: 'linear-gradient(135deg, #FF6B9D, #C8496A)' },
-  { name: 'Skincare', slug: 'skincare', emoji: '💧', desc: 'Glow & Hydrate', gradient: 'linear-gradient(135deg, #74B9FF, #0984E3)' },
-  { name: 'Haircare', slug: 'haircare', emoji: '🌿', desc: 'Nourish & Shine', gradient: 'linear-gradient(135deg, #55EFC4, #00B894)' },
-];
 
 const WHY_US = [
   { icon: '✅', title: '100% Authentic', desc: 'All products are sourced directly from brands' },
@@ -285,7 +280,6 @@ export default function Home() {
           <span className="marquee-item">🚚 FREE Delivery on orders above ₹500 &nbsp;|&nbsp; Only COD available</span>
         </div>
       </div>
-
 
 
       {/* ─── Featured Products ────────────────────────────────────────────── */}
