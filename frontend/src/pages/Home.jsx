@@ -286,42 +286,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ─── Categories ───────────────────────────────────────────────────── */}
-      <section className="section" style={{ background: 'var(--color-bg)' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <h2 className="section-title">Shop by Category</h2>
-            <p className="section-subtitle">Find everything you need in one place</p>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
-            {CATEGORIES.map(cat => (
-              <div
-                key={cat.slug}
-                onClick={() => navigate(`/products?category_slug=${cat.slug}`)}
-                style={{
-                  background: cat.gradient, borderRadius: 20, padding: '40px 24px',
-                  textAlign: 'center', cursor: 'pointer',
-                  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                  color: 'white',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.2)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
-              >
-                <div style={{ fontSize: '3.5rem', marginBottom: 16 }}>{cat.emoji}</div>
-                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', fontWeight: 700, marginBottom: 8 }}>{cat.name}</h3>
-                <p style={{ fontSize: '0.9rem', opacity: 0.85 }}>{cat.desc}</p>
-                <div style={{
-                  marginTop: 20, display: 'inline-block',
-                  background: 'rgba(255,255,255,0.2)', borderRadius: 20,
-                  padding: '6px 20px', fontSize: '0.8rem', fontWeight: 600,
-                }}>
-                  Explore →
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* ─── Featured Products ────────────────────────────────────────────── */}
       <section className="section" style={{ background: 'white' }}>

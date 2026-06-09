@@ -4,7 +4,6 @@ import { Mail, Phone, ArrowRight, RefreshCw } from 'lucide-react';
 import api from '../api/axios';
 import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
-import logo from '../assets/logo.jpg';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -86,13 +85,12 @@ export default function Login() {
         animation: 'scaleIn 0.3s ease',
       }}>
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 32, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <img src={logo} alt="Janhavi Traders Logo" style={{ height: 64, width: 64, borderRadius: '50%', objectFit: 'cover', marginBottom: 12, boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }} />
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <h1 style={{
-            fontFamily: 'var(--font-display)', fontSize: '1.6rem', fontWeight: 700,
-            color: 'var(--color-primary)', marginBottom: 4, margin: 0
+            fontFamily: 'var(--font-display)', fontSize: '1.8rem', fontWeight: 700,
+            color: 'var(--color-primary)', marginBottom: 4,
           }}>JANHAVI<span style={{ color: 'var(--color-dark)' }}> TRADERS</span></h1>
-          <p style={{ color: 'var(--color-text-medium)', fontSize: '0.875rem', marginTop: 4 }}>Your premium beauty destination</p>
+          <p style={{ color: 'var(--color-text-medium)', fontSize: '0.875rem' }}>Your premium beauty destination</p>
         </div>
 
         {step === 1 ? (
