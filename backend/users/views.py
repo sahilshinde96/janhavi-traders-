@@ -37,11 +37,19 @@ def send_otp_sms_async(identifier, code):
         import urllib.request
         import json
         
+        # Fast2SMS requires a clean 10-digit mobile number for Indian routing
+        cleaned_number = ''.join(c for c in identifier if c.isdigit())
+        if len(cleaned_number) > 10:
+            if cleaned_number.startswith('91') and len(cleaned_number) == 12:
+                cleaned_number = cleaned_number[2:]
+            elif cleaned_number.startswith('0') and len(cleaned_number) == 11:
+                cleaned_number = cleaned_number[1:]
+
         url = "https://www.fast2sms.com/dev/bulkV2"
         payload = {
             "route": "otp",
-            "variables_values": code,
-            "numbers": identifier,
+            "variables_values": str(code),
+            "numbers": cleaned_number,
         }
         req = urllib.request.Request(
             url,
@@ -56,9 +64,9 @@ def send_otp_sms_async(identifier, code):
             res_body = response.read().decode('utf-8')
             res_data = json.loads(res_body)
             if res_data.get('return') is True:
-                print(f"\n[SMS] [Fast2SMS] Sent successfully to {identifier}! Message: {res_data.get('message')}\n")
+                print(f"\n[SMS] [Fast2SMS] Sent successfully to {cleaned_number}! Message: {res_data.get('message')}\n")
             else:
-                print(f"\n[SMS] [Fast2SMS] Send failed to {identifier}: {res_data.get('message')}\n")
+                print(f"\n[SMS] [Fast2SMS] Send failed to {cleaned_number}: {res_data.get('message')}\n")
     except Exception as e:
         print(f"\n[SMS] [Fast2SMS] Failed to send SMS to {identifier}: {e}\n")
 
