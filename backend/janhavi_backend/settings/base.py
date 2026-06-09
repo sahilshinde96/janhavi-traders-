@@ -134,4 +134,6 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Janhavi Traders <nore
 RESEND_API_KEY = config('RESEND_API_KEY', default='')
 BREVO_API_KEY = config('BREVO_API_KEY', default='')
 FAST2SMS_API_KEY = config('FAST2SMS_API_KEY', default='')
+GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
+
 

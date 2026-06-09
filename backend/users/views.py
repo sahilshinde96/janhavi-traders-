@@ -286,3 +286,70 @@ class AdminUserListView(generics.ListAPIView):
 
     def get_queryset(self):
         return User.objects.filter(is_staff=False).order_by('-date_joined')
+
+
+class GoogleSignInView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        credential = request.data.get('credential')
+        if not credential:
+            return Response({'error': 'Google credential is required.'}, status=400)
+
+        # 1. Verify token with Google's public tokeninfo API
+        try:
+            google_verify_url = f"https://oauth2.googleapis.com/tokeninfo?id_token={credential}"
+            req = urllib.request.Request(google_verify_url, method='GET')
+            with urllib.request.urlopen(req, timeout=10) as response:
+                res_body = response.read().decode('utf-8')
+                payload = json.loads(res_body)
+        except urllib.error.HTTPError as e:
+            err_body = e.read().decode('utf-8')
+            logger.error(f"[GOOGLE] Verification failed. HTTP Error {e.code}: {err_body}")
+            return Response({'error': 'Invalid Google credential token.'}, status=400)
+        except Exception as e:
+            logger.error(f"[GOOGLE] Connection error during token verification: {e}")
+            return Response({'error': 'Failed to connect to Google authentication server.'}, status=500)
+
+        # 2. Check audience claim to prevent token spoofing
+        google_client_id = getattr(settings, 'GOOGLE_CLIENT_ID', '')
+        if google_client_id:
+            aud = payload.get('aud')
+            if aud != google_client_id:
+                logger.error(f"[GOOGLE] Token audience mismatch. Expected: {google_client_id}, Got: {aud}")
+                return Response({'error': 'Token verification failed: Client ID mismatch.'}, status=400)
+        else:
+            logger.warning("[GOOGLE] GOOGLE_CLIENT_ID is not configured in settings. Skipping audience validation.")
+
+        # 3. Retrieve user information from payload
+        email = payload.get('email')
+        if not email:
+            return Response({'error': 'Email not provided by Google account.'}, status=400)
+
+        name = payload.get('name', '').strip()
+        picture = payload.get('picture', '')
+
+        # 4. Get or create User
+        user, created = User.objects.get_or_create(email=email)
+        user.is_verified = True
+        user.save(update_fields=['is_verified'])
+
+        # 5. Create or update UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+        if not profile.name and name:
+            profile.name = name
+            profile.save(update_fields=['name'])
+        if not profile.avatar and picture:
+            profile.avatar = picture
+            profile.save(update_fields=['avatar'])
+
+        # 6. Generate simple JWT tokens
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+            'user': UserSerializer(user).data,
+            'is_new_user': created,
+        })
+

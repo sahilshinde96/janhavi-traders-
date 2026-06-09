@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Phone, ArrowRight, RefreshCw } from 'lucide-react';
 import api from '../api/axios';
@@ -20,7 +20,57 @@ export default function Login() {
   const [countdown, setCountdown] = useState(0);
   const inputRefs = useRef([]);
 
-  if (isAuthenticated) { navigate(from, { replace: true }); return null; }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from]);
+
+  if (isAuthenticated) return null;
+
+  const handleGoogleCredentialResponse = async (response) => {
+    setLoading(true);
+    try {
+      const { data } = await api.post('/auth/google/', { credential: response.credential });
+      login(data.user, data.access, data.refresh);
+      toast.success(data.is_new_user ? 'Welcome to Janhavi Traders! 🎉' : 'Welcome back! 👋');
+      navigate(data.user.is_staff ? '/admin' : from, { replace: true });
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Google Sign-in failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+    if (!googleClientId) {
+      return;
+    }
+
+    const initGoogleSignIn = () => {
+      if (window.google?.accounts?.id) {
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleGoogleCredentialResponse,
+        });
+        
+        const btnContainer = document.getElementById('google-signin-button');
+        if (btnContainer) {
+          window.google.accounts.id.renderButton(
+            btnContainer,
+            { theme: 'outline', size: 'large', width: '100%' }
+          );
+        }
+      } else {
+        setTimeout(initGoogleSignIn, 100);
+      }
+    };
+
+    if (step === 1) {
+      initGoogleSignIn();
+    }
+  }, [step]);
 
   const startCountdown = () => {
     setCountdown(60);
@@ -138,6 +188,15 @@ export default function Login() {
               onClick={handleSendOTP} disabled={loading}>
               {loading ? '⏳ Sending...' : <><span>Send OTP</span> <ArrowRight size={18} /></>}
             </button>
+
+            {/* Google Sign-in section */}
+            <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', gap: 12 }}>
+              <div style={{ flex: 1, height: 1, background: 'var(--color-border)' }} />
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)', fontWeight: 500 }}>OR</span>
+              <div style={{ flex: 1, height: 1, background: 'var(--color-border)' }} />
+            </div>
+
+            <div id="google-signin-button" style={{ width: '100%', minHeight: 40, display: 'flex', justifyContent: 'center' }}></div>
           </>
         ) : (
           <>
