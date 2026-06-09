@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import ProductGrid from '../components/product/ProductGrid';
+import hero1 from '../assets/hero1.jpg';
 
 const CATEGORIES = [
   { name: 'Makeup', slug: 'makeup', emoji: '💄', desc: 'Lips, Eyes & Face', gradient: 'linear-gradient(135deg, #FF6B9D, #C8496A)' },
@@ -22,75 +23,267 @@ export default function Home() {
   const [newArrivals, setNewArrivals] = useState([]);
   const [loadingFeatured, setLoadingFeatured] = useState(true);
   const [loadingNew, setLoadingNew] = useState(true);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [bestDiscountProduct, setBestDiscountProduct] = useState(null);
+  const [maxDiscountPercent, setMaxDiscountPercent] = useState(0);
 
   useEffect(() => {
     api.get('/products/featured/').then(r => { setFeatured(r.data.results || r.data); setLoadingFeatured(false); }).catch(() => setLoadingFeatured(false));
     api.get('/products/new-arrivals/').then(r => { setNewArrivals(r.data.results || r.data); setLoadingNew(false); }).catch(() => setLoadingNew(false));
+    
+    // Fetch all products to find the most discounted one
+    api.get('/products/')
+      .then(r => {
+        const prods = r.data.results || r.data;
+        if (prods && prods.length > 0) {
+          let bestProd = null;
+          let maxPct = 0;
+          prods.forEach(p => {
+            const mrp = parseFloat(p.mrp);
+            const offer = parseFloat(p.offer_price);
+            if (mrp && offer && mrp > offer) {
+              const pct = ((mrp - offer) / mrp) * 100;
+              if (pct > maxPct) {
+                maxPct = pct;
+                bestProd = p;
+              }
+            }
+          });
+          if (bestProd) {
+            setBestDiscountProduct(bestProd);
+            setMaxDiscountPercent(maxPct);
+          }
+        }
+      })
+      .catch(err => console.error("Error loading products for slider:", err));
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveSlide(current => (current + 1) % 3);
+    }, 6000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
     <div>
-      {/* ─── Hero ─────────────────────────────────────────────────────────── */}
-      <section style={{
-        background: 'linear-gradient(135deg, #1C1C2E 0%, #2D1B3D 50%, #4A1942 100%)',
-        minHeight: '85vh', display: 'flex', alignItems: 'center',
-        position: 'relative', overflow: 'hidden',
-      }}>
-        {/* Background glow effects */}
+      {/* ─── Hero Carousel ────────────────────────────────────────────────── */}
+      <section style={{ position: 'relative', height: '85vh', overflow: 'hidden', background: '#1C1C2E' }}>
+        
+        {/* Slide 1: Custom Image Uploaded */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'radial-gradient(circle at 70% 50%, rgba(200,73,106,0.25) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(201,168,76,0.15) 0%, transparent 50%)',
-        }} />
-
-        <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-          <div style={{ maxWidth: 580, animation: 'slideUp 0.7s ease' }}>
-            <div style={{
-              display: 'inline-block',
-              background: 'rgba(200,73,106,0.2)', color: '#E8849A',
-              border: '1px solid rgba(200,73,106,0.4)',
-              padding: '6px 18px', borderRadius: 99, fontSize: '0.78rem',
-              fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase',
-              marginBottom: 24,
-            }}>
-              ✨ Premium Cosmetics
-            </div>
-            <h1 className="hero-title">
-              Beauty That<br />
-              <span style={{ color: 'var(--color-primary-light)' }}>Defines You</span>
-            </h1>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: 36, lineHeight: 1.7 }}>
-              Discover authentic cosmetics from top brands.<br />
-              Makeup, Skincare & Haircare — all in one place.
-            </p>
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              <button className="btn btn-primary btn-lg" onClick={() => navigate('/products')}>
-                Shop Now
-              </button>
-              <button className="btn btn-outline btn-lg" onClick={() => navigate('/products?featured=true')}
-                style={{ borderColor: 'rgba(255,255,255,0.4)', color: 'white' }}>
-                View Offers
-              </button>
-            </div>
-            <div style={{ display: 'flex', gap: 32, marginTop: 48, color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem' }}>
-              <div><span style={{ color: 'var(--color-accent)', fontWeight: 700, fontSize: '1.2rem' }}>500+</span><br />Products</div>
-              <div><span style={{ color: 'var(--color-accent)', fontWeight: 700, fontSize: '1.2rem' }}>10K+</span><br />Happy Customers</div>
-              <div><span style={{ color: 'var(--color-accent)', fontWeight: 700, fontSize: '1.2rem' }}>100%</span><br />Authentic</div>
+          backgroundImage: `url(${hero1})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: activeSlide === 0 ? 1 : 0,
+          visibility: activeSlide === 0 ? 'visible' : 'hidden',
+          transition: 'opacity 0.8s ease-in-out, visibility 0.8s ease-in-out',
+          display: 'flex', alignItems: 'center',
+        }}>
+          {/* Dark overlay for readability */}
+          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1 }} />
+          
+          <div className="container" style={{ position: 'relative', zIndex: 2 }}>
+            <div style={{ maxWidth: 580, animation: activeSlide === 0 ? 'slideUp 0.7s ease' : 'none' }}>
+              <div style={{
+                display: 'inline-block',
+                background: 'rgba(200,73,106,0.3)', color: '#FFB3C6',
+                border: '1px solid rgba(200,73,106,0.6)',
+                padding: '6px 18px', borderRadius: 99, fontSize: '0.78rem',
+                fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase',
+                marginBottom: 24,
+              }}>
+                ✨ Premium Cosmetics & Skincare
+              </div>
+              <h1 className="hero-title" style={{ color: 'white' }}>
+                Your Glow Journey<br />
+                <span style={{ color: 'var(--color-primary-light)' }}>Begins Here</span>
+              </h1>
+              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.1rem', marginBottom: 36, lineHeight: 1.7 }}>
+                Explore dermatologist-tested cosmetics and skincare products curated to match your skin's unique needs.
+              </p>
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                <button className="btn btn-primary btn-lg" onClick={() => navigate('/products?category=skincare')}>
+                  Explore Skincare
+                </button>
+                <button className="btn btn-outline btn-lg" onClick={() => navigate('/products')}
+                  style={{ borderColor: 'rgba(255,255,255,0.6)', color: 'white' }}>
+                  All Products
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Decorative circles */}
-        <div style={{ position: 'absolute', right: '5%', top: '10%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(200,73,106,0.08)', border: '1px solid rgba(200,73,106,0.15)' }} />
-        <div style={{ position: 'absolute', right: '12%', top: '20%', width: 280, height: 280, borderRadius: '50%', background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.12)' }} />
+        {/* Slide 2: Original Landing Page Template */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(135deg, #1C1C2E 0%, #2D1B3D 50%, #4A1942 100%)',
+          opacity: activeSlide === 1 ? 1 : 0,
+          visibility: activeSlide === 1 ? 'visible' : 'hidden',
+          transition: 'opacity 0.8s ease-in-out, visibility 0.8s ease-in-out',
+          display: 'flex', alignItems: 'center',
+        }}>
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'radial-gradient(circle at 70% 50%, rgba(200,73,106,0.25) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(201,168,76,0.15) 0%, transparent 50%)',
+          }} />
+          <div className="container" style={{ position: 'relative', zIndex: 2 }}>
+            <div style={{ maxWidth: 580, animation: activeSlide === 1 ? 'slideUp 0.7s ease' : 'none' }}>
+              <div style={{
+                display: 'inline-block',
+                background: 'rgba(200,73,106,0.2)', color: '#E8849A',
+                border: '1px solid rgba(200,73,106,0.4)',
+                padding: '6px 18px', borderRadius: 99, fontSize: '0.78rem',
+                fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase',
+                marginBottom: 24,
+              }}>
+                ✨ Premium Cosmetics
+              </div>
+              <h1 className="hero-title" style={{ color: 'white' }}>
+                Beauty That<br />
+                <span style={{ color: 'var(--color-primary-light)' }}>Defines You</span>
+              </h1>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: 36, lineHeight: 1.7 }}>
+                Discover authentic cosmetics from top brands.<br />
+                Makeup, Skincare & Haircare — all in one place.
+              </p>
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                <button className="btn btn-primary btn-lg" onClick={() => navigate('/products')}>
+                  Shop Now
+                </button>
+                <button className="btn btn-outline btn-lg" onClick={() => navigate('/products?is_featured=true')}
+                  style={{ borderColor: 'rgba(255,255,255,0.4)', color: 'white' }}>
+                  View Offers
+                </button>
+              </div>
+            </div>
+          </div>
+          <div style={{ position: 'absolute', right: '5%', top: '10%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(200,73,106,0.08)', border: '1px solid rgba(200,73,106,0.15)' }} />
+          <div style={{ position: 'absolute', right: '12%', top: '20%', width: 280, height: 280, borderRadius: '50%', background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.12)' }} />
+        </div>
+
+        {/* Slide 3: Most Discounted Item Banner */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(135deg, #1C1C2E 0%, #29153B 50%, #15253A 100%)',
+          opacity: activeSlide === 2 ? 1 : 0,
+          visibility: activeSlide === 2 ? 'visible' : 'hidden',
+          transition: 'opacity 0.8s ease-in-out, visibility 0.8s ease-in-out',
+          display: 'flex', alignItems: 'center',
+        }}>
+          <div className="container" style={{ position: 'relative', zIndex: 2, width: '100%' }}>
+            {bestDiscountProduct ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 40, animation: activeSlide === 2 ? 'slideUp 0.7s ease' : 'none' }}>
+                <div style={{ maxWidth: 550 }}>
+                  <div style={{
+                    display: 'inline-block',
+                    background: 'rgba(201,168,76,0.2)', color: '#FFD369',
+                    border: '1px solid rgba(201,168,76,0.4)',
+                    padding: '6px 18px', borderRadius: 99, fontSize: '0.78rem',
+                    fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
+                    marginBottom: 24,
+                  }}>
+                    🔥 Deal of the Day: {maxDiscountPercent.toFixed(0)}% OFF
+                  </div>
+                  <h1 className="hero-title" style={{ color: 'white', fontSize: 'clamp(2rem, 4vw, 3rem)' }}>
+                    {bestDiscountProduct.name}
+                  </h1>
+                  <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: 28, lineHeight: 1.6 }}>
+                    Get this bestseller now at an unbeatable price! Only COD and free shipping above ₹500.
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 36 }}>
+                    <span style={{ fontSize: '2.5rem', fontWeight: 800, color: '#FFD369' }}>₹{bestDiscountProduct.offer_price}</span>
+                    <span style={{ fontSize: '1.4rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>₹{bestDiscountProduct.mrp}</span>
+                  </div>
+                  <button className="btn btn-primary btn-lg" onClick={() => navigate(`/products/${bestDiscountProduct.id}`)}>
+                    Grab this Offer
+                  </button>
+                </div>
+                {/* Floating Product Image on the Right */}
+                <div className="hidden-mobile" style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: 24,
+                  padding: 24,
+                  maxWidth: 380,
+                  width: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
+                  backdropFilter: 'blur(10px)',
+                }}>
+                  <img 
+                    src={bestDiscountProduct.primary_image || bestDiscountProduct.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500'} 
+                    alt={bestDiscountProduct.name} 
+                    style={{ height: 260, objectFit: 'contain', borderRadius: 16, marginBottom: 20 }}
+                  />
+                  <div style={{ color: 'white', fontWeight: 700, fontSize: '1.1rem', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {bestDiscountProduct.name}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ maxWidth: 580 }}>
+                <div style={{
+                  display: 'inline-block',
+                  background: 'rgba(201,168,76,0.2)', color: '#FFD369',
+                  border: '1px solid rgba(201,168,76,0.4)',
+                  padding: '6px 18px', borderRadius: 99, fontSize: '0.78rem',
+                  fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
+                  marginBottom: 24,
+                }}>
+                  🔥 Exclusive Offers
+                </div>
+                <h1 className="hero-title" style={{ color: 'white' }}>
+                  Mega Beauty<br />
+                  <span style={{ color: '#FFD369' }}>Discounts</span>
+                </h1>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: 36 }}>
+                  Don't miss our highest discount items. Quality makeup and skincare at unbeatable prices!
+                </p>
+                <button className="btn btn-primary btn-lg" onClick={() => navigate('/products?is_featured=true')}>
+                  View Bestsellers
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Carousel indicators/dots */}
+        <div style={{
+          position: 'absolute', bottom: 30, left: '50%', transform: 'translateX(-50%)',
+          display: 'flex', gap: 12, zIndex: 10,
+        }}>
+          {[0, 1, 2].map(idx => (
+            <button
+              key={idx}
+              onClick={() => setActiveSlide(idx)}
+              style={{
+                width: activeSlide === idx ? 28 : 10,
+                height: 10,
+                borderRadius: 99,
+                background: activeSlide === idx ? 'var(--color-primary)' : 'rgba(255,255,255,0.3)',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+              }}
+            />
+          ))}
+        </div>
       </section>
 
-      {/* ─── Offer Banner ─────────────────────────────────────────────────── */}
-      <div style={{
-        background: 'linear-gradient(90deg, var(--color-primary-dark), var(--color-primary), var(--color-primary-light))',
-        padding: '14px 0', textAlign: 'center', color: 'white',
-        fontSize: '0.9rem', fontWeight: 600, letterSpacing: '0.5px',
-      }}>
-        🎉 FREE Delivery on orders above ₹500 &nbsp;|&nbsp; Use code <strong>BEAUTY20</strong> for 20% off your first order!
+      {/* ─── Moving Offer Banner ─────────────────────────────────────────── */}
+      <div className="marquee-container">
+        <div className="marquee-track">
+          <span className="marquee-item">🚚 FREE Delivery on orders above ₹500 &nbsp;|&nbsp; Only COD available</span>
+          <span className="marquee-item">🚚 FREE Delivery on orders above ₹500 &nbsp;|&nbsp; Only COD available</span>
+          <span className="marquee-item">🚚 FREE Delivery on orders above ₹500 &nbsp;|&nbsp; Only COD available</span>
+          <span className="marquee-item">🚚 FREE Delivery on orders above ₹500 &nbsp;|&nbsp; Only COD available</span>
+          <span className="marquee-item">🚚 FREE Delivery on orders above ₹500 &nbsp;|&nbsp; Only COD available</span>
+        </div>
       </div>
 
       {/* ─── Categories ───────────────────────────────────────────────────── */}
@@ -210,8 +403,33 @@ export default function Home() {
       </section>
 
       <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .marquee-container {
+          overflow: hidden;
+          white-space: nowrap;
+          background: linear-gradient(90deg, var(--color-primary-dark), var(--color-primary), var(--color-primary-light));
+          padding: 14px 0;
+          color: white;
+          font-size: 0.95rem;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .marquee-track {
+          display: inline-block;
+          white-space: nowrap;
+          animation: marquee 25s linear infinite;
+        }
+        .marquee-item {
+          display: inline-block;
+          padding: 0 40px;
+        }
         @media (max-width: 768px) {
           .hero-title { font-size: 2.2rem !important; }
+          .hidden-mobile { display: none !important; }
           [style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
           [style*="grid-template-columns: repeat(3, 1fr)"] { grid-template-columns: 1fr !important; }
         }
