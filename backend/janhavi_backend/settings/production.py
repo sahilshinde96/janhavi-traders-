@@ -15,6 +15,7 @@ DATABASES = {
 EMAIL_BACKEND = 'janhavi_backend.email_backends.HTTPSEmailBackend'
 RESEND_API_KEY = config('RESEND_API_KEY', default='')
 BREVO_API_KEY = config('BREVO_API_KEY', default='')
+FAST2SMS_API_KEY = config('FAST2SMS_API_KEY', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Janhavi Traders <noreply@janhavitraders.com>')
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

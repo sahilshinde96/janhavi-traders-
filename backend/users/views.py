@@ -29,6 +29,39 @@ def send_otp_email_async(subject, message, from_email, recipient_list, code):
         # If sending fails (e.g. SMTP timeout, auth error, port blocked), log it
         print(f"\n[EMAIL] [DEV] (SMTP Failed: {e}) OTP for {recipient_list[0]}: {code}\n")
 
+def send_otp_sms_async(identifier, code):
+    fast2sms_key = getattr(settings, 'FAST2SMS_API_KEY', '')
+    if not fast2sms_key:
+        return
+    try:
+        import urllib.request
+        import json
+        
+        url = "https://www.fast2sms.com/dev/bulkV2"
+        payload = {
+            "route": "otp",
+            "variables_values": code,
+            "numbers": identifier,
+        }
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode('utf-8'),
+            headers={
+                "authorization": fast2sms_key,
+                "Content-Type": "application/json"
+            },
+            method='POST'
+        )
+        with urllib.request.urlopen(req, timeout=10) as response:
+            res_body = response.read().decode('utf-8')
+            res_data = json.loads(res_body)
+            if res_data.get('return') is True:
+                print(f"\n[SMS] [Fast2SMS] Sent successfully to {identifier}! Message: {res_data.get('message')}\n")
+            else:
+                print(f"\n[SMS] [Fast2SMS] Send failed to {identifier}: {res_data.get('message')}\n")
+    except Exception as e:
+        print(f"\n[SMS] [Fast2SMS] Failed to send SMS to {identifier}: {e}\n")
+
 class SendOTPView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -81,8 +114,16 @@ class SendOTPView(APIView):
                 print(f'\n[EMAIL] [DEV] (No SMTP/HTTPS Configured) OTP for {identifier}: {code}\n')
 
         else:
-            # SMS: log to console (integrate Fast2SMS/Twilio in production)
-            print(f'\n[SMS] [DEV] OTP for {identifier}: {code}\n')
+            fast2sms_key = getattr(settings, 'FAST2SMS_API_KEY', '')
+            if fast2sms_key:
+                threading.Thread(
+                    target=send_otp_sms_async,
+                    args=(identifier, code),
+                    daemon=True
+                ).start()
+                print(f'\n[SMS] [DEV] (Fast2SMS Triggered) OTP for {identifier}: {code}\n')
+            else:
+                print(f'\n[SMS] [DEV] (No SMS Configured) OTP for {identifier}: {code}\n')
 
         return Response({
             'message': f'OTP sent to {identifier}',
