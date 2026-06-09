@@ -4,6 +4,7 @@ import {
   Warehouse, LogOut, ChevronRight,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import logo from '../../assets/logo.jpg';
 
 const NAV = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
@@ -26,10 +27,13 @@ export default function AdminSidebar() {
       display: 'flex', flexDirection: 'column', zIndex: 100, boxShadow: '4px 0 20px rgba(0,0,0,0.2)',
     }}>
       {/* Brand */}
-      <div style={{ padding: '28px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <h2 style={{ fontFamily: 'var(--font-display)', color: 'white', fontSize: '1.2rem', fontWeight: 700, marginBottom: 4 }}>
-          JANHAVI<span style={{ color: 'var(--color-primary-light)' }}> TRADERS</span>
-        </h2>
+      <div style={{ padding: '24px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+          <img src={logo} alt="Janhavi Traders Logo" style={{ height: 36, width: 36, borderRadius: '50%', objectFit: 'cover' }} />
+          <h2 style={{ fontFamily: 'var(--font-display)', color: 'white', fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+            JANHAVI<span style={{ color: 'var(--color-primary-light)' }}> TRADERS</span>
+          </h2>
+        </div>
         <span style={{
           background: 'rgba(200,73,106,0.2)', color: '#E8849A',
           border: '1px solid rgba(200,73,106,0.3)', padding: '3px 10px',

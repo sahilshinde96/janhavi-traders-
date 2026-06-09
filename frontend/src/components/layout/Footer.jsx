@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Instagram, Facebook, Twitter, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import logo from '../../assets/logo.jpg';
 
 export default function Footer() {
   const navigate = useNavigate();
@@ -24,7 +25,10 @@ export default function Footer() {
           <div className="footer-grid">
             {/* Brand */}
             <div>
-              <div className="footer-logo">JANHAVI <span>TRADERS</span></div>
+              <div className="footer-logo" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                <img src={logo} alt="Janhavi Traders Logo" style={{ height: 40, width: 40, borderRadius: '50%', objectFit: 'cover' }} />
+                <span>JANHAVI <span>TRADERS</span></span>
+              </div>
               <p className="footer-tagline">
                 Your trusted destination for premium, authentic cosmetics and beauty products.
                 Beauty that defines you. 💄
