@@ -11,8 +11,22 @@ from .serializers import (
     UserSerializer, UserAddressSerializer
 )
 
-
 import threading
+import urllib.request
+import urllib.error
+import json
+import logging
+
+logger = logging.getLogger(__name__)
+
+def normalize_phone(phone_str):
+    """Normalize Indian phone numbers to a standard 10-digit format."""
+    cleaned = ''.join(c for c in phone_str if c.isdigit())
+    if len(cleaned) == 12 and cleaned.startswith('91'):
+        cleaned = cleaned[2:]
+    elif len(cleaned) == 11 and cleaned.startswith('0'):
+        cleaned = cleaned[1:]
+    return cleaned
 
 def send_otp_email_async(subject, message, from_email, recipient_list, code):
     try:
@@ -24,27 +38,25 @@ def send_otp_email_async(subject, message, from_email, recipient_list, code):
             recipient_list=recipient_list,
             fail_silently=False,
         )
-        print(f"\n[EMAIL] [SMTP] Email sent successfully to {recipient_list[0]}!\n")
+        print(f"\n[EMAIL] [SMTP] Email sent successfully to {recipient_list[0]}!\n", flush=True)
+        logger.info(f"[EMAIL] [SMTP] Email sent successfully to {recipient_list[0]}!")
     except Exception as e:
         # If sending fails (e.g. SMTP timeout, auth error, port blocked), log it
-        print(f"\n[EMAIL] [DEV] (SMTP Failed: {e}) OTP for {recipient_list[0]}: {code}\n")
+        print(f"\n[EMAIL] [DEV] (SMTP Failed: {e}) OTP for {recipient_list[0]}: {code}\n", flush=True)
+        logger.error(f"[EMAIL] [DEV] (SMTP Failed: {e}) OTP for {recipient_list[0]}: {code}")
 
 def send_otp_sms_async(identifier, code):
     fast2sms_key = getattr(settings, 'FAST2SMS_API_KEY', '')
     if not fast2sms_key:
+        logger.warning("[SMS] [Fast2SMS] No API Key configured.")
+        print("[SMS] [Fast2SMS] No API Key configured.", flush=True)
         return
-    try:
-        import urllib.request
-        import json
-        
-        # Fast2SMS requires a clean 10-digit mobile number for Indian routing
-        cleaned_number = ''.join(c for c in identifier if c.isdigit())
-        if len(cleaned_number) > 10:
-            if cleaned_number.startswith('91') and len(cleaned_number) == 12:
-                cleaned_number = cleaned_number[2:]
-            elif cleaned_number.startswith('0') and len(cleaned_number) == 11:
-                cleaned_number = cleaned_number[1:]
+    
+    cleaned_number = normalize_phone(identifier)
+    print(f"\n[SMS] [Fast2SMS] Attempting to send OTP {code} to {cleaned_number}...\n", flush=True)
+    logger.info(f"[SMS] [Fast2SMS] Attempting to send OTP {code} to {cleaned_number}...")
 
+    try:
         url = "https://www.fast2sms.com/dev/bulkV2"
         payload = {
             "route": "otp",
@@ -56,7 +68,8 @@ def send_otp_sms_async(identifier, code):
             data=json.dumps(payload).encode('utf-8'),
             headers={
                 "authorization": fast2sms_key,
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "accept": "application/json"
             },
             method='POST'
         )
@@ -64,11 +77,25 @@ def send_otp_sms_async(identifier, code):
             res_body = response.read().decode('utf-8')
             res_data = json.loads(res_body)
             if res_data.get('return') is True:
-                print(f"\n[SMS] [Fast2SMS] Sent successfully to {cleaned_number}! Message: {res_data.get('message')}\n")
+                success_msg = f"[SMS] [Fast2SMS] Sent successfully to {cleaned_number}! Message: {res_data.get('message')}"
+                print(f"\n{success_msg}\n", flush=True)
+                logger.info(success_msg)
             else:
-                print(f"\n[SMS] [Fast2SMS] Send failed to {cleaned_number}: {res_data.get('message')}\n")
+                fail_msg = f"[SMS] [Fast2SMS] Send failed to {cleaned_number}: {res_data.get('message')} (Response: {res_body})"
+                print(f"\n{fail_msg}\n", flush=True)
+                logger.error(fail_msg)
+    except urllib.error.HTTPError as e:
+        try:
+            err_body = e.read().decode('utf-8')
+            err_msg = f"[SMS] [Fast2SMS] HTTP Error {e.code} sending SMS to {cleaned_number}: {err_body}"
+        except Exception:
+            err_msg = f"[SMS] [Fast2SMS] HTTP Error {e.code} sending SMS to {cleaned_number} (Could not read body)"
+        print(f"\n{err_msg}\n", flush=True)
+        logger.error(err_msg)
     except Exception as e:
-        print(f"\n[SMS] [Fast2SMS] Failed to send SMS to {identifier}: {e}\n")
+        err_msg = f"[SMS] [Fast2SMS] Failed to send SMS to {identifier}: {e}"
+        print(f"\n{err_msg}\n", flush=True)
+        logger.error(err_msg)
 
 class SendOTPView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -80,6 +107,11 @@ class SendOTPView(APIView):
 
         identifier = serializer.validated_data['identifier'].strip().lower()
         otp_type = serializer.validated_data['type']
+
+        if otp_type == 'phone':
+            identifier = normalize_phone(identifier)
+            if len(identifier) != 10 or not identifier.isdigit():
+                return Response({'error': 'Please enter a valid 10-digit Indian phone number.'}, status=400)
 
         # Invalidate old OTPs
         OTP.objects.filter(identifier=identifier, is_used=False).update(is_used=True)
@@ -116,10 +148,12 @@ class SendOTPView(APIView):
                     daemon=True
                 ).start()
                 # Also print to logs immediately as backup
-                print(f'\n[EMAIL] [DEV] (SMTP/HTTPS Triggered) OTP for {identifier}: {code}\n')
+                print(f'\n[EMAIL] [DEV] (SMTP/HTTPS Triggered) OTP for {identifier}: {code}\n', flush=True)
+                logger.info(f"[EMAIL] [DEV] (SMTP/HTTPS Triggered) OTP for {identifier}: {code}")
             else:
                 # Fallback to console print if SMTP/HTTPS is not configured in environment
-                print(f'\n[EMAIL] [DEV] (No SMTP/HTTPS Configured) OTP for {identifier}: {code}\n')
+                print(f'\n[EMAIL] [DEV] (No SMTP/HTTPS Configured) OTP for {identifier}: {code}\n', flush=True)
+                logger.info(f"[EMAIL] [DEV] (No SMTP/HTTPS Configured) OTP for {identifier}: {code}")
 
         else:
             fast2sms_key = getattr(settings, 'FAST2SMS_API_KEY', '')
@@ -129,9 +163,11 @@ class SendOTPView(APIView):
                     args=(identifier, code),
                     daemon=True
                 ).start()
-                print(f'\n[SMS] [DEV] (Fast2SMS Triggered) OTP for {identifier}: {code}\n')
+                print(f'\n[SMS] [DEV] (Fast2SMS Triggered) OTP for {identifier}: {code}\n', flush=True)
+                logger.info(f"[SMS] [DEV] (Fast2SMS Triggered) OTP for {identifier}: {code}")
             else:
-                print(f'\n[SMS] [DEV] (No SMS Configured) OTP for {identifier}: {code}\n')
+                print(f'\n[SMS] [DEV] (No SMS Configured) OTP for {identifier}: {code}\n', flush=True)
+                logger.warning(f"[SMS] [DEV] (No SMS Configured) OTP for {identifier}: {code}")
 
         return Response({
             'message': f'OTP sent to {identifier}',
@@ -151,6 +187,9 @@ class VerifyOTPView(APIView):
         otp_type = serializer.validated_data['type']
         code = serializer.validated_data['code']
 
+        if otp_type == 'phone':
+            identifier = normalize_phone(identifier)
+
         # Find latest valid OTP
         otp = OTP.objects.filter(
             identifier=identifier, code=code, is_used=False
@@ -167,6 +206,7 @@ class VerifyOTPView(APIView):
             user, created = User.objects.get_or_create(email=identifier)
         else:
             user, created = User.objects.get_or_create(phone=identifier)
+
 
         user.is_verified = True
         user.save(update_fields=['is_verified'])
