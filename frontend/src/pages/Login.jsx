@@ -32,12 +32,16 @@ export default function Login() {
     setLoading(true);
     try {
       const { data } = await api.post('/auth/google/', { credential: response.credential });
-      login(data.user, data.access, data.refresh);
-      toast.success(data.is_new_user ? 'Welcome to Janhavi Traders! 🎉' : 'Welcome back! 👋');
-      navigate(data.user.is_staff ? '/admin' : from, { replace: true });
+      
+      // Escape Google's third-party callback context to ensure React Router navigates correctly
+      setTimeout(() => {
+        login(data.user, data.access, data.refresh);
+        toast.success(data.is_new_user ? 'Welcome to Janhavi Traders! 🎉' : 'Welcome back! 👋');
+        navigate(data.user.is_staff ? '/admin' : from, { replace: true });
+        setLoading(false);
+      }, 100);
     } catch (err) {
       toast.error(err.response?.data?.error || 'Google Sign-in failed. Please try again.');
-    } finally {
       setLoading(false);
     }
   };
