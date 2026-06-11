@@ -100,7 +100,7 @@ export default function Footer() {
               <div style={{ marginTop: 20 }}>
                 <div className="footer-section-title" style={{ marginBottom: 10 }}>We Accept</div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  {['COD', 'UPI', 'Cards'].map((m) => (
+                  {['Cash On Delivery'].map((m) => (
                     <span
                       key={m}
                       style={{
