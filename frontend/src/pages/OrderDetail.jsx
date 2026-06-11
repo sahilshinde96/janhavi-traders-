@@ -124,7 +124,7 @@ export default function OrderDetail() {
               <p style={{ fontWeight: 600 }}>💵 Payment: Cash on Delivery</p>
             </div>
 
-            {['placed', 'confirmed', 'packed', 'shipped'].includes(order.status) && (
+            {['placed', 'confirmed', 'packed', 'shipped', 'out_for_delivery'].includes(order.status) && (
               <button 
                 className="btn btn-outline" 
                 style={{ 

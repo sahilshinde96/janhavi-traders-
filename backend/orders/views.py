@@ -207,8 +207,8 @@ class CancelOrderView(APIView):
         except Order.DoesNotExist:
             return Response({'error': 'Order not found'}, status=404)
 
-        if order.status in ['out_for_delivery', 'delivered']:
-            return Response({'error': 'Order cannot be cancelled as it is already out for delivery or delivered.'}, status=400)
+        if order.status == 'delivered':
+            return Response({'error': 'Order cannot be cancelled as it has already been delivered.'}, status=400)
         elif order.status == 'cancelled':
             return Response({'error': 'Order is already cancelled.'}, status=400)
 
