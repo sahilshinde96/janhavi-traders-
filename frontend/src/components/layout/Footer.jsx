@@ -87,9 +87,9 @@ export default function Footer() {
               <div className="footer-section-title">Contact Us</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {[
-                  { Icon: Mail, text: 'support@janhavitrades.com' },
-                  { Icon: Phone, text: '+91 98765 43210' },
-                  { Icon: MapPin, text: 'Mumbai, Maharashtra, India' },
+                  { Icon: Mail, text: 'janhavitraderss@gmail.com' },
+                  { Icon: Phone, text: '+91 8928762528' },
+                  { Icon: MapPin, text: 'kalyan, Maharashtra, India' },
                 ].map(({ Icon, text }) => (
                   <div key={text} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: '0.875rem', color: 'rgba(255,255,255,0.6)' }}>
                     <Icon size={16} style={{ marginTop: 2, flexShrink: 0, color: 'var(--color-primary-light)' }} />
