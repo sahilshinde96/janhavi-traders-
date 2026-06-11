@@ -198,3 +198,28 @@ class AdminDashboardView(APIView):
             'recent_orders': OrderSerializer(recent_orders, many=True).data,
             'status_counts': status_counts,
         })
+
+
+class CancelOrderView(APIView):
+    def post(self, request, pk):
+        try:
+            order = Order.objects.get(pk=pk, user=request.user)
+        except Order.DoesNotExist:
+            return Response({'error': 'Order not found'}, status=404)
+
+        if order.status in ['out_for_delivery', 'delivered']:
+            return Response({'error': 'Order cannot be cancelled as it is already out for delivery or delivered.'}, status=400)
+        elif order.status == 'cancelled':
+            return Response({'error': 'Order is already cancelled.'}, status=400)
+
+        with transaction.atomic():
+            order.status = 'cancelled'
+            order.save(update_fields=['status', 'updated_at'])
+            
+            for item in order.items.select_related('product').all():
+                if item.product:
+                    item.product.stock_qty += item.quantity
+                    item.product.save(update_fields=['stock_qty'])
+                    
+        return Response(OrderSerializer(order).data)
+

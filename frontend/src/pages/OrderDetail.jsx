@@ -3,12 +3,29 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ExternalLink } from 'lucide-react';
 import api from '../api/axios';
 import OrderTracker from '../components/order/OrderTracker';
+import toast from 'react-hot-toast';
 
 export default function OrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showConfirmCancel, setShowConfirmCancel] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+
+  const handleCancelOrder = async () => {
+    setCancelling(true);
+    try {
+      const { data } = await api.post(`/orders/${id}/cancel/`);
+      setOrder(data);
+      setShowConfirmCancel(false);
+      toast.success('Order cancelled successfully');
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to cancel order');
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   useEffect(() => {
     api.get(`/orders/${id}/`).then(r => { setOrder(r.data); setLoading(false); }).catch(() => { setLoading(false); navigate('/orders'); });
@@ -106,6 +123,23 @@ export default function OrderDetail() {
             <div style={{ background: 'var(--color-bg)', borderRadius: 8, padding: '10px 14px', fontSize: '0.8rem' }}>
               <p style={{ fontWeight: 600 }}>💵 Payment: Cash on Delivery</p>
             </div>
+
+            {['placed', 'confirmed', 'packed', 'shipped'].includes(order.status) && (
+              <button 
+                className="btn btn-outline" 
+                style={{ 
+                  width: '100%', 
+                  marginTop: 16, 
+                  justifyContent: 'center', 
+                  color: '#dc2626', 
+                  borderColor: '#dc2626',
+                  fontWeight: 600
+                }}
+                onClick={() => setShowConfirmCancel(true)}
+              >
+                Cancel Order
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -116,6 +150,46 @@ export default function OrderDetail() {
           [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
         }
       `}</style>
+
+      {showConfirmCancel && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          backdropFilter: 'blur(4px)',
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: 16,
+            padding: 32,
+            maxWidth: 400,
+            width: '90%',
+            boxShadow: 'var(--shadow-lg)',
+            textAlign: 'center',
+            border: '1px solid var(--color-border)',
+          }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: 12, color: 'var(--color-primary)' }}>Cancel Order?</h3>
+            <p style={{ color: 'var(--color-text-medium)', fontSize: '0.875rem', lineHeight: 1.5, marginBottom: 24 }}>
+              Are you sure you want to cancel your Order #{order.id}? This action cannot be undone and will restore stock items.
+            </p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+              <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowConfirmCancel(false)} disabled={cancelling}>
+                No, Keep Order
+              </button>
+              <button className="btn btn-primary" style={{ flex: 1, backgroundColor: '#dc2626', borderColor: '#dc2626', color: 'white' }} onClick={handleCancelOrder} disabled={cancelling}>
+                {cancelling ? 'Cancelling...' : 'Yes, Cancel'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

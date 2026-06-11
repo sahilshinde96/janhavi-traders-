@@ -8,4 +8,5 @@ urlpatterns = [
     path('admin/dashboard/', views.AdminDashboardView.as_view(), name='admin-dashboard'),
     path('admin/<int:pk>/status/', views.UpdateOrderStatusView.as_view(), name='update-status'),
     path('<int:pk>/', views.OrderDetailView.as_view(), name='order-detail'),
+    path('<int:pk>/cancel/', views.CancelOrderView.as_view(), name='cancel-order'),
 ]
