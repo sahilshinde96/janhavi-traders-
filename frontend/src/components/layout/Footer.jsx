@@ -75,7 +75,7 @@ export default function Footer() {
             {/* Help */}
             <div>
               <div className="footer-section-title">Help</div>
-              {['FAQ', 'Returns & Exchange', 'Shipping Policy', 'Track Order', 'Contact Us', 'Privacy Policy'].map((item) => (
+              {['Returns & Exchange', 'Shipping Policy', 'Track Order', 'Contact Us', 'Privacy Policy'].map((item) => (
                 <button key={item} className="footer-link" onClick={() => {}}>
                   {item}
                 </button>
