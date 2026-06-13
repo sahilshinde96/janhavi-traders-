@@ -32,7 +32,7 @@ export default function Checkout() {
   const items = cart?.items || [];
   const subtotal = parseFloat(cart?.total || 0);
   const discount = appliedCoupon ? parseFloat(appliedCoupon.discount_amount) : 0;
-  const deliveryCharge = subtotal >= 500 ? 0 : (subtotal > 0 ? 50 : 0);
+  const deliveryCharge = 0;
   const total = subtotal - discount + deliveryCharge;
 
   const handleAddAddress = async () => {
@@ -50,6 +50,10 @@ export default function Checkout() {
   };
 
   const handlePlaceOrder = async () => {
+    if (subtotal < 150) {
+      toast.error('Minimum order value is ₹150');
+      return;
+    }
     if (!selectedAddress && !showNewForm) { toast.error('Please select a delivery address'); return; }
 
     let address = selectedAddress;

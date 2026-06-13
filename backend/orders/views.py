@@ -12,10 +12,9 @@ from .models import Order, OrderItem
 from .serializers import OrderSerializer
 
 # --- Delivery Charge Settings ---
-# Change DELIVERY_CHARGE to edit the standard shipping fee (in INR/currency units).
-# Change FREE_DELIVERY_ABOVE to adjust the minimum subtotal required to qualify for free shipping.
-DELIVERY_CHARGE = Decimal('50.00')
-FREE_DELIVERY_ABOVE = Decimal('500.00')
+DELIVERY_CHARGE = Decimal('0.00')
+FREE_DELIVERY_ABOVE = Decimal('0.00')
+MINIMUM_ORDER_VALUE = Decimal('150.00')
 
 
 class PlaceOrderView(APIView):
@@ -24,6 +23,9 @@ class PlaceOrderView(APIView):
         cart = Cart.objects.filter(user=request.user).first()
         if not cart or not cart.items.exists():
             return Response({'error': 'Your cart is empty'}, status=400)
+
+        if cart.total < MINIMUM_ORDER_VALUE:
+            return Response({'error': f'Minimum order value is ₹{MINIMUM_ORDER_VALUE:.0f}'}, status=400)
 
         address = request.data.get('address')
         if not address:

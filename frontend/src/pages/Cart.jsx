@@ -17,7 +17,7 @@ export default function Cart() {
   const items = cart?.items || [];
   const subtotal = parseFloat(cart?.total || 0);
   const discount = appliedCoupon ? parseFloat(appliedCoupon.discount_amount) : 0;
-  const deliveryCharge = subtotal >= 500 ? 0 : (subtotal > 0 ? 50 : 0);
+  const deliveryCharge = 0;
   const total = subtotal - discount + deliveryCharge;
 
   const handleApplyCoupon = async () => {
@@ -136,13 +136,11 @@ export default function Cart() {
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
                 <span style={{ color: 'var(--color-text-medium)' }}>Delivery</span>
-                <span style={{ color: deliveryCharge === 0 ? 'var(--color-success)' : undefined }}>
-                  {deliveryCharge === 0 ? 'FREE' : `₹${deliveryCharge}`}
-                </span>
+                <span style={{ color: 'var(--color-success)' }}>FREE</span>
               </div>
-              {deliveryCharge > 0 && subtotal > 0 && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-primary)' }}>
-                  Add ₹{(500 - subtotal).toFixed(0)} more for free delivery!
+              {subtotal < 150 && (
+                <p style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 600, marginTop: 4 }}>
+                  Minimum order value is ₹150. Add ₹{(150 - subtotal).toFixed(0)} more to checkout.
                 </p>
               )}
             </div>
@@ -154,8 +152,17 @@ export default function Cart() {
               <span style={{ color: 'var(--color-primary)' }}>₹{total.toFixed(0)}</span>
             </div>
 
-            <button className="btn btn-primary btn-lg" style={{ width: '100%', justifyContent: 'center' }}
-              onClick={() => navigate('/checkout', { state: { appliedCoupon } })}>
+            <button 
+              className="btn btn-primary btn-lg" 
+              style={{ 
+                width: '100%', 
+                justifyContent: 'center', 
+                opacity: subtotal < 150 ? 0.6 : 1, 
+                cursor: subtotal < 150 ? 'not-allowed' : 'pointer' 
+              }}
+              disabled={subtotal < 150}
+              onClick={() => navigate('/checkout', { state: { appliedCoupon } })}
+            >
               Proceed to Checkout
             </button>
 
