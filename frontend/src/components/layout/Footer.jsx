@@ -76,7 +76,17 @@ export default function Footer() {
             <div>
               <div className="footer-section-title">Help</div>
               {['Returns & Exchange', 'Shipping Policy', 'Track Order', 'Contact Us', 'Privacy Policy'].map((item) => (
-                <button key={item} className="footer-link" onClick={() => {}}>
+                <button
+                  key={item}
+                  className="footer-link"
+                  onClick={() => {
+                    if (item === 'Privacy Policy') {
+                      navigate('/privacy-policy');
+                    } else if (item === 'Returns & Exchange') {
+                      navigate('/returns-policy');
+                    }
+                  }}
+                >
                   {item}
                 </button>
               ))}
@@ -122,7 +132,7 @@ export default function Footer() {
             <span>© {year} Janhavi Traders. All rights reserved.</span>
             <div style={{ display: 'flex', gap: 20 }}>
               <button className="footer-link" style={{ margin: 0 }}>Terms of Service</button>
-              <button className="footer-link" style={{ margin: 0 }}>Privacy Policy</button>
+              <button className="footer-link" style={{ margin: 0 }} onClick={() => navigate('/privacy-policy')}>Privacy Policy</button>
             </div>
           </div>
         </div>

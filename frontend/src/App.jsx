@@ -15,6 +15,8 @@ import MyOrders from './pages/MyOrders';
 import OrderDetail from './pages/OrderDetail';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import ReturnPolicy from './pages/ReturnPolicy';
 
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -84,6 +86,8 @@ export default function App() {
         <Route path="/orders" element={<ProtectedRoute><Layout><MyOrders /></Layout></ProtectedRoute>} />
         <Route path="/orders/:id" element={<ProtectedRoute><Layout><OrderDetail /></Layout></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>} />
+        <Route path="/privacy-policy" element={<Layout><PrivacyPolicy /></Layout>} />
+        <Route path="/returns-policy" element={<Layout><ReturnPolicy /></Layout>} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>

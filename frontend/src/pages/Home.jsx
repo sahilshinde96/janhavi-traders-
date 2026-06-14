@@ -273,11 +273,11 @@ export default function Home() {
       {/* ─── Moving Offer Banner ─────────────────────────────────────────── */}
       <div className="marquee-container">
         <div className="marquee-track">
-          <span className="marquee-item">🚚 FREE Delivery on orders above ₹500 &nbsp;|&nbsp; Only COD available</span>
-          <span className="marquee-item">🚚 FREE Delivery on orders above ₹500 &nbsp;|&nbsp; Only COD available</span>
-          <span className="marquee-item">🚚 FREE Delivery on orders above ₹500 &nbsp;|&nbsp; Only COD available</span>
-          <span className="marquee-item">🚚 FREE Delivery on orders above ₹500 &nbsp;|&nbsp; Only COD available</span>
-          <span className="marquee-item">🚚 FREE Delivery on orders above ₹500 &nbsp;|&nbsp; Only COD available</span>
+          <span className="marquee-item">🚚 FREE Delivery  &nbsp;|&nbsp; Only COD available</span>
+          <span className="marquee-item">🚚 FREE Delivery  &nbsp;|&nbsp; Only COD available</span>
+          <span className="marquee-item">🚚 FREE Delivery  &nbsp;|&nbsp; Only COD available</span>
+          <span className="marquee-item">🚚 FREE Delivery  &nbsp;|&nbsp; Only COD available</span>
+          <span className="marquee-item">🚚 FREE Delivery  &nbsp;|&nbsp; Only COD available</span>
         </div>
       </div>
 
