@@ -131,7 +131,7 @@ export default function Navbar() {
             </button>
 
             {/* Account */}
-            <div className="nav-dropdown-wrapper" ref={accRef}>
+            <div className="nav-dropdown-wrapper hidden-mobile" ref={accRef}>
               <button
                 className="navbar-icon-btn"
                 onClick={() => {
