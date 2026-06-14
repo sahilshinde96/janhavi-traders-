@@ -84,6 +84,8 @@ export default function Footer() {
                       navigate('/privacy-policy');
                     } else if (item === 'Returns & Exchange') {
                       navigate('/returns-policy');
+                    } else if (item === 'Contact Us') {
+                      navigate('/contact-us');
                     }
                   }}
                 >
@@ -99,7 +101,7 @@ export default function Footer() {
                 {[
                   { Icon: Mail, text: 'janhavitraderss@gmail.com' },
                   { Icon: Phone, text: '+91 8928762528' },
-                  { Icon: MapPin, text: 'kalyan, Maharashtra, India' },
+                  { Icon: MapPin, text: 'Kalyan, Maharashtra, India' },
                 ].map(({ Icon, text }) => (
                   <div key={text} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: '0.875rem', color: 'rgba(255,255,255,0.6)' }}>
                     <Icon size={16} style={{ marginTop: 2, flexShrink: 0, color: 'var(--color-primary-light)' }} />
@@ -131,7 +133,7 @@ export default function Footer() {
           <div className="footer-bottom">
             <span>© {year} Janhavi Traders. All rights reserved.</span>
             <div style={{ display: 'flex', gap: 20 }}>
-              <button className="footer-link" style={{ margin: 0 }}>Terms of Service</button>
+              <button className="footer-link" style={{ margin: 0 }} onClick={() => navigate('/terms-of-service')}>Terms of Service</button>
               <button className="footer-link" style={{ margin: 0 }} onClick={() => navigate('/privacy-policy')}>Privacy Policy</button>
             </div>
           </div>
