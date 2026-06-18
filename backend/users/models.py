@@ -55,7 +55,13 @@ class OTP(models.Model):
         ordering = ['-created_at']
 
     def is_valid(self):
-        return not self.is_used and timezone.now() < self.created_at + timedelta(minutes=10)
+        # Validate if OTP code has expired or was already used (BUG-07 fix).
+        # We dynamicize expiration by reading OTP_EXPIRY_MINUTES from Django settings,
+        # fallback to 10 minutes if not present. This prevents hardcoding expiry.
+        from django.conf import settings
+        expiry_minutes = getattr(settings, 'OTP_EXPIRY_MINUTES', 10)
+        return not self.is_used and timezone.now() < self.created_at + timedelta(minutes=expiry_minutes)
+
 
     @classmethod
     def generate_code(cls):

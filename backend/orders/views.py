@@ -2,7 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions, generics
 from django.db import transaction
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, F
+from django.db.models.functions import Greatest
 from django.utils import timezone
 from decimal import Decimal
 
@@ -81,9 +82,15 @@ class PlaceOrderView(APIView):
                 unit_price=item.product.offer_price,
                 subtotal=item.subtotal,
             )
-            # Decrement stock
-            item.product.stock_qty = max(0, item.product.stock_qty - item.quantity)
-            item.product.save(update_fields=['stock_qty'])
+            # Decrement stock atomically to prevent race conditions (BUG-03 fix).
+            # By using Django's F() expression, the subtraction happens directly at the database level in SQL:
+            # `UPDATE products_product SET stock_qty = GREATEST(stock_qty - quantity, 0) WHERE id = ...`.
+            # This guarantees correct values even if multiple orders are placed simultaneously.
+            from products.models import Product
+            Product.objects.filter(pk=item.product.pk).update(
+                stock_qty=Greatest(F('stock_qty') - item.quantity, 0)
+            )
+
 
         # Record coupon use
         if coupon_code and discount > 0:

@@ -7,13 +7,14 @@ import {
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
+import api from '../../api/axios';
 import logo from '../../assets/logo.jpg';
 
-const categories = [
-  { name: 'Makeup', slug: 'makeup', emoji: '💄' },
-  { name: 'Skincare', slug: 'skincare', emoji: '💧' },
-  { name: 'Haircare', slug: 'haircare', emoji: '🌿' },
-  { name: 'Fragrances', slug: 'fragrances', emoji: '✨' },
+const FALLBACK_CATEGORIES = [
+  { name: 'Makeup', slug: 'makeup' },
+  { name: 'Skincare', slug: 'skincare' },
+  { name: 'Haircare', slug: 'haircare' },
+  { name: 'Fragrances', slug: 'fragrances' },
 ];
 
 export default function Navbar() {
@@ -26,9 +27,25 @@ export default function Navbar() {
   const [accountDropdown, setAccountDropdown] = useState(false);
   const [searchVal, setSearchVal] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
+  // Dynamic categories state. We initialize it with FALLBACK_CATEGORIES to ensure
+  // layout integrity while the network request loads or if the backend is offline (BUG-08/BUG-09/Navbar issue fix).
+  const [categories, setCategories] = useState(FALLBACK_CATEGORIES);
   const catRef = useRef(null);
   const accRef = useRef(null);
   const itemCount = cart?.item_count || 0;
+
+  // Fetch categories dynamically from the Django backend API instead of using hardcoded links.
+  // This ensures categories are kept in sync with the database dashboard updates.
+  useEffect(() => {
+    api.get('/products/categories/').then(r => {
+      const cats = r.data.results || r.data;
+      if (cats && cats.length > 0) setCategories(cats);
+    }).catch(() => {
+      // If the backend fails to load or times out, we keep the FALLBACK_CATEGORIES
+      // so the store remains browseable.
+    });
+  }, []);
+
 
   // Close dropdowns on outside click
   useEffect(() => {

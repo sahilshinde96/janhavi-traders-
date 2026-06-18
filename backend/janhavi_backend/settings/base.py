@@ -5,7 +5,11 @@ from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-janhavi-traders-secret-key-change-in-prod-2024')
+# SECRET_KEY is dynamically loaded from environment variables using decouple's config function.
+# For security reasons, we do not provide a fallback default value, forcing the application to fail to boot in production
+# if the environment does not have a SECRET_KEY configured (BUG-06 fix).
+SECRET_KEY = config('SECRET_KEY')
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -78,6 +82,19 @@ REST_FRAMEWORK = {
     # Change 'PAGE_SIZE' value if you want more or fewer items loaded per API call page.
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
+    # Rate limiting / throttling to prevent API abuse and denial-of-service attempts (BUG-04 fix).
+    # We apply global AnonRateThrottle and UserRateThrottle by default.
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    # Configure request limits: 30 requests/minute for anonymous users, 60 requests/minute
+    # for logged-in users, and a strict limit of 3 requests/minute specifically for the OTP endpoint.
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '30/minute',
+        'user': '60/minute',
+        'otp': '3/minute',
+    },
 }
 
 # --- JSON Web Token Authentication Configurations ---
@@ -91,10 +108,25 @@ SIMPLE_JWT = {
 }
 
 # --- CORS (Cross-Origin Resource Sharing) Configuration ---
-# If you want to restrict which websites can send requests to this backend,
-# set CORS_ALLOW_ALL_ORIGINS = False and define CORS_ALLOWED_ORIGINS list.
-CORS_ALLOW_ALL_ORIGINS = True
+# To prevent unauthorized external websites from accessing our API in production, we disable
+# CORS_ALLOW_ALL_ORIGINS and restrict allowed origins strictly to the official frontend domains (BUG-05 fix).
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = [
+    'https://janhavitraders.com',
+    'https://www.janhavitraders.com',
+]
+
+# Allow localhost for development environment (only if DEBUG is set to True in the environment/.env)
+# so developers can test the frontend SPA locally.
+DEBUG = config('DEBUG', default=False, cast=bool)
+if DEBUG:
+    CORS_ALLOWED_ORIGINS += [
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'http://127.0.0.1:5173',
+    ]
 CORS_ALLOW_CREDENTIALS = True
+
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Kolkata'

@@ -41,7 +41,14 @@ export const useCartStore = create((set, get) => ({
     } catch {}
   },
 
-  clearCart: () => set({ cart: null }),
+  // clearCart was previously synchronous, but Checkout.jsx awaited it.
+  // We updated it to be async, calling DELETE /cart/ on the backend server to clear the persistent session cart
+  // before setting the client-side cart state to null (BUG-09 fix).
+  clearCart: async () => {
+    try { await api.delete('/cart/'); } catch {}
+    set({ cart: null });
+  },
+
 
   openCart: () => set({ isOpen: true }),
   closeCart: () => set({ isOpen: false }),

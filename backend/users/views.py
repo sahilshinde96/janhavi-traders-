@@ -1,9 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import permissions, generics
+from rest_framework import permissions, generics, throttling
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
 from django.conf import settings
+from django.conf import settings as django_settings
 
 from .models import User, OTP, UserProfile, UserAddress
 from .serializers import (
@@ -38,23 +39,30 @@ def send_otp_email_async(subject, message, from_email, recipient_list, code):
             recipient_list=recipient_list,
             fail_silently=False,
         )
-        print(f"\n[EMAIL] [SMTP] Email sent successfully to {recipient_list[0]}!\n", flush=True)
         logger.info(f"[EMAIL] [SMTP] Email sent successfully to {recipient_list[0]}!")
     except Exception as e:
         # If sending fails (e.g. SMTP timeout, auth error, port blocked), log it
-        print(f"\n[EMAIL] [DEV] (SMTP Failed: {e}) OTP for {recipient_list[0]}: {code}\n", flush=True)
-        logger.error(f"[EMAIL] [DEV] (SMTP Failed: {e}) OTP for {recipient_list[0]}: {code}")
+        logger.error(f"[EMAIL] [SMTP] Failed to send email to {recipient_list[0]}: {e}")
+        # Only print the OTP code to terminal/logs in debug/development mode (BUG-02 fix).
+        # This prevents credentials leaking in production logs.
+        if django_settings.DEBUG:
+            print(f"\n[EMAIL] [DEV] (SMTP Failed: {e}) OTP for {recipient_list[0]}: {code}\n", flush=True)
 
 def send_otp_sms_async(identifier, code):
     fast2sms_key = getattr(settings, 'FAST2SMS_API_KEY', '')
     if not fast2sms_key:
         logger.warning("[SMS] [Fast2SMS] No API Key configured.")
-        print("[SMS] [Fast2SMS] No API Key configured.", flush=True)
+        # Only output config warnings to console during local development.
+        if django_settings.DEBUG:
+            print("[SMS] [Fast2SMS] No API Key configured.", flush=True)
         return
     
     cleaned_number = normalize_phone(identifier)
-    print(f"\n[SMS] [Fast2SMS] Attempting to send OTP {code} to {cleaned_number}...\n", flush=True)
-    logger.info(f"[SMS] [Fast2SMS] Attempting to send OTP {code} to {cleaned_number}...")
+    logger.info(f"[SMS] [Fast2SMS] Attempting to send OTP to {cleaned_number}...")
+    # Hide raw OTP codes from production server stdout/stderr logs (BUG-02 fix).
+    if django_settings.DEBUG:
+        print(f"\n[SMS] [Fast2SMS] Attempting to send OTP {code} to {cleaned_number}...\n", flush=True)
+
 
     try:
         url = "https://www.fast2sms.com/dev/bulkV2"
@@ -78,11 +86,9 @@ def send_otp_sms_async(identifier, code):
             res_data = json.loads(res_body)
             if res_data.get('return') is True:
                 success_msg = f"[SMS] [Fast2SMS] Sent successfully to {cleaned_number}! Message: {res_data.get('message')}"
-                print(f"\n{success_msg}\n", flush=True)
                 logger.info(success_msg)
             else:
                 fail_msg = f"[SMS] [Fast2SMS] Send failed to {cleaned_number}: {res_data.get('message')} (Response: {res_body})"
-                print(f"\n{fail_msg}\n", flush=True)
                 logger.error(fail_msg)
     except urllib.error.HTTPError as e:
         try:
@@ -90,15 +96,24 @@ def send_otp_sms_async(identifier, code):
             err_msg = f"[SMS] [Fast2SMS] HTTP Error {e.code} sending SMS to {cleaned_number}: {err_body}"
         except Exception:
             err_msg = f"[SMS] [Fast2SMS] HTTP Error {e.code} sending SMS to {cleaned_number} (Could not read body)"
-        print(f"\n{err_msg}\n", flush=True)
         logger.error(err_msg)
     except Exception as e:
         err_msg = f"[SMS] [Fast2SMS] Failed to send SMS to {identifier}: {e}"
         print(f"\n{err_msg}\n", flush=True)
         logger.error(err_msg)
 
+# Custom rate throttle for OTP requests to prevent brute force or financial/resource abuse (BUG-04 fix).
+# Limits requests per IP based on the 'otp' key rate configured under DEFAULT_THROTTLE_RATES in settings.
+class OTPRateThrottle(throttling.AnonRateThrottle):
+    """Limits OTP requests to 3 per minute per IP to prevent brute-force and SMS/email abuse."""
+    scope = 'otp'
+
+# View for initiating standard User OTP login.
+# Applies OTPRateThrottle to prevent email/SMS bombardment.
 class SendOTPView(APIView):
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [OTPRateThrottle]
+
 
     def post(self, request):
         serializer = SendOTPSerializer(data=request.data)
@@ -147,13 +162,17 @@ class SendOTPView(APIView):
                     args=(subject, message, from_email, recipient_list, code),
                     daemon=True
                 ).start()
-                # Also print to logs immediately as backup
-                print(f'\n[EMAIL] [DEV] (SMTP/HTTPS Triggered) OTP for {identifier}: {code}\n', flush=True)
-                logger.info(f"[EMAIL] [DEV] (SMTP/HTTPS Triggered) OTP for {identifier}: {code}")
+                logger.info(f"[EMAIL] OTP email triggered for {identifier}")
+                # Only print the generated code to the console/stdout in local development (DEBUG=True) (BUG-02 fix).
+                # This avoids exposing temporary authentication codes in production environment logs.
+                if django_settings.DEBUG:
+                    print(f'\n[EMAIL] [DEV] OTP for {identifier}: {code}\n', flush=True)
             else:
                 # Fallback to console print if SMTP/HTTPS is not configured in environment
-                print(f'\n[EMAIL] [DEV] (No SMTP/HTTPS Configured) OTP for {identifier}: {code}\n', flush=True)
-                logger.info(f"[EMAIL] [DEV] (No SMTP/HTTPS Configured) OTP for {identifier}: {code}")
+                logger.warning(f"[EMAIL] No SMTP/HTTPS configured for {identifier}")
+                # Only print the generated code to console/stdout in local development (BUG-02 fix).
+                if django_settings.DEBUG:
+                    print(f'\n[EMAIL] [DEV] (No SMTP/HTTPS Configured) OTP for {identifier}: {code}\n', flush=True)
 
         else:
             fast2sms_key = getattr(settings, 'FAST2SMS_API_KEY', '')
@@ -163,11 +182,15 @@ class SendOTPView(APIView):
                     args=(identifier, code),
                     daemon=True
                 ).start()
-                print(f'\n[SMS] [DEV] (Fast2SMS Triggered) OTP for {identifier}: {code}\n', flush=True)
-                logger.info(f"[SMS] [DEV] (Fast2SMS Triggered) OTP for {identifier}: {code}")
+                logger.info(f"[SMS] OTP SMS triggered for {identifier}")
+                # Only print the generated code to local development terminal (BUG-02 fix).
+                if django_settings.DEBUG:
+                    print(f'\n[SMS] [DEV] OTP for {identifier}: {code}\n', flush=True)
             else:
-                print(f'\n[SMS] [DEV] (No SMS Configured) OTP for {identifier}: {code}\n', flush=True)
-                logger.warning(f"[SMS] [DEV] (No SMS Configured) OTP for {identifier}: {code}")
+                logger.warning(f"[SMS] No SMS provider configured for {identifier}")
+                # Only print the generated code to local development terminal (BUG-02 fix).
+                if django_settings.DEBUG:
+                    print(f'\n[SMS] [DEV] (No SMS Configured) OTP for {identifier}: {code}\n', flush=True)
 
         return Response({
             'message': f'OTP sent to {identifier}',

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './store/authStore';
+import { Component } from 'react';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import CartDrawer from './components/cart/CartDrawer';
@@ -29,6 +30,58 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminOrderDetail from './pages/admin/AdminOrderDetail';
 import AdminDiscounts from './pages/admin/AdminDiscounts';
 import AdminInventory from './pages/admin/AdminInventory';
+
+// Error Boundary to prevent white screen crashes (BUG-13 fix).
+// This React Class Component catches JavaScript errors anywhere in their child component tree,
+// logs those errors to the console, and displays a fallback UI instead of crashing the entire site.
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  // Update state so the next render will show the fallback UI
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  // Log error details for diagnostics
+  componentDidCatch(error, info) {
+    console.error('[ErrorBoundary] Caught error:', error, info.componentStack);
+  }
+
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          minHeight: '60vh', display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', gap: 20, padding: 40,
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: '3rem' }}>😢</div>
+          <h2 style={{ fontFamily: 'var(--font-display, Inter, sans-serif)', fontSize: '1.6rem', fontWeight: 700, marginBottom: 4 }}>
+            Something went wrong
+          </h2>
+          <p style={{ color: '#666', maxWidth: 400, lineHeight: 1.6 }}>
+            We're sorry — an unexpected error occurred. Please try refreshing the page.
+          </p>
+          <button
+            onClick={() => { this.setState({ hasError: false, error: null }); window.location.reload(); }}
+            style={{
+              background: 'var(--color-primary, #C8496A)', color: 'white',
+              border: 'none', borderRadius: 10, padding: '12px 32px',
+              fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem',
+            }}
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuthStore();
@@ -61,6 +114,9 @@ export default function App() {
           success: { iconTheme: { primary: '#C8496A', secondary: '#fff' } },
         }}
       />
+      {/* Wrap all application routes inside the ErrorBoundary so that any page render crash */}
+      {/* shows the user-friendly fallback screen instead of failing entirely (BUG-13 fix). */}
+      <ErrorBoundary>
       <Routes>
         {/* Public */}
         <Route path="/login" element={<Login />} />
@@ -94,6 +150,7 @@ export default function App() {
         <Route path="/contact-us" element={<Layout><ContactUs /></Layout>} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }

@@ -192,9 +192,12 @@ export default function Home() {
                     <span style={{ fontSize: '2.5rem', fontWeight: 800, color: '#FFD369' }}>₹{bestDiscountProduct.offer_price}</span>
                     <span style={{ fontSize: '1.4rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>₹{bestDiscountProduct.mrp}</span>
                   </div>
-                  <button className="btn btn-primary btn-lg" onClick={() => navigate(`/products/${bestDiscountProduct.id}`)}>
+                  {/* Route page redirection uses product slug (e.g. '/products/my-face-wash') instead of database id */}
+                  {/* to match the routing definitions and prevent a 404 error page (BUG-01/BUG-03 fix). */}
+                  <button className="btn btn-primary btn-lg" onClick={() => navigate(`/products/${bestDiscountProduct.slug}`)}>
                     Grab this Offer
                   </button>
+
                 </div>
                 {/* Floating Product Image on the Right */}
                 <div className="hidden-mobile" style={{

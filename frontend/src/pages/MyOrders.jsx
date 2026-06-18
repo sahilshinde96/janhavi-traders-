@@ -16,10 +16,32 @@ export default function MyOrders() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Pagination State (BUG-12 fix).
+  // Stores the current page index, checks if there are next/previous pages in the paginated response,
+  // and tracks the total order counts.
+  const [page, setPage] = useState(1);
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrev, setHasPrev] = useState(false);
+  const [total, setTotal] = useState(0);
 
-  useEffect(() => {
-    api.get('/orders/').then(r => { setOrders(r.data.results || r.data); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
+  // Fetch orders from API for a specific page number
+  const fetchOrders = (p = 1) => {
+    setLoading(true);
+    api.get(`/orders/?page=${p}`).then(r => {
+      // Handle standard paginated objects returned by Django Rest Framework (e.g. { results, count, next, previous })
+      // as well as fallback lists.
+      setOrders(r.data.results || r.data);
+      setTotal(r.data.count || 0);
+      setHasNext(!!r.data.next);
+      setHasPrev(!!r.data.previous);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  };
+
+  // Re-fetch orders whenever the page state changes.
+  useEffect(() => { fetchOrders(page); }, [page]);
+
 
   if (loading) return (
     <div className="container" style={{ padding: '40px 20px' }}>
@@ -78,6 +100,15 @@ export default function MyOrders() {
           );
         })}
       </div>
+
+      {/* Pagination */}
+      {total > 20 && (
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', alignItems: 'center', marginTop: 24 }}>
+          <button className="btn btn-ghost btn-sm" disabled={!hasPrev} onClick={() => setPage(p => p - 1)}>← Previous</button>
+          <span style={{ padding: '8px 16px', fontSize: '0.875rem', color: 'var(--color-text-medium)' }}>Page {page} of {Math.ceil(total / 20)}</span>
+          <button className="btn btn-ghost btn-sm" disabled={!hasNext} onClick={() => setPage(p => p + 1)}>Next →</button>
+        </div>
+      )}
     </div>
   );
 }

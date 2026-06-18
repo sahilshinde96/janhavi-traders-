@@ -28,6 +28,12 @@ export default function Login() {
 
   if (isAuthenticated) return null;
 
+  // Google Sign-In callback stale closure workaround (BUG-10 fix).
+  // Because the Google client library initializes once and holds a reference to the callback,
+  // any updates to component state or props (like the 'from' redirect path) would not be captured.
+  // Using a mutable useRef allows us to always retrieve the latest callback reference inside the callback wrapper.
+  const googleCallbackRef = useRef(null);
+
   const handleGoogleCredentialResponse = async (response) => {
     setLoading(true);
     try {
@@ -46,6 +52,9 @@ export default function Login() {
     }
   };
 
+  // Keep the ref updated with the latest handler callback on every render.
+  googleCallbackRef.current = handleGoogleCredentialResponse;
+
   useEffect(() => {
     const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
     if (!googleClientId) {
@@ -56,7 +65,8 @@ export default function Login() {
       if (window.google?.accounts?.id) {
         window.google.accounts.id.initialize({
           client_id: googleClientId,
-          callback: handleGoogleCredentialResponse,
+          // Instead of passing the stale function direct reference, we pass a wrapper that calls the latest ref.
+          callback: (response) => googleCallbackRef.current(response),
         });
         
         const btnContainer = document.getElementById('google-signin-button');
