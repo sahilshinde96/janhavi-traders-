@@ -217,19 +217,23 @@ export default function Checkout() {
               <div style={{
                 background: selectedAddress.latitude === null
                   ? 'var(--color-warning-light, #FFF3E0)'
-                  : (calculatedDistance <= 10 ? 'var(--color-success-light, #E8F5E9)' : 'var(--color-error-light, #FFEBEE)'),
+                  : (calculatedDistance !== null && calculatedDistance <= 10 ? 'var(--color-success-light, #E8F5E9)' : 'var(--color-error-light, #FFEBEE)'),
                 color: selectedAddress.latitude === null
                   ? 'var(--color-warning, #F57C00)'
-                  : (calculatedDistance <= 10 ? 'var(--color-success, #2E7D32)' : 'var(--color-error, #C62828)'),
+                  : (calculatedDistance !== null && calculatedDistance <= 10 ? 'var(--color-success, #2E7D32)' : 'var(--color-error, #C62828)'),
                 padding: '12px 16px', borderRadius: 10, fontSize: '0.85rem', fontWeight: 700, margin: '16px 0',
                 border: '1px solid currentColor'
               }}>
                 {selectedAddress.latitude === null ? (
                   <span>⚠️ This address is missing GPS coordinates. Please add a new address using "Use My Current Location" below.</span>
                 ) : (
-                  calculatedDistance <= 10
-                    ? `🟢 Deliverable: Located ${calculatedDistance.toFixed(1)} km from store (within 10km range)`
-                    : `🔴 Undeliverable: Located ${calculatedDistance.toFixed(1)} km from store (exceeds 10km range limit)`
+                  calculatedDistance !== null ? (
+                    calculatedDistance <= 10
+                      ? `🟢 Deliverable: Located ${calculatedDistance.toFixed(1)} km from store (within 10km range)`
+                      : `🔴 Undeliverable: Located ${calculatedDistance.toFixed(1)} km from store (exceeds 10km range limit)`
+                  ) : (
+                    <span>⏳ Calculating distance...</span>
+                  )
                 )}
               </div>
             )}
@@ -250,7 +254,7 @@ export default function Checkout() {
                 </div>
 
                 {/* GPS Pin range status indicator */}
-                {newAddr.latitude !== null && (
+                {newAddr.latitude !== null && calculatedDistance !== null && (
                   <div style={{
                     background: calculatedDistance <= 10 ? 'var(--color-success-light, #E8F5E9)' : 'var(--color-error-light, #FFEBEE)',
                     color: calculatedDistance <= 10 ? 'var(--color-success, #2E7D32)' : 'var(--color-error, #C62828)',
