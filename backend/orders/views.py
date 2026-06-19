@@ -37,6 +37,42 @@ class PlaceOrderView(APIView):
             if not address.get(field, '').strip():
                 return Response({'error': f'Address field "{field}" is required'}, status=400)
 
+        # Geofencing validation: check if delivery address is within the max radius (BUG-14)
+        lat = address.get('latitude')
+        lon = address.get('longitude')
+        if lat is None or lon is None:
+            return Response({
+                'error': 'Location coordinates (GPS) are required for delivery address verification. '
+                         'Please select or pin your location on the address form.'
+            }, status=400)
+
+        try:
+            lat = float(lat)
+            lon = float(lon)
+        except (ValueError, TypeError):
+            return Response({'error': 'Invalid location coordinates'}, status=400)
+
+        # Calculate distance using Haversine formula
+        import math
+        store_lat = getattr(settings, 'STORE_LATITUDE', 19.213000)
+        store_lon = getattr(settings, 'STORE_LONGITUDE', 73.151000)
+        max_radius = getattr(settings, 'MAX_DELIVERY_RADIUS_KM', 10.0)
+
+        # Convert latitude and longitude from degrees to radians
+        dlat = math.radians(lat - store_lat)
+        dlon = math.radians(lon - store_lon)
+        a = (math.sin(dlat / 2) ** 2 +
+             math.cos(math.radians(store_lat)) * math.cos(math.radians(lat)) *
+             math.sin(dlon / 2) ** 2)
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        distance = 6371.0 * c  # Earth radius is ~6371km
+
+        if distance > max_radius:
+            return Response({
+                'error': f'Delivery is only available within {max_radius:.0f}km of our store. '
+                         f'Your location is {distance:.1f}km away.'
+            }, status=400)
+
         # Compute totals
         subtotal = cart.total
         coupon_code = request.data.get('coupon_code', '').strip().upper()
@@ -63,6 +99,8 @@ class PlaceOrderView(APIView):
             address_city=address['city'],
             address_state=address['state'],
             address_pincode=address['pincode'],
+            latitude=lat,
+            longitude=lon,
             subtotal=subtotal,
             discount_amount=discount,
             delivery_charge=delivery_charge,

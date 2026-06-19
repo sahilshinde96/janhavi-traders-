@@ -23,6 +23,9 @@ class Order(models.Model):
     address_city = models.CharField(max_length=100)
     address_state = models.CharField(max_length=100)
     address_pincode = models.CharField(max_length=10)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='placed')
     payment_method = models.CharField(max_length=20, default='cod')

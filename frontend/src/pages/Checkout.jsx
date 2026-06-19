@@ -17,7 +17,80 @@ export default function Checkout() {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [showNewForm, setShowNewForm] = useState(false);
   const [placing, setPlacing] = useState(false);
-  const [newAddr, setNewAddr] = useState({ label: 'Home', name: '', phone: '', line1: '', line2: '', city: '', state: 'Maharashtra', pincode: '' });
+  const [newAddr, setNewAddr] = useState({
+    label: 'Home', name: '', phone: '', line1: '', line2: '', city: '',
+    state: 'Maharashtra', pincode: '', latitude: null, longitude: null
+  });
+
+  // Geolocation and geofencing states
+  const [fetchingLocation, setFetchingLocation] = useState(false);
+  const [calculatedDistance, setCalculatedDistance] = useState(null);
+
+  // Store coordinates (Pisavli Village, Kalyan East, Kalyan, Maharashtra 421306)
+  const STORE_LAT = 19.213000;
+  const STORE_LON = 73.151000;
+
+  // Calculate distance between two coordinates using the Haversine formula (BUG-14)
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Earth radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  // Automatically recalculate distance whenever the active address selection or its coordinates change
+  useEffect(() => {
+    let lat = null, lon = null;
+    if (selectedAddress) {
+      lat = selectedAddress.latitude;
+      lon = selectedAddress.longitude;
+    } else if (showNewForm) {
+      lat = newAddr.latitude;
+      lon = newAddr.longitude;
+    }
+
+    if (lat !== null && lat !== undefined && lon !== null && lon !== undefined) {
+      const dist = calculateDistance(STORE_LAT, STORE_LON, lat, lon);
+      setCalculatedDistance(dist);
+    } else {
+      setCalculatedDistance(null);
+    }
+  }, [selectedAddress, newAddr.latitude, newAddr.longitude, showNewForm]);
+
+  // Request browser geolocation coordinates (GPS) using HTML5 API
+  const handleFetchCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser");
+      return;
+    }
+    setFetchingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setNewAddr(prev => ({
+          ...prev,
+          latitude,
+          longitude,
+        }));
+        setFetchingLocation(false);
+        toast.success("Location coordinates pinned successfully!");
+      },
+      (error) => {
+        setFetchingLocation(false);
+        if (error.code === error.PERMISSION_DENIED) {
+          toast.error("GPS access denied. We need location permissions to verify delivery radius.");
+        } else {
+          toast.error("Failed to retrieve GPS location. Please try again.");
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
 
   useEffect(() => {
     fetchCart();
@@ -39,6 +112,10 @@ export default function Checkout() {
     const required = ['name', 'phone', 'line1', 'city', 'state', 'pincode'];
     for (const f of required) {
       if (!newAddr[f].trim()) { toast.error(`Please fill in ${f}`); return; }
+    }
+    if (newAddr.latitude === null || newAddr.longitude === null) {
+      toast.error('Please fetch your GPS coordinates using "Use My Current Location" button before saving.');
+      return;
     }
     try {
       const { data } = await api.post('/auth/addresses/', newAddr);
@@ -62,13 +139,27 @@ export default function Checkout() {
       for (const f of required) {
         if (!newAddr[f].trim()) { toast.error(`Please fill in ${f}`); return; }
       }
+      if (newAddr.latitude === null || newAddr.longitude === null) {
+        toast.error('Please fetch your GPS coordinates using "Use My Current Location" button.');
+        return;
+      }
       address = newAddr;
     }
 
     setPlacing(true);
     try {
       const { data } = await api.post('/orders/place/', {
-        address: { name: address.name, phone: address.phone, line1: address.line1, line2: address.line2 || '', city: address.city, state: address.state, pincode: address.pincode },
+        address: { 
+          name: address.name, 
+          phone: address.phone, 
+          line1: address.line1, 
+          line2: address.line2 || '', 
+          city: address.city, 
+          state: address.state, 
+          pincode: address.pincode,
+          latitude: address.latitude,
+          longitude: address.longitude
+        },
         coupon_code: appliedCoupon?.code || '',
       });
       await clearCart();
@@ -121,6 +212,28 @@ export default function Checkout() {
               </div>
             )}
 
+            {/* Geofencing distance feedback for selected saved address */}
+            {selectedAddress && (
+              <div style={{
+                background: selectedAddress.latitude === null
+                  ? 'var(--color-warning-light, #FFF3E0)'
+                  : (calculatedDistance <= 10 ? 'var(--color-success-light, #E8F5E9)' : 'var(--color-error-light, #FFEBEE)'),
+                color: selectedAddress.latitude === null
+                  ? 'var(--color-warning, #F57C00)'
+                  : (calculatedDistance <= 10 ? 'var(--color-success, #2E7D32)' : 'var(--color-error, #C62828)'),
+                padding: '12px 16px', borderRadius: 10, fontSize: '0.85rem', fontWeight: 700, margin: '16px 0',
+                border: '1px solid currentColor'
+              }}>
+                {selectedAddress.latitude === null ? (
+                  <span>⚠️ This address is missing GPS coordinates. Please add a new address using "Use My Current Location" below.</span>
+                ) : (
+                  calculatedDistance <= 10
+                    ? `🟢 Deliverable: Located ${calculatedDistance.toFixed(1)} km from store (within 10km range)`
+                    : `🔴 Undeliverable: Located ${calculatedDistance.toFixed(1)} km from store (exceeds 10km range limit)`
+                )}
+              </div>
+            )}
+
             {/* Add new */}
             <button className="btn btn-ghost btn-sm" onClick={() => { setShowNewForm(!showNewForm); setSelectedAddress(null); }}>
               <Plus size={14} /> {showNewForm ? 'Cancel' : 'Add New Address'}
@@ -128,6 +241,29 @@ export default function Checkout() {
 
             {showNewForm && (
               <div style={{ marginTop: 20, animation: 'slideDown 0.2s ease' }}>
+                {/* Geolocation Button */}
+                <div style={{ marginBottom: 16 }}>
+                  <button type="button" className="btn btn-outline" onClick={handleFetchCurrentLocation} disabled={fetchingLocation} style={{ width: '100%', justifyContent: 'center', display: 'flex', gap: 8, alignItems: 'center' }}>
+                    {fetchingLocation ? '⏳ Pining Coordinates...' : '📍 Pin My Current GPS Location *'}
+                  </button>
+                  <p style={{ fontSize: '0.72rem', color: 'var(--color-text-light)', marginTop: 4 }}>* Required to verify you are within our 10km delivery radius.</p>
+                </div>
+
+                {/* GPS Pin range status indicator */}
+                {newAddr.latitude !== null && (
+                  <div style={{
+                    background: calculatedDistance <= 10 ? 'var(--color-success-light, #E8F5E9)' : 'var(--color-error-light, #FFEBEE)',
+                    color: calculatedDistance <= 10 ? 'var(--color-success, #2E7D32)' : 'var(--color-error, #C62828)',
+                    padding: '10px 14px', borderRadius: 8, fontSize: '0.825rem', fontWeight: 600, display: 'flex', gap: 6, marginBottom: 16,
+                    border: '1px solid currentColor'
+                  }}>
+                    {calculatedDistance <= 10
+                      ? `🟢 Within Delivery Area! (Distance: ${calculatedDistance.toFixed(1)} km)`
+                      : `🔴 Out of Delivery Range! (Distance: ${calculatedDistance.toFixed(1)} km - limit is 10km)`
+                    }
+                  </div>
+                )}
+
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                   {[['name','Full Name'],['phone','Phone Number'],['line1','Address Line 1'],['line2','Address Line 2 (Optional)'],['city','City'],['pincode','PIN Code']].map(([key, label]) => (
                     <div key={key} className="form-group" style={{ marginBottom: 0 }}>
@@ -150,9 +286,7 @@ export default function Checkout() {
                     </select>
                   </div>
                 </div>
-                {addresses.length > 0 && (
-                  <button className="btn btn-outline btn-sm" style={{ marginTop: 16 }} onClick={handleAddAddress}>Save Address</button>
-                )}
+                <button className="btn btn-outline btn-sm" style={{ marginTop: 16 }} onClick={handleAddAddress}>Save Address</button>
               </div>
             )}
           </div>
@@ -206,10 +340,20 @@ export default function Checkout() {
               <span>Total</span><span style={{ color: 'var(--color-primary)' }}>₹{total.toFixed(0)}</span>
             </div>
 
-            <button className="btn btn-primary btn-lg" style={{ width: '100%', justifyContent: 'center' }}
-              onClick={handlePlaceOrder} disabled={placing}>
-              {placing ? '⏳ Placing Order...' : '✅ Place Order (COD)'}
-            </button>
+            {(() => {
+              const isCheckoutDisabled = selectedAddress
+                ? (selectedAddress.latitude === null || calculatedDistance === null || calculatedDistance > 10)
+                : (showNewForm
+                    ? (newAddr.latitude === null || calculatedDistance === null || calculatedDistance > 10)
+                    : true);
+              
+              return (
+                <button className="btn btn-primary btn-lg" style={{ width: '100%', justifyContent: 'center' }}
+                  onClick={handlePlaceOrder} disabled={placing || isCheckoutDisabled}>
+                  {placing ? '⏳ Placing Order...' : '✅ Place Order (COD)'}
+                </button>
+              );
+            })()}
 
             <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--color-text-light)', marginTop: 12 }}>
               By placing order, you agree to our terms

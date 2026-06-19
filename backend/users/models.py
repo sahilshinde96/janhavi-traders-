@@ -90,6 +90,8 @@ class UserAddress(models.Model):
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
     pincode = models.CharField(max_length=10)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
     is_default = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
