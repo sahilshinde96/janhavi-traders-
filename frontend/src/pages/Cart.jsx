@@ -153,8 +153,8 @@ export default function Cart() {
                       </div>
                     </>
                   ) : (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                      <span style={{ color: 'var(--color-text-medium)' }}>Subtotal</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', fontWeight: 600 }}>
+                      <span style={{ color: 'var(--color-text-medium)' }}>Discounted Price</span>
                       <span>₹{subtotal.toFixed(0)}</span>
                     </div>
                   )}

@@ -427,8 +427,8 @@ export default function Checkout() {
                       </div>
                     </>
                   ) : (
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: 'var(--color-text-medium)' }}>Subtotal</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}>
+                      <span style={{ color: 'var(--color-text-medium)' }}>Discounted Price</span>
                       <span>₹{subtotal.toFixed(0)}</span>
                     </div>
                   )}

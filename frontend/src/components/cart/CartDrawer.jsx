@@ -142,8 +142,8 @@ export default function CartDrawer() {
         {items.length > 0 && (
           <div style={{ padding: '20px 24px', borderTop: '1px solid var(--color-border)' }}>
             <div style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: '0.875rem' }}>
-                <span style={{ color: 'var(--color-text-medium)' }}>Subtotal</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: '0.875rem', fontWeight: 600 }}>
+                <span style={{ color: 'var(--color-text-medium)' }}>Discounted Price</span>
                 <span>₹{total.toFixed(0)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: '0.875rem' }}>

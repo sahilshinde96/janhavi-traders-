@@ -111,7 +111,7 @@ export default function OrderDetail() {
           <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--color-border)', position: 'sticky', top: 80 }}>
             <h3 style={{ fontWeight: 700, marginBottom: 20 }}>Price Breakdown</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: '0.875rem', marginBottom: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--color-text-medium)' }}>Subtotal</span><span>₹{parseFloat(order.subtotal).toFixed(0)}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}><span style={{ color: 'var(--color-text-medium)' }}>Discounted Price</span><span>₹{parseFloat(order.subtotal).toFixed(0)}</span></div>
               {parseFloat(order.discount_amount) > 0 && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--color-success)' }}>Discount ({order.coupon_code})</span><span style={{ color: 'var(--color-success)' }}>-₹{parseFloat(order.discount_amount).toFixed(0)}</span></div>}
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--color-text-medium)' }}>Delivery</span><span style={{ color: parseFloat(order.delivery_charge) === 0 ? 'var(--color-success)' : undefined }}>{parseFloat(order.delivery_charge) === 0 ? 'FREE' : `₹${parseFloat(order.delivery_charge).toFixed(0)}`}</span></div>
             </div>
