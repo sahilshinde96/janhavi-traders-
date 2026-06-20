@@ -391,17 +391,60 @@ export default function Checkout() {
                     <p style={{ fontSize: '0.8rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product?.name}</p>
                     <p style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Qty: {item.quantity}</p>
                   </div>
-                  <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>₹{parseFloat(item.subtotal || 0).toFixed(0)}</span>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.875rem', display: 'block' }}>₹{parseFloat(item.subtotal || 0).toFixed(0)}</span>
+                    {parseFloat(item.product?.mrp || 0) > parseFloat(item.product?.offer_price || 0) && (
+                      <span style={{ fontSize: '0.7rem', color: 'var(--color-text-light)', textDecoration: 'line-through' }}>
+                        ₹{(parseFloat(item.product.mrp) * item.quantity).toFixed(0)}
+                      </span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
 
             <div className="divider" />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, fontSize: '0.875rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--color-text-medium)' }}>Subtotal</span><span>₹{subtotal.toFixed(0)}</span></div>
-              {discount > 0 && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--color-success)' }}>Coupon Discount</span><span style={{ color: 'var(--color-success)' }}>-₹{discount.toFixed(0)}</span></div>}
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--color-text-medium)' }}>Delivery</span><span style={{ color: deliveryCharge === 0 ? 'var(--color-success)' : undefined }}>{deliveryCharge === 0 ? 'FREE' : `₹${deliveryCharge}`}</span></div>
-            </div>
+            {(() => {
+              const totalMRP = items.reduce((sum, item) => sum + parseFloat(item.product?.mrp || item.product?.offer_price || 0) * item.quantity, 0);
+              const totalOfferPrice = subtotal;
+              const productDiscount = totalMRP - totalOfferPrice;
+
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, fontSize: '0.875rem' }}>
+                  {productDiscount > 0 ? (
+                    <>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ color: 'var(--color-text-medium)' }}>Total MRP</span>
+                        <span style={{ textDecoration: 'line-through', color: 'var(--color-text-light)' }}>₹{totalMRP.toFixed(0)}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ color: 'var(--color-success)' }}>Product Discount</span>
+                        <span style={{ color: 'var(--color-success)' }}>-₹{productDiscount.toFixed(0)}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}>
+                        <span style={{ color: 'var(--color-text-medium)' }}>Discounted Price</span>
+                        <span>₹{totalOfferPrice.toFixed(0)}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--color-text-medium)' }}>Subtotal</span>
+                      <span>₹{subtotal.toFixed(0)}</span>
+                    </div>
+                  )}
+                  {discount > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--color-success)' }}>Coupon Discount</span>
+                      <span style={{ color: 'var(--color-success)' }}>-₹{discount.toFixed(0)}</span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--color-text-medium)' }}>Delivery</span>
+                    <span style={{ color: 'var(--color-success)' }}>FREE</span>
+                  </div>
+                </div>
+              );
+            })()}
             <div className="divider" />
             <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.1rem', marginBottom: 20 }}>
               <span>Total</span><span style={{ color: 'var(--color-primary)' }}>₹{total.toFixed(0)}</span>

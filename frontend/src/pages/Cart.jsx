@@ -75,8 +75,15 @@ export default function Cart() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                       <div>
-                        <span style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--color-primary)' }}>₹{parseFloat(item.subtotal || 0).toFixed(0)}</span>
-                        <span style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', marginLeft: 6 }}>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                          <span style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--color-primary)' }}>₹{parseFloat(item.subtotal || 0).toFixed(0)}</span>
+                          {parseFloat(item.product?.mrp || 0) > parseFloat(item.product?.offer_price || 0) && (
+                            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', textDecoration: 'line-through' }}>
+                              ₹{(parseFloat(item.product.mrp) * item.quantity).toFixed(0)}
+                            </span>
+                          )}
+                        </div>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', display: 'block', marginTop: 2 }}>
                           (₹{parseFloat(item.product?.offer_price || 0).toFixed(0)} each)
                         </span>
                       </div>
@@ -123,27 +130,52 @@ export default function Cart() {
             <div className="divider" />
 
             {/* Breakdown */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                <span style={{ color: 'var(--color-text-medium)' }}>Subtotal</span>
-                <span>₹{subtotal.toFixed(0)}</span>
-              </div>
-              {discount > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                  <span style={{ color: 'var(--color-success)' }}>Discount</span>
-                  <span style={{ color: 'var(--color-success)' }}>-₹{discount.toFixed(0)}</span>
+            {(() => {
+              const totalMRP = items.reduce((sum, item) => sum + parseFloat(item.product?.mrp || item.product?.offer_price || 0) * item.quantity, 0);
+              const totalOfferPrice = subtotal;
+              const productDiscount = totalMRP - totalOfferPrice;
+
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+                  {productDiscount > 0 ? (
+                    <>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                        <span style={{ color: 'var(--color-text-medium)' }}>Total MRP</span>
+                        <span style={{ textDecoration: 'line-through', color: 'var(--color-text-light)' }}>₹{totalMRP.toFixed(0)}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                        <span style={{ color: 'var(--color-success)' }}>Product Discount</span>
+                        <span style={{ color: 'var(--color-success)' }}>-₹{productDiscount.toFixed(0)}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', fontWeight: 600 }}>
+                        <span style={{ color: 'var(--color-text-medium)' }}>Discounted Price</span>
+                        <span>₹{totalOfferPrice.toFixed(0)}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                      <span style={{ color: 'var(--color-text-medium)' }}>Subtotal</span>
+                      <span>₹{subtotal.toFixed(0)}</span>
+                    </div>
+                  )}
+                  {discount > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                      <span style={{ color: 'var(--color-success)' }}>Coupon Discount</span>
+                      <span style={{ color: 'var(--color-success)' }}>-₹{discount.toFixed(0)}</span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                    <span style={{ color: 'var(--color-text-medium)' }}>Delivery</span>
+                    <span style={{ color: 'var(--color-success)' }}>FREE</span>
+                  </div>
+                  {subtotal < 150 && (
+                    <p style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 600, marginTop: 4 }}>
+                      Minimum order value is ₹150. Add ₹{(150 - subtotal).toFixed(0)} more to checkout.
+                    </p>
+                  )}
                 </div>
-              )}
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                <span style={{ color: 'var(--color-text-medium)' }}>Delivery</span>
-                <span style={{ color: 'var(--color-success)' }}>FREE</span>
-              </div>
-              {subtotal < 150 && (
-                <p style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 600, marginTop: 4 }}>
-                  Minimum order value is ₹150. Add ₹{(150 - subtotal).toFixed(0)} more to checkout.
-                </p>
-              )}
-            </div>
+              );
+            })()}
 
             <div className="divider" />
 
