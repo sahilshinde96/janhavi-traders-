@@ -85,7 +85,7 @@ export default function Checkout() {
           }
           reject(error);
         },
-        { enableHighAccuracy: true, timeout: 10000 }
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
       );
     });
   };
