@@ -41,7 +41,8 @@ class PlaceOrderView(APIView):
         # Geofencing validation: check if delivery address is within the max radius (BUG-14)
         lat = address.get('latitude')
         lon = address.get('longitude')
-        if lat is None or lon is None:
+        
+        if lat in (None, '', 'null', 'None') or lon in (None, '', 'null', 'None'):
             return Response({
                 'error': 'Location coordinates (GPS) are required for delivery address verification. '
                          'Please select or pin your location on the address form.'

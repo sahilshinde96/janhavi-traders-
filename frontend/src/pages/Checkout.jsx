@@ -45,16 +45,16 @@ export default function Checkout() {
 
   // Automatically recalculate distance whenever the active address selection or its coordinates change
   useEffect(() => {
-    let lat = null, lon = null;
+    let lat = NaN, lon = NaN;
     if (selectedAddress) {
-      lat = selectedAddress.latitude;
-      lon = selectedAddress.longitude;
+      lat = parseFloat(selectedAddress.latitude);
+      lon = parseFloat(selectedAddress.longitude);
     } else if (showNewForm) {
-      lat = newAddr.latitude;
-      lon = newAddr.longitude;
+      lat = parseFloat(newAddr.latitude);
+      lon = parseFloat(newAddr.longitude);
     }
 
-    if (lat !== null && lat !== undefined && lon !== null && lon !== undefined) {
+    if (!isNaN(lat) && !isNaN(lon)) {
       const dist = calculateDistance(STORE_LAT, STORE_LON, lat, lon);
       setCalculatedDistance(dist);
     } else {
@@ -62,34 +62,72 @@ export default function Checkout() {
     }
   }, [selectedAddress, newAddr.latitude, newAddr.longitude, showNewForm]);
 
-  // Request browser geolocation coordinates (GPS) using HTML5 API
-  const handleFetchCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("Geolocation is not supported by your browser");
-      return;
-    }
+  // Request browser geolocation coordinates (GPS) helper
+  const getBrowserLocation = () => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        toast.error("Geolocation is not supported by your browser");
+        reject(new Error("Not supported"));
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+        },
+        (error) => {
+          if (error.code === error.PERMISSION_DENIED) {
+            toast.error("GPS access denied. We need location permissions to verify delivery radius.");
+          } else {
+            toast.error("Failed to retrieve GPS location. Please try again.");
+          }
+          reject(error);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+  };
+
+  // Request browser geolocation coordinates (GPS) using HTML5 API for new address form
+  const handleFetchCurrentLocation = async () => {
     setFetchingLocation(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setNewAddr(prev => ({
-          ...prev,
-          latitude,
-          longitude,
-        }));
-        setFetchingLocation(false);
-        toast.success("Location coordinates pinned successfully!");
-      },
-      (error) => {
-        setFetchingLocation(false);
-        if (error.code === error.PERMISSION_DENIED) {
-          toast.error("GPS access denied. We need location permissions to verify delivery radius.");
-        } else {
-          toast.error("Failed to retrieve GPS location. Please try again.");
-        }
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+    try {
+      const coords = await getBrowserLocation();
+      setNewAddr(prev => ({
+        ...prev,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+      }));
+      toast.success("Location coordinates pinned successfully!");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setFetchingLocation(false);
+    }
+  };
+
+  // Update existing saved address with coordinates
+  const handlePinCoordinatesToAddress = async (addressId) => {
+    setFetchingLocation(true);
+    try {
+      const coords = await getBrowserLocation();
+      const { data } = await api.put(`/auth/addresses/${addressId}/`, {
+        latitude: coords.latitude,
+        longitude: coords.longitude
+      });
+      // Update local state list
+      setAddresses(prev => prev.map(addr => addr.id === addressId ? data : addr));
+      // Update selectedAddress to reflect the updated coordinates immediately
+      setSelectedAddress(data);
+      toast.success("GPS coordinates pinned to this address successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update coordinates for the address.");
+    } finally {
+      setFetchingLocation(false);
+    }
   };
 
   useEffect(() => {
@@ -213,30 +251,55 @@ export default function Checkout() {
             )}
 
             {/* Geofencing distance feedback for selected saved address */}
-            {selectedAddress && (
-              <div style={{
-                background: selectedAddress.latitude === null
-                  ? 'var(--color-warning-light, #FFF3E0)'
-                  : (calculatedDistance !== null && calculatedDistance <= 10 ? 'var(--color-success-light, #E8F5E9)' : 'var(--color-error-light, #FFEBEE)'),
-                color: selectedAddress.latitude === null
-                  ? 'var(--color-warning, #F57C00)'
-                  : (calculatedDistance !== null && calculatedDistance <= 10 ? 'var(--color-success, #2E7D32)' : 'var(--color-error, #C62828)'),
-                padding: '12px 16px', borderRadius: 10, fontSize: '0.85rem', fontWeight: 700, margin: '16px 0',
-                border: '1px solid currentColor'
-              }}>
-                {selectedAddress.latitude === null ? (
-                  <span>⚠️ This address is missing GPS coordinates. Please add a new address using "Use My Current Location" below.</span>
-                ) : (
-                  calculatedDistance !== null ? (
-                    calculatedDistance <= 10
-                      ? `🟢 Deliverable: Located ${calculatedDistance.toFixed(1)} km from store (within 10km range)`
-                      : `🔴 Undeliverable: Located ${calculatedDistance.toFixed(1)} km from store (exceeds 10km range limit)`
+            {selectedAddress && (() => {
+              const hasCoords = !isNaN(parseFloat(selectedAddress.latitude)) && !isNaN(parseFloat(selectedAddress.longitude));
+              
+              let bg = 'var(--color-neutral-light, #F5F5F5)';
+              let color = 'var(--color-text-medium, #666666)';
+              
+              if (!hasCoords) {
+                bg = 'var(--color-warning-light, #FFF3E0)';
+                color = 'var(--color-warning, #F57C00)';
+              } else if (calculatedDistance !== null) {
+                if (calculatedDistance <= 10) {
+                  bg = 'var(--color-success-light, #E8F5E9)';
+                  color = 'var(--color-success, #2E7D32)';
+                } else {
+                  bg = 'var(--color-error-light, #FFEBEE)';
+                  color = 'var(--color-error, #C62828)';
+                }
+              }
+
+              return (
+                <div style={{
+                  background: bg,
+                  color: color,
+                  padding: '12px 16px', borderRadius: 10, fontSize: '0.85rem', fontWeight: 700, margin: '16px 0',
+                  border: '1px solid currentColor',
+                  transition: 'all 0.2s ease'
+                }}>
+                  {!hasCoords ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <span>⚠️ This address is missing GPS coordinates required for delivery radius verification. You can pin your current location to update it:</span>
+                      <button type="button" className="btn btn-outline btn-xs" 
+                        onClick={() => handlePinCoordinatesToAddress(selectedAddress.id)} 
+                        disabled={fetchingLocation}
+                        style={{ alignSelf: 'flex-start', marginTop: 4, display: 'flex', gap: 6, alignItems: 'center' }}>
+                        {fetchingLocation ? '⏳ Pining Coordinates...' : '📍 Pin Current GPS Coordinates to this Address'}
+                      </button>
+                    </div>
                   ) : (
-                    <span>⏳ Calculating distance...</span>
-                  )
-                )}
-              </div>
-            )}
+                    calculatedDistance !== null ? (
+                      calculatedDistance <= 10
+                        ? `🟢 Deliverable: Located ${calculatedDistance.toFixed(1)} km from store (within 10km range)`
+                        : `🔴 Undeliverable: Located ${calculatedDistance.toFixed(1)} km from store (exceeds 10km range limit)`
+                    ) : (
+                      <span>⏳ Calculating distance...</span>
+                    )
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Add new */}
             <button className="btn btn-ghost btn-sm" onClick={() => { setShowNewForm(!showNewForm); setSelectedAddress(null); }}>
@@ -345,10 +408,14 @@ export default function Checkout() {
             </div>
 
             {(() => {
+              const hasCoords = selectedAddress 
+                ? (!isNaN(parseFloat(selectedAddress.latitude)) && !isNaN(parseFloat(selectedAddress.longitude)))
+                : (showNewForm && !isNaN(parseFloat(newAddr.latitude)) && !isNaN(parseFloat(newAddr.longitude)));
+
               const isCheckoutDisabled = selectedAddress
-                ? (selectedAddress.latitude === null || calculatedDistance === null || calculatedDistance > 10)
+                ? (!hasCoords || calculatedDistance === null || calculatedDistance > 10)
                 : (showNewForm
-                    ? (newAddr.latitude === null || calculatedDistance === null || calculatedDistance > 10)
+                    ? (!hasCoords || calculatedDistance === null || calculatedDistance > 10)
                     : true);
               
               return (
