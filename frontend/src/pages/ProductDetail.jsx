@@ -174,7 +174,7 @@ export default function ProductDetail() {
             <div style={{ padding: '16px', background: 'var(--color-secondary)', borderRadius: 10, fontSize: '0.8rem' }}>
               <p style={{ marginBottom: 4 }}>🚚 <strong>Free delivery</strong> </p>
               <p style={{ marginBottom: 4 }}>💳 <strong>Cash on Delivery</strong> available</p>
-              <p>↩️ <strong>7-day</strong> easy returns</p>
+              
             </div>
           </div>
         </div>
