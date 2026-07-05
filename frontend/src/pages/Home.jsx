@@ -63,7 +63,8 @@ export default function Home() {
   return (
     <div>
       {/* ─── Hero Carousel ────────────────────────────────────────────────── */}
-      <section style={{ position: 'relative', height: '60vh', overflow: 'hidden', background: '#1C1C2E' }}>
+      <div className="container mt-24">
+        <section style={{ position: 'relative', height: '60vh', overflow: 'hidden', background: '#1C1C2E', borderRadius: '16px' }}>
         
         {/* Slide 1: Custom Image Uploaded */}
         <div
@@ -227,7 +228,8 @@ export default function Home() {
             />
           ))}
         </div>
-      </section>
+        </section>
+      </div>
 
       {/* ─── Moving Offer Banner ─────────────────────────────────────────── */}
       <div className="marquee-container">
