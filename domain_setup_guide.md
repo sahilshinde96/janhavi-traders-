@@ -1,0 +1,113 @@
+# Multi-Account Deployment & Custom Domain Guide (Vercel & Render)
+
+This guide provides step-by-step instructions for deploying the **BLUSHH** application (Frontend, Backend, and Database) onto **new Render and Vercel accounts**, including how to map them to your new custom domain (e.g., `blushh.com`).
+
+---
+
+## 🗺️ Deployment Architecture
+
+Your application is split into two parts:
+1. **Frontend (Vite / React SPA):** Hosted on **Vercel** (connects to your main domain `https://blushh.com`).
+2. **Backend (Django API) & Database (PostgreSQL):** Hosted on **Render** (connects to your API subdomain `https://api.blushh.com`).
+
+---
+
+## 🐘 Phase 1: Deploy Database & Backend on Render (New Account)
+
+### 1. Set Up PostgreSQL on Render
+1. Log in to the **new Render account**.
+2. Click **New +** at the top right and select **PostgreSQL**.
+3. Fill in the database details:
+   * **Name:** `blushh_db`
+   * **Region:** Choose a region close to your customers (e.g., `Oregon (US West)` or `Singapore (Asia)`).
+   * **Datadog API Key / Log Stream:** Leave blank.
+4. Choose the database tier (the Free plan works for testing, but the Starter plan is recommended for production to avoid downtime).
+5. Click **Create Database**.
+6. Once created, copy the **Internal Database URL** (for the backend web service) and **External Database URL** (for running migrations locally).
+
+### 2. Set Up the Django Web Service on Render
+1. Click **New +** and select **Web Service**.
+2. Connect your GitHub repository (`janhavi-traders-`).
+3. Set the following service configurations:
+   * **Name:** `blushh-backend`
+   * **Region:** Select the *same region* as your database.
+   * **Branch:** `main`
+   * **Root Directory:** `backend`
+   * **Runtime:** `Python`
+   * **Build Command:** `pip install -r requirements.txt`
+   * **Start Command:** `gunicorn janhavi_backend.wsgi`
+4. Expand the **Advanced** section and click **Add Environment Variable**. Add these variables:
+
+| Key | Value | Explanation |
+| :--- | :--- | :--- |
+| `DATABASE_URL` | `postgresql://user:pass@host/db` | Paste the **Internal Database URL** of your Render database |
+| `ALLOWED_HOSTS` | `api.blushh.com,blushh-backend.onrender.com` | Replace with your backend domain and Render default URL |
+| `CORS_ALLOWED_ORIGINS` | `https://blushh.com,https://www.blushh.com` | Replace with your frontend custom domain names |
+| `DEBUG` | `False` | Forces production security controls |
+| `SECRET_KEY` | `your-secure-random-secret-key-here` | Create a long, secure random string |
+| `CLOUDINARY_CLOUD_NAME` | `your_cloudinary_name` | Cloudinary name for image hosting |
+| `CLOUDINARY_API_KEY` | `your_api_key` | Cloudinary API Key |
+| `CLOUDINARY_API_SECRET` | `your_api_secret` | Cloudinary API Secret |
+| `DJANGO_SETTINGS_MODULE` | `janhavi_backend.settings.production` | Instructs Django to load production database/security |
+
+5. Click **Create Web Service**.
+
+### 3. Run Database Migrations on Render
+To create the database tables:
+1. In the Render Web Service dashboard, go to the **Shell** tab on the left sidebar.
+2. Run the migration command:
+   ```bash
+   python manage.py migrate
+   ```
+3. Create your administrative dashboard account:
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+---
+
+## 💻 Phase 2: Deploy Frontend on Vercel (New Account)
+
+1. Log in to the **new Vercel account**.
+2. Click **Add New...** and select **Project**.
+3. Import your GitHub repository (`janhavi-traders-`).
+4. Configure the Vite project:
+   * **Framework Preset:** `Vite`
+   * **Root Directory:** Edit and select `frontend`.
+   * **Build Command:** `npm run build`
+   * **Output Directory:** `dist`
+5. Expand the **Environment Variables** accordion and add:
+   * **Key:** `VITE_API_URL`
+   * **Value:** `https://api.blushh.com/api` (or your default Render URL, e.g., `https://blushh-backend.onrender.com/api` if you haven't mapped the custom domain yet).
+6. Click **Deploy**. Vercel will compile the React code and give you a default `.vercel.app` URL.
+
+---
+
+## 🌐 Phase 3: Connect Custom Domains & DNS
+
+Once both services are running, configure the custom domain `blushh.com`:
+
+### 1. In Vercel (Frontend Domain)
+1. Go to your Vercel project dashboard → **Settings** → **Domains**.
+2. Enter your domain: `blushh.com` (and check the option to redirect `www.blushh.com` to `blushh.com`).
+3. Vercel will show you the DNS records you need to add:
+   * **A Record:** Name `@`, Value `76.76.21.21`
+   * **CNAME Record:** Name `www`, Value `cname.vercel-dns.com`
+4. Log into your domain provider account (Godaddy, Hostinger, Namecheap) and add these records.
+
+### 2. In Render (Backend API Domain)
+1. Go to your Render Web Service dashboard → **Settings** → **Custom Domains**.
+2. Click **Add Custom Domain** and enter `api.blushh.com`.
+3. Render will provide the CNAME value to map.
+4. In your domain provider account, add this record:
+   * **CNAME Record:** Name `api`, Value `blushh-backend.onrender.com`
+
+---
+
+## 🔒 Phase 4: Final Security & Verification
+
+1. Once the DNS records propagate (typically 10-15 minutes), verify both domains load over secure **HTTPS**.
+2. Open your storefront URL (`https://blushh.com`).
+3. Open browser Developer Tools (Right-click → Inspect → Console tab).
+4. Verify that you can browse products, add items to the cart, and proceed to checkout without encountering **CORS blocking** errors.
+5. If there are CORS errors, double-check that your `CORS_ALLOWED_ORIGINS` on Render matches your frontend URL exactly.

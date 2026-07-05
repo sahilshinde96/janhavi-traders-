@@ -111,10 +111,14 @@ SIMPLE_JWT = {
 # To prevent unauthorized external websites from accessing our API in production, we disable
 # CORS_ALLOW_ALL_ORIGINS and restrict allowed origins strictly to the official frontend domains (BUG-05 fix).
 CORS_ALLOW_ALL_ORIGINS = False
-CORS_ALLOWED_ORIGINS = [
-    'https://janhavitraders.com',
-    'https://www.janhavitraders.com',
-]
+cors_origins_env = config('CORS_ALLOWED_ORIGINS', default='')
+if cors_origins_env:
+    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins_env.split(',') if origin.strip()]
+else:
+    CORS_ALLOWED_ORIGINS = [
+        'https://janhavitraders.com',
+        'https://www.janhavitraders.com',
+    ]
 
 # Allow localhost for development environment (only if DEBUG is set to True in the environment/.env)
 # so developers can test the frontend SPA locally.
