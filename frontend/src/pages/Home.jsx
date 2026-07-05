@@ -207,10 +207,11 @@ export default function Home() {
           </div>
         </div>
 
+        </section>
+
         {/* Carousel indicators/dots */}
         <div style={{
-          position: 'absolute', bottom: 30, left: '50%', transform: 'translateX(-50%)',
-          display: 'flex', gap: 12, zIndex: 10,
+          display: 'flex', justifyContent: 'center', gap: 12, marginTop: 16,
         }}>
           {[0, 1, 2].map(idx => (
             <button
@@ -220,7 +221,7 @@ export default function Home() {
                 width: activeSlide === idx ? 28 : 10,
                 height: 10,
                 borderRadius: 99,
-                background: activeSlide === idx ? 'var(--color-primary)' : 'rgba(255,255,255,0.3)',
+                background: activeSlide === idx ? 'var(--color-primary)' : 'rgba(244, 137, 147, 0.35)',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
@@ -228,7 +229,6 @@ export default function Home() {
             />
           ))}
         </div>
-        </section>
       </div>
 
       {/* ─── Moving Offer Banner ─────────────────────────────────────────── */}

@@ -1589,7 +1589,7 @@ tr:hover td { background: var(--color-bg); }
   display: flex;
   align-items: center;
   padding-top: 50px; /* Prevents top pill from hitting the card border */
-  padding-bottom: 60px; /* Reserves breathing room at the bottom for navigation dots */
+  padding-bottom: 50px; /* Symmetrical padding at the bottom */
   transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
 }
 .hero-slide--visible { opacity: 1; visibility: visible; }
