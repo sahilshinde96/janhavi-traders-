@@ -34,7 +34,7 @@ Your application is split into two parts:
    * **Branch:** `main`
    * **Root Directory:** `backend`
    * **Runtime:** `Python`
-   * **Build Command:** `pip install -r requirements.txt`
+   * **Build Command:** `pip install -r requirements.txt && python manage.py migrate`
    * **Start Command:** `gunicorn janhavi_backend.wsgi`
 4. Expand the **Advanced** section and click **Add Environment Variable**. Add these variables:
 
@@ -52,17 +52,45 @@ Your application is split into two parts:
 
 5. Click **Create Web Service**.
 
-### 3. Run Database Migrations on Render
-To create the database tables:
-1. In the Render Web Service dashboard, go to the **Shell** tab on the left sidebar.
-2. Run the migration command:
+### 3. Run Migrations & Create Superuser on Render Free Tier (No Shell Access)
+
+Because the **Render Free Tier** does not provide interactive shell or terminal access, you cannot run `createsuperuser` directly in the Render dashboard. Follow these methods instead:
+
+#### Method A: Automatic Migrations (Recommended)
+By setting the **Build Command** to `pip install -r requirements.txt && python manage.py migrate` in your Web Service settings, Render will automatically run all database migrations whenever you deploy your code.
+
+#### Method B: Create Superuser from Local Machine
+To create your administrator account, you can connect to your remote PostgreSQL database from your local computer:
+
+1. Go to your **Render PostgreSQL Database** page.
+2. In the **Connections** panel, locate and copy the **External Database URL**.
+3. Open a terminal/command prompt on your local computer and navigate to the `backend` folder:
    ```bash
-   python manage.py migrate
+   cd "c:\Users\sahil\Desktop\janhavi traders\busy-maxwell\backend"
    ```
-3. Create your administrative dashboard account:
+4. Activate your local virtual environment:
+   ```bash
+   venv\Scripts\activate
+   ```
+5. Temporarily set the database environment variable in your terminal:
+   * **CMD (Windows Command Prompt):**
+     ```cmd
+     set DATABASE_URL="paste_your_external_database_url_here"
+     ```
+   * **PowerShell:**
+     ```powershell
+     $env:DATABASE_URL="paste_your_external_database_url_here"
+     ```
+   * **Git Bash / Linux / macOS:**
+     ```bash
+     export DATABASE_URL="paste_your_external_database_url_here"
+     ```
+6. Run the Django management command to create your superuser account:
    ```bash
    python manage.py createsuperuser
    ```
+7. Follow the prompts in your local terminal to create your username, email, and password. This writes the account credentials directly into your live Render database!
+8. Close your terminal when done to clear the temporary database URL credentials.
 
 ---
 
