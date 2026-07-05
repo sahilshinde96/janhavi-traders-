@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 :root {
-  --color-primary: #C8496A;
-  --color-primary-light: #E8849A;
-  --color-primary-dark: #9C2E4A;
-  --color-secondary: #F9F0F2;
+  --color-primary: #f48993;
+  --color-primary-light: #ffb4be;
+  --color-primary-dark: #c35f6a;
+  --color-secondary: #fef5f6;
   --color-accent: #C9A84C;
   --color-dark: #1C1C2E;
   --color-text-dark: #2D2D3A;
@@ -317,7 +317,7 @@ input, select, textarea { font-family: inherit; }
     font-size: 1.15rem;
   }
 }
-.navbar-logo span { color: var(--color-dark); }
+.navbar-logo span { color: var(--color-primary); }
 .navbar-actions { display: flex; align-items: center; gap: 4px; }
 .navbar-links { display: none; align-items: center; gap: 4px; }
 @media (min-width: 768px) { .navbar-links { display: flex; } }

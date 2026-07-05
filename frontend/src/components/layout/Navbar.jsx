@@ -80,7 +80,7 @@ export default function Navbar() {
         <div className="navbar-inner">
           {/* Logo */}
           <Link to="/" className="navbar-logo" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <img src={logo} alt="BLUSHH Logo" style={{ height: 36, width: 36, borderRadius: '50%', objectFit: 'cover' }} />
+            <img src={logo} alt="BLUSHH Logo" style={{ height: 48, width: 48, borderRadius: '50%', objectFit: 'cover' }} />
             <span>BLUSHH</span>
           </Link>
 
@@ -200,7 +200,7 @@ export default function Navbar() {
           <div className="mobile-menu-drawer">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
               <div className="mobile-menu-logo" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <img src={logo} alt="BLUSHH Logo" style={{ height: 32, width: 32, borderRadius: '50%', objectFit: 'cover' }} />
+                <img src={logo} alt="BLUSHH Logo" style={{ height: 40, width: 40, borderRadius: '50%', objectFit: 'cover' }} />
                 <span>BLUSHH</span>
               </div>
               <button className="navbar-icon-btn" onClick={closeMobileMenu}><X size={20} /></button>

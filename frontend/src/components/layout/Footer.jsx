@@ -26,7 +26,7 @@ export default function Footer() {
             {/* Brand */}
             <div>
               <div className="footer-logo flex align-center gap-10 mb-16">
-                <img src={logo} alt="BLUSHH Logo" style={{ height: 40, width: 40, borderRadius: '50%', objectFit: 'cover' }} />
+                <img src={logo} alt="BLUSHH Logo" style={{ height: 52, width: 52, borderRadius: '50%', objectFit: 'cover' }} />
                 <span>BLUSHH</span>
               </div>
               <p className="footer-tagline">

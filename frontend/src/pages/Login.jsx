@@ -143,7 +143,7 @@ export default function Login() {
       <div className="login-card">
         {/* Logo */}
         <div className="text-center mb-32 flex-col flex align-center">
-          <img src={logo} alt="BLUSHH Logo" style={{ height: 64, width: 64, borderRadius: '50%', objectFit: 'cover', marginBottom: 12, boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }} />
+          <img src={logo} alt="BLUSHH Logo" style={{ height: 80, width: 80, borderRadius: '50%', objectFit: 'cover', marginBottom: 12, boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }} />
           <h1 style={{
             fontFamily: 'var(--font-display)', fontSize: '1.6rem', fontWeight: 700,
             color: 'var(--color-primary)', marginBottom: 4, margin: 0
