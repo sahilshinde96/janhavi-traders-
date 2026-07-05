@@ -103,6 +103,7 @@ To create your administrator account, you can connect to your remote PostgreSQL 
    * **Framework Preset:** `Vite`
    * **Root Directory:** Edit and select `frontend`.
    * **Build Command:** `npm run build`
+   * **Install Command:** Leave as default (`npm install` will run automatically)
    * **Output Directory:** `dist`
 5. Expand the **Environment Variables** accordion and add:
    * **Key:** `VITE_API_URL`
@@ -111,7 +112,10 @@ To create your administrator account, you can connect to your remote PostgreSQL 
 
 ---
 
-## 🌐 Phase 3: Connect Custom Domains & DNS
+## 🌐 Phase 3: Connect Custom Domains & 
+
+
+DNS
 
 Once both services are running, configure the custom domain `blushh.com`:
 
