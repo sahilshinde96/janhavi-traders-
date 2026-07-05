@@ -104,7 +104,7 @@ export default function Home() {
         >
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'radial-gradient(circle at 70% 50%, rgba(200,73,106,0.25) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(201,168,76,0.15) 0%, transparent 50%)',
+            background: 'radial-gradient(circle at 70% 50%, rgba(244,137,147,0.25) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(201,168,76,0.15) 0%, transparent 50%)',
           }} />
           <div className="container" style={{ position: 'relative', zIndex: 2 }}>
             <div style={{ maxWidth: 580, animation: activeSlide === 1 ? 'slideUp 0.7s ease' : 'none' }}>
@@ -130,7 +130,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div style={{ position: 'absolute', right: '5%', top: '10%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(200,73,106,0.08)', border: '1px solid rgba(200,73,106,0.15)' }} />
+          <div style={{ position: 'absolute', right: '5%', top: '10%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(244,137,147,0.08)', border: '1px solid rgba(244,137,147,0.15)' }} />
           <div style={{ position: 'absolute', right: '12%', top: '20%', width: 280, height: 280, borderRadius: '50%', background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.12)' }} />
         </div>
 

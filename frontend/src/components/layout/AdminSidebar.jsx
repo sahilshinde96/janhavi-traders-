@@ -35,8 +35,8 @@ export default function AdminSidebar() {
           </h2>
         </div>
         <span style={{
-          background: 'rgba(200,73,106,0.2)', color: '#E8849A',
-          border: '1px solid rgba(200,73,106,0.3)', padding: '3px 10px',
+          background: 'rgba(244,137,147,0.2)', color: '#ffb4be',
+          border: '1px solid rgba(244,137,147,0.3)', padding: '3px 10px',
           borderRadius: 99, fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.5px',
         }}>ADMIN PANEL</span>
       </div>
@@ -51,9 +51,9 @@ export default function AdminSidebar() {
             style={({ isActive }) => ({
               display: 'flex', alignItems: 'center', gap: 12,
               padding: '12px 14px', borderRadius: 10, textDecoration: 'none',
-              background: isActive ? 'rgba(200,73,106,0.2)' : 'transparent',
-              border: isActive ? '1px solid rgba(200,73,106,0.3)' : '1px solid transparent',
-              color: isActive ? '#E8849A' : 'rgba(255,255,255,0.65)',
+              background: isActive ? 'rgba(244,137,147,0.2)' : 'transparent',
+              border: isActive ? '1px solid rgba(244,137,147,0.3)' : '1px solid transparent',
+              color: isActive ? '#ffb4be' : 'rgba(255,255,255,0.65)',
               fontWeight: isActive ? 700 : 400, fontSize: '0.9rem',
               transition: 'all 0.2s',
             })}

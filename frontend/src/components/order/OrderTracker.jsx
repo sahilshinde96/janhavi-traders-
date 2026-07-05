@@ -60,7 +60,7 @@ export default function OrderTracker({ status }) {
                 border: `3px solid ${isDone || isActive ? 'var(--color-primary)' : 'var(--color-border)'}`,
                 background: isDone ? 'var(--color-primary)' : isActive ? 'var(--color-primary)' : 'white',
                 transition: 'all 0.3s ease',
-                boxShadow: isActive ? '0 0 0 4px rgba(200,73,106,0.15)' : 'none',
+                boxShadow: isActive ? '0 0 0 4px rgba(244,137,147,0.15)' : 'none',
               }}>
                 {isDone ? '✓' : config.icon}
               </div>

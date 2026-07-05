@@ -52,7 +52,7 @@ export default function AdminDashboard() {
 
       {/* Stats */}
       <div className="stat-card-grid">
-        <StatCard icon={IndianRupee} label="Total Revenue" value={`₹${(stats?.total_revenue || 0).toLocaleString('en-IN')}`} sub={`₹${(stats?.month_revenue || 0).toLocaleString('en-IN')} this month`} color="#C8496A" />
+        <StatCard icon={IndianRupee} label="Total Revenue" value={`₹${(stats?.total_revenue || 0).toLocaleString('en-IN')}`} sub={`₹${(stats?.month_revenue || 0).toLocaleString('en-IN')} this month`} color="#f48993" />
         <StatCard icon={ShoppingBag} label="Total Orders" value={stats?.total_orders || 0} sub={`${stats?.today_orders || 0} today`} color="#0984E3" />
         <StatCard icon={Users} label="Total Customers" value={stats?.total_users || 0} color="#00B894" />
         <StatCard icon={Package} label="Active Products" value={stats?.total_products || 0} sub={stats?.low_stock_products > 0 ? `${stats.low_stock_products} low stock` : undefined} color="#6C5CE7" />

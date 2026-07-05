@@ -69,7 +69,7 @@ class ErrorBoundary extends Component {
           <button
             onClick={() => { this.setState({ hasError: false, error: null }); window.location.reload(); }}
             style={{
-              background: 'var(--color-primary, #C8496A)', color: 'white',
+              background: 'var(--color-primary, #f48993)', color: 'white',
               border: 'none', borderRadius: 10, padding: '12px 32px',
               fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem',
             }}
@@ -111,7 +111,7 @@ export default function App() {
         position="top-right"
         toastOptions={{
           style: { borderRadius: '10px', fontSize: '14px', fontFamily: 'Inter, sans-serif' },
-          success: { iconTheme: { primary: '#C8496A', secondary: '#fff' } },
+          success: { iconTheme: { primary: '#f48993', secondary: '#fff' } },
         }}
       />
       {/* Wrap all application routes inside the ErrorBoundary so that any page render crash */}

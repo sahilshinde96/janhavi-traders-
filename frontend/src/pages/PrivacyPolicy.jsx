@@ -472,7 +472,7 @@ export default function PrivacyPolicy() {
           width: 50vw;
           height: 50vw;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(200,73,106,0.06) 0%, transparent 70%);
+          background: radial-gradient(circle, rgba(244,137,147,0.06) 0%, transparent 70%);
           pointer-events: none;
           z-index: 0;
         }

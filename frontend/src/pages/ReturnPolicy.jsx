@@ -391,7 +391,7 @@ export default function ReturnPolicy() {
           width: 50vw;
           height: 50vw;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(200,73,106,0.06) 0%, transparent 70%);
+          background: radial-gradient(circle, rgba(244,137,147,0.06) 0%, transparent 70%);
           pointer-events: none;
           z-index: 0;
         }
@@ -651,7 +651,7 @@ export default function ReturnPolicy() {
           font-family: var(--font-display);
           font-size: 2rem;
           font-weight: 700;
-          color: rgba(200, 73, 106, 0.08);
+          color: rgba(244,137,147, 0.08);
           user-select: none;
         }
 
