@@ -30,7 +30,7 @@ export default function AdminSidebar() {
       <div style={{ padding: '24px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
           <img src={logo} alt="BLUSHH Logo" style={{ height: 48, width: 48, borderRadius: '50%', objectFit: 'cover' }} />
-          <h2 style={{ fontFamily: 'var(--font-display)', color: 'white', fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', color: 'var(--color-primary)', fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
             BLUSHH
           </h2>
         </div>
