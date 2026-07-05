@@ -147,15 +147,25 @@ export default function Home() {
                   <div className="hero-pill hero-pill--gold">
                     🔥 Deal of the Day: {maxDiscountPercent.toFixed(0)}% OFF
                   </div>
-                  <h1 className="hero-title" style={{ color: 'white', fontSize: 'clamp(2rem, 4vw, 3rem)' }}>
+                  <h1 className="hero-title" style={{ 
+                    color: 'white', 
+                    fontSize: 'clamp(1.5rem, 3.5vw, 2.4rem)', 
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    lineHeight: 1.2,
+                    marginBottom: 16
+                  }}>
                     {bestDiscountProduct.name}
                   </h1>
-                  <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: 28, lineHeight: 1.6 }}>
+                  <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', marginBottom: 16, lineHeight: 1.5 }}>
                     Get this bestseller now at an unbeatable price! Only COD and free shipping above ₹500.
                   </p>
-                  <div className="flex align-center gap-16 mb-32">
-                    <span style={{ fontSize: '2.5rem', fontWeight: 800, color: '#FFD369' }}>₹{bestDiscountProduct.offer_price}</span>
-                    <span style={{ fontSize: '1.4rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>₹{bestDiscountProduct.mrp}</span>
+                  <div className="flex align-center gap-16 mb-20">
+                    <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#FFD369' }}>₹{bestDiscountProduct.offer_price}</span>
+                    <span style={{ fontSize: '1.3rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>₹{bestDiscountProduct.mrp}</span>
                   </div>
                   {/* Route page redirection uses product slug (e.g. '/products/my-face-wash') instead of database id */}
                   {/* to match the routing definitions and prevent a 404 error page (BUG-01/BUG-03 fix). */}
@@ -168,8 +178,8 @@ export default function Home() {
                   background: 'rgba(255,255,255,0.03)',
                   border: '1px solid rgba(255,255,255,0.08)',
                   borderRadius: 24,
-                  padding: 24,
-                  maxWidth: 380,
+                  padding: 20,
+                  maxWidth: 340,
                   width: '100%',
                   display: 'flex',
                   flexDirection: 'column',
@@ -180,7 +190,7 @@ export default function Home() {
                   <img 
                     src={bestDiscountProduct.primary_image || bestDiscountProduct.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500'} 
                     alt={bestDiscountProduct.name} 
-                    style={{ height: 260, objectFit: 'contain', borderRadius: 16, marginBottom: 20 }}
+                    style={{ height: 200, objectFit: 'contain', borderRadius: 16, marginBottom: 12 }}
                   />
                   <div style={{ color: 'white', fontWeight: 700, fontSize: '1.1rem', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {bestDiscountProduct.name}
