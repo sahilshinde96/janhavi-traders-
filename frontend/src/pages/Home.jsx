@@ -63,7 +63,7 @@ export default function Home() {
   return (
     <div>
       {/* ─── Hero Carousel ────────────────────────────────────────────────── */}
-      <section style={{ position: 'relative', height: '85vh', overflow: 'hidden', background: '#1C1C2E' }}>
+      <section style={{ position: 'relative', height: '60vh', overflow: 'hidden', background: '#1C1C2E' }}>
         
         {/* Slide 1: Custom Image Uploaded */}
         <div
