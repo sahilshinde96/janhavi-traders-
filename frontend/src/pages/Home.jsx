@@ -63,8 +63,8 @@ export default function Home() {
   return (
     <div>
       {/* ─── Hero Carousel ────────────────────────────────────────────────── */}
-      <div className="container mt-24">
-        <section style={{ position: 'relative', height: '60vh', overflow: 'hidden', background: '#1C1C2E', borderRadius: '16px' }}>
+      <div className="container mt-24 mb-32">
+        <section className="hero-container">
         
         {/* Slide 1: Custom Image Uploaded */}
         <div
@@ -82,7 +82,7 @@ export default function Home() {
                 Your Glow Journey<br />
                 <span style={{ color: 'var(--color-primary-light)' }}>Begins Here</span>
               </h1>
-              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.1rem', marginBottom: 36, lineHeight: 1.7 }}>
+              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.1rem', marginBottom: 20, lineHeight: 1.7 }}>
                 Explore dermatologist-tested cosmetics and skincare products curated to match your skin's unique needs.
               </p>
               <div className="flex gap-16 flex-wrap">
@@ -116,7 +116,7 @@ export default function Home() {
                 Beauty That<br />
                 <span style={{ color: 'var(--color-primary-light)' }}>Defines You</span>
               </h1>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: 36, lineHeight: 1.7 }}>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: 20, lineHeight: 1.7 }}>
                 Discover authentic cosmetics from top brands.<br />
                 Makeup, Skincare &amp; Haircare — all in one place.
               </p>
@@ -196,7 +196,7 @@ export default function Home() {
                   Mega Beauty<br />
                   <span style={{ color: '#FFD369' }}>Discounts</span>
                 </h1>
-                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: 36 }}>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: 20 }}>
                   Don't miss our highest discount items. Quality makeup and skincare at unbeatable prices!
                 </p>
                 <button className="btn btn-primary btn-lg" onClick={() => navigate('/products?is_featured=true')}>
