@@ -131,7 +131,7 @@ export default function TermsOfService() {
               <h2 className="section-heading">Overview & Acceptance of Terms</h2>
               <div className="section-body">
                 <p>
-                  This website, <a href="https://www.janhavitraders.com" target="_blank" rel="noopener noreferrer" className="inline-link">www.janhavitraders.com</a> (hereinafter referred to as the <strong>"Platform"</strong> or <strong>"Website"</strong>), is owned and operated by <strong>Janhavi Traders</strong>, a partnership firm registered under the Indian Partnership Act, 1932, with its principal place of business at Shop no 2, Anjanabai Appartment, Malangad Rd, near dinkar bhane nagar, Pisavli Village, Kalyan East, Kalyan, Maharashtra 421306 (hereinafter referred to as the <strong>"Company"</strong>, <strong>"We"</strong>, <strong>"Us"</strong>, or <strong>"Our"</strong>).
+                  This website, <a href="https://www.janhavitraders.com" target="_blank" rel="noopener noreferrer" className="inline-link">www.janhavitraders.com</a> (hereinafter referred to as the <strong>"Platform"</strong> or <strong>"Website"</strong>), is owned and operated by <strong>BLUSHH</strong>, a partnership firm registered under the Indian Partnership Act, 1932, with its principal place of business at Shop no 2, Anjanabai Appartment, Malangad Rd, near dinkar bhane nagar, Pisavli Village, Kalyan East, Kalyan, Maharashtra 421306 (hereinafter referred to as the <strong>"Company"</strong>, <strong>"We"</strong>, <strong>"Us"</strong>, or <strong>"Our"</strong>).
                 </p>
                 <p>
                   Throughout the Platform, the terms <strong>"You"</strong>, <strong>"Your"</strong>, <strong>"Yourself"</strong>, and <strong>"User"</strong> refer to any natural or legal person who accesses, browses, or transacts on the Website to purchase cosmetic, skincare, haircare, and personal care products.
@@ -156,7 +156,7 @@ export default function TermsOfService() {
                     <strong>1.2 Account Security:</strong> To access specific features, such as placing B2B wholesale orders or saving your checkout preferences, you may register a user account. You are solely responsible for maintaining the confidentiality of your account credentials (username and password) and for all activities that occur under your account.
                   </li>
                   <li>
-                    <strong>1.3 Data Accuracy:</strong> You agree to provide true, current, and complete shipping and contact information during registration and checkout. Janhavi Traders reserves the right to suspend or terminate accounts that provide explicitly false or completely unreachable delivery details.
+                    <strong>1.3 Data Accuracy:</strong> You agree to provide true, current, and complete shipping and contact information during registration and checkout. BLUSHH reserves the right to suspend or terminate accounts that provide explicitly false or completely unreachable delivery details.
                   </li>
                 </ul>
               </div>
@@ -188,7 +188,7 @@ export default function TermsOfService() {
               <h2 className="section-heading">3. Mandatory Open Box Delivery Protocol</h2>
               <div className="section-body">
                 <p>
-                  All shipments fulfilled by Janhavi Traders are bound by a strict, non-negotiable Open Box Delivery rule.
+                  All shipments fulfilled by BLUSHH are bound by a strict, non-negotiable Open Box Delivery rule.
                 </p>
                 <ul className="custom-list checkmarks">
                   <li>
@@ -218,7 +218,7 @@ export default function TermsOfService() {
                     <strong>4.1 Absolute Customer Flexibility:</strong> Because we run on an exclusive COD framework, you possess the right to cancel your order at any stage—whether it is before dispatch via your user dashboard, mid-transit by notifying the handler, or at your doorstep during the open-box verification stage—without facing any penalty fees or legal charges.
                   </li>
                   <li>
-                    <strong>4.2 Company Cancellation Rights:</strong> Janhavi Traders reserves the right to unilaterally cancel any order if an item is entirely out of stock, if your delivery location is outside our courier footprint, or if a severe technological glitch misprices a product on the storefront. Since no advance funds are taken, no financial liability rests on the Company for such system cancellations.
+                    <strong>4.2 Company Cancellation Rights:</strong> BLUSHH reserves the right to unilaterally cancel any order if an item is entirely out of stock, if your delivery location is outside our courier footprint, or if a severe technological glitch misprices a product on the storefront. Since no advance funds are taken, no financial liability rests on the Company for such system cancellations.
                   </li>
                 </ul>
               </div>
@@ -251,7 +251,7 @@ export default function TermsOfService() {
               <h2 className="section-heading">6. Wholesale & B2B Client Terms</h2>
               <div className="section-body">
                 <p>
-                  Janhavi Traders provides wholesale supply and bulk logistics channels to commercial B2B buyers. Wholesale buyers agree to the following modified parameters:
+                  BLUSHH provides wholesale supply and bulk logistics channels to commercial B2B buyers. Wholesale buyers agree to the following modified parameters:
                 </p>
                 <ul className="custom-list bullets">
                   <li>
@@ -275,7 +275,7 @@ export default function TermsOfService() {
                 </p>
                 <ul className="custom-list checkmarks">
                   <li>
-                    <strong>7.1 Trademark Protection:</strong> All content displayed on <a href="https://www.janhavitraders.com" className="inline-link">www.janhavitraders.com</a>—including our brand logos, text layouts, graphical design interfaces, custom database filtering scripts, and photographic media assets—is the exclusive intellectual property of Janhavi Traders. Any unauthorized copying or commercial distribution is strictly prohibited.
+                    <strong>7.1 Trademark Protection:</strong> All content displayed on <a href="https://www.janhavitraders.com" className="inline-link">www.janhavitraders.com</a>—including our brand logos, text layouts, graphical design interfaces, custom database filtering scripts, and photographic media assets—is the exclusive intellectual property of BLUSHH. Any unauthorized copying or commercial distribution is strictly prohibited.
                   </li>
                   <li>
                     <strong>7.2 Authenticity Guarantee:</strong> We guarantee that all cosmetics (including items from labels like Dermalogica, Mamaearth, and Nivea) are 100% genuine and sourced directly from verified manufacturing and distribution streams.
@@ -295,10 +295,10 @@ export default function TermsOfService() {
                 </p>
                 <ul className="custom-list bullets">
                   <li>
-                    <strong>8.1 Disclaimer of Warranties:</strong> Janhavi Traders does not guarantee that the product descriptions, ingredient listings, or color shade representations on the storefront are entirely error-free due to differing device displays and technical limitations. Your reliance on information listed on the platform is at your own risk.
+                    <strong>8.1 Disclaimer of Warranties:</strong> BLUSHH does not guarantee that the product descriptions, ingredient listings, or color shade representations on the storefront are entirely error-free due to differing device displays and technical limitations. Your reliance on information listed on the platform is at your own risk.
                   </li>
                   <li>
-                    <strong>8.2 Liability Cap:</strong> To the maximum extent permitted by Indian law, Janhavi Traders, its registered partners, and employees shall not be liable for any indirect, incidental, or consequential damages resulting from your use of the website or allergic reactions to cosmetic formulations purchased from our store. You are advised to review ingredient lists carefully prior to usage.
+                    <strong>8.2 Liability Cap:</strong> To the maximum extent permitted by Indian law, BLUSHH, its registered partners, and employees shall not be liable for any indirect, incidental, or consequential damages resulting from your use of the website or allergic reactions to cosmetic formulations purchased from our store. You are advised to review ingredient lists carefully prior to usage.
                   </li>
                 </ul>
               </div>
@@ -316,7 +316,7 @@ export default function TermsOfService() {
                 <div className="note-card warning" style={{ borderLeftWidth: 3, borderLeftColor: 'var(--color-primary)' }}>
                   <strong>⚖️ Jurisdictional Limits</strong>
                   <p style={{ margin: 0, marginTop: 4 }}>
-                    Any legal dispute, controversy, or claim arising out of or relating to your transaction or interaction with Janhavi Traders shall be subject to the exclusive jurisdiction of the competent courts located in Kalyan or Mumbai, Maharashtra, India.
+                    Any legal dispute, controversy, or claim arising out of or relating to your transaction or interaction with BLUSHH shall be subject to the exclusive jurisdiction of the competent courts located in Kalyan or Mumbai, Maharashtra, India.
                   </p>
                 </div>
               </div>
@@ -337,7 +337,7 @@ export default function TermsOfService() {
                   <div className="contact-card-header">
                     <div className="avatar-placeholder">JT</div>
                     <div>
-                      <h4 className="contact-name">Janhavi Traders Help Desk</h4>
+                      <h4 className="contact-name">BLUSHH Help Desk</h4>
                       <p className="contact-title">Operations & Support</p>
                     </div>
                   </div>

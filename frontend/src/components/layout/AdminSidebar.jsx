@@ -29,9 +29,9 @@ export default function AdminSidebar() {
       {/* Brand */}
       <div style={{ padding: '24px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-          <img src={logo} alt="Janhavi Traders Logo" style={{ height: 36, width: 36, borderRadius: '50%', objectFit: 'cover' }} />
+          <img src={logo} alt="BLUSHH Logo" style={{ height: 36, width: 36, borderRadius: '50%', objectFit: 'cover' }} />
           <h2 style={{ fontFamily: 'var(--font-display)', color: 'white', fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
-            JANHAVI<span style={{ color: 'var(--color-primary-light)' }}> TRADERS</span>
+            BLUSHH
           </h2>
         </div>
         <span style={{

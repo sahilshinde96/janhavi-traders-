@@ -22,28 +22,23 @@ export default function Checkout() {
     state: 'Maharashtra', pincode: '', latitude: null, longitude: null
   });
 
-  // Geolocation and geofencing states
   const [fetchingLocation, setFetchingLocation] = useState(false);
   const [calculatedDistance, setCalculatedDistance] = useState(null);
 
-  // Store coordinates (Pisavli Village, Kalyan East, Kalyan, Maharashtra 421306)
   const STORE_LAT = 19.213000;
   const STORE_LON = 73.151000;
 
-  // Calculate distance between two coordinates using the Haversine formula (BUG-14)
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Earth radius in km
+    const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
       Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   };
 
-  // Automatically recalculate distance whenever the active address selection or its coordinates change
   useEffect(() => {
     let lat = NaN, lon = NaN;
     if (selectedAddress) {
@@ -53,81 +48,44 @@ export default function Checkout() {
       lat = parseFloat(newAddr.latitude);
       lon = parseFloat(newAddr.longitude);
     }
-
     if (!isNaN(lat) && !isNaN(lon)) {
-      const dist = calculateDistance(STORE_LAT, STORE_LON, lat, lon);
-      setCalculatedDistance(dist);
+      setCalculatedDistance(calculateDistance(STORE_LAT, STORE_LON, lat, lon));
     } else {
       setCalculatedDistance(null);
     }
   }, [selectedAddress, newAddr.latitude, newAddr.longitude, showNewForm]);
 
-  // Request browser geolocation coordinates (GPS) helper
-  const getBrowserLocation = () => {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        toast.error("Geolocation is not supported by your browser");
-        reject(new Error("Not supported"));
-        return;
-      }
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          });
-        },
-        (error) => {
-          if (error.code === error.PERMISSION_DENIED) {
-            toast.error("GPS access denied. We need location permissions to verify delivery radius.");
-          } else {
-            toast.error("Failed to retrieve GPS location. Please try again.");
-          }
-          reject(error);
-        },
-        { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
-      );
-    });
-  };
+  const getBrowserLocation = () => new Promise((resolve, reject) => {
+    if (!navigator.geolocation) { toast.error('Geolocation is not supported by your browser'); reject(new Error('Not supported')); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+      (err) => {
+        if (err.code === err.PERMISSION_DENIED) toast.error('GPS access denied. We need location permissions to verify delivery radius.');
+        else toast.error('Failed to retrieve GPS location. Please try again.');
+        reject(err);
+      },
+      { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
+    );
+  });
 
-  // Request browser geolocation coordinates (GPS) using HTML5 API for new address form
   const handleFetchCurrentLocation = async () => {
     setFetchingLocation(true);
     try {
       const coords = await getBrowserLocation();
-      setNewAddr(prev => ({
-        ...prev,
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-      }));
-      toast.success("Location coordinates pinned successfully!");
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setFetchingLocation(false);
-    }
+      setNewAddr(prev => ({ ...prev, latitude: coords.latitude, longitude: coords.longitude }));
+      toast.success('Location coordinates pinned successfully!');
+    } catch (err) { console.error(err); } finally { setFetchingLocation(false); }
   };
 
-  // Update existing saved address with coordinates
   const handlePinCoordinatesToAddress = async (addressId) => {
     setFetchingLocation(true);
     try {
       const coords = await getBrowserLocation();
-      const { data } = await api.put(`/auth/addresses/${addressId}/`, {
-        latitude: coords.latitude,
-        longitude: coords.longitude
-      });
-      // Update local state list
+      const { data } = await api.put(`/auth/addresses/${addressId}/`, { latitude: coords.latitude, longitude: coords.longitude });
       setAddresses(prev => prev.map(addr => addr.id === addressId ? data : addr));
-      // Update selectedAddress to reflect the updated coordinates immediately
       setSelectedAddress(data);
-      toast.success("GPS coordinates pinned to this address successfully!");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update coordinates for the address.");
-    } finally {
-      setFetchingLocation(false);
-    }
+      toast.success('GPS coordinates pinned to this address successfully!');
+    } catch (err) { console.error(err); toast.error('Failed to update coordinates for the address.'); } finally { setFetchingLocation(false); }
   };
 
   useEffect(() => {
@@ -165,10 +123,7 @@ export default function Checkout() {
   };
 
   const handlePlaceOrder = async () => {
-    if (subtotal < 150) {
-      toast.error('Minimum order value is ₹150');
-      return;
-    }
+    if (subtotal < 150) { toast.error('Minimum order value is ₹150'); return; }
     if (!selectedAddress && !showNewForm) { toast.error('Please select a delivery address'); return; }
 
     let address = selectedAddress;
@@ -187,16 +142,10 @@ export default function Checkout() {
     setPlacing(true);
     try {
       const { data } = await api.post('/orders/place/', {
-        address: { 
-          name: address.name, 
-          phone: address.phone, 
-          line1: address.line1, 
-          line2: address.line2 || '', 
-          city: address.city, 
-          state: address.state, 
-          pincode: address.pincode,
-          latitude: address.latitude,
-          longitude: address.longitude
+        address: {
+          name: address.name, phone: address.phone, line1: address.line1,
+          line2: address.line2 || '', city: address.city, state: address.state,
+          pincode: address.pincode, latitude: address.latitude, longitude: address.longitude
         },
         coupon_code: appliedCoupon?.code || '',
       });
@@ -208,28 +157,34 @@ export default function Checkout() {
     }
   };
 
-  return (
-    <div className="container" style={{ padding: '40px 20px' }}>
-      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 700, marginBottom: 32 }}>Checkout</h1>
+  // Geofence banner variant helper
+  const getGeofenceBannerClass = (distance, hasCoords) => {
+    if (!hasCoords) return 'info-banner info-banner--warning';
+    if (distance === null) return 'info-banner info-banner--neutral';
+    return distance <= 10 ? 'info-banner info-banner--success' : 'info-banner info-banner--error';
+  };
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 32 }}>
+  return (
+    <div className="container page-container">
+      <h1 className="page-title mb-32">Checkout</h1>
+
+      <div className="checkout-grid">
         {/* Left: Address */}
         <div>
-          <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--color-border)', marginBottom: 24 }}>
-            <h3 style={{ fontWeight: 700, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="card-panel mb-24">
+            <h3 className="flex align-center gap-8 fw-700 mb-20">
               <MapPin size={18} color="var(--color-primary)" /> Delivery Address
             </h3>
 
             {/* Saved addresses */}
             {addresses.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
+              <div className="flex-col gap-12 mb-16">
                 {addresses.map(addr => (
                   <div key={addr.id} onClick={() => { setSelectedAddress(addr); setShowNewForm(false); }} style={{
                     border: `2px solid ${selectedAddress?.id === addr.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
                     borderRadius: 12, padding: '16px', cursor: 'pointer',
                     background: selectedAddress?.id === addr.id ? 'var(--color-secondary)' : 'white',
-                    transition: 'all 0.2s',
-                    display: 'flex', gap: 12, alignItems: 'flex-start',
+                    transition: 'all 0.2s', display: 'flex', gap: 12, alignItems: 'flex-start',
                   }}>
                     <div style={{
                       width: 20, height: 20, borderRadius: '50%', flexShrink: 0, marginTop: 2,
@@ -240,49 +195,26 @@ export default function Checkout() {
                       {selectedAddress?.id === addr.id && <Check size={12} color="white" />}
                     </div>
                     <div>
-                      <p style={{ fontWeight: 700, marginBottom: 4 }}>{addr.name} <span className="badge badge-neutral" style={{ marginLeft: 8 }}>{addr.label}</span></p>
-                      <p style={{ fontSize: '0.875rem', color: 'var(--color-text-medium)' }}>{addr.line1}{addr.line2 && `, ${addr.line2}`}</p>
-                      <p style={{ fontSize: '0.875rem', color: 'var(--color-text-medium)' }}>{addr.city}, {addr.state} – {addr.pincode}</p>
-                      <p style={{ fontSize: '0.875rem', color: 'var(--color-text-medium)' }}>📞 {addr.phone}</p>
+                      <p className="fw-700 mb-4">{addr.name} <span className="badge badge-neutral" style={{ marginLeft: 8 }}>{addr.label}</span></p>
+                      <p className="fs-sm text-medium">{addr.line1}{addr.line2 && `, ${addr.line2}`}</p>
+                      <p className="fs-sm text-medium">{addr.city}, {addr.state} – {addr.pincode}</p>
+                      <p className="fs-sm text-medium">📞 {addr.phone}</p>
                     </div>
                   </div>
                 ))}
               </div>
             )}
 
-            {/* Geofencing distance feedback for selected saved address */}
+            {/* Geofencing status banner for selected saved address */}
             {selectedAddress && (() => {
               const hasCoords = !isNaN(parseFloat(selectedAddress.latitude)) && !isNaN(parseFloat(selectedAddress.longitude));
-              
-              let bg = 'var(--color-neutral-light, #F5F5F5)';
-              let color = 'var(--color-text-medium, #666666)';
-              
-              if (!hasCoords) {
-                bg = 'var(--color-warning-light, #FFF3E0)';
-                color = 'var(--color-warning, #F57C00)';
-              } else if (calculatedDistance !== null) {
-                if (calculatedDistance <= 10) {
-                  bg = 'var(--color-success-light, #E8F5E9)';
-                  color = 'var(--color-success, #2E7D32)';
-                } else {
-                  bg = 'var(--color-error-light, #FFEBEE)';
-                  color = 'var(--color-error, #C62828)';
-                }
-              }
-
               return (
-                <div style={{
-                  background: bg,
-                  color: color,
-                  padding: '12px 16px', borderRadius: 10, fontSize: '0.85rem', fontWeight: 700, margin: '16px 0',
-                  border: '1px solid currentColor',
-                  transition: 'all 0.2s ease'
-                }}>
+                <div className={`${getGeofenceBannerClass(calculatedDistance, hasCoords)} mt-16 mb-16`}>
                   {!hasCoords ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div className="flex-col gap-8">
                       <span>⚠️ This address is missing GPS coordinates required for delivery radius verification. You can pin your current location to update it:</span>
-                      <button type="button" className="btn btn-outline btn-xs" 
-                        onClick={() => handlePinCoordinatesToAddress(selectedAddress.id)} 
+                      <button type="button" className="btn btn-outline btn-xs"
+                        onClick={() => handlePinCoordinatesToAddress(selectedAddress.id)}
                         disabled={fetchingLocation}
                         style={{ alignSelf: 'flex-start', marginTop: 4, display: 'flex', gap: 6, alignItems: 'center' }}>
                         {fetchingLocation ? '⏳ Pining Coordinates...' : '📍 Pin Current GPS Coordinates to this Address'}
@@ -307,23 +239,20 @@ export default function Checkout() {
             </button>
 
             {showNewForm && (
-              <div style={{ marginTop: 20, animation: 'slideDown 0.2s ease' }}>
+              <div className="mt-20" style={{ animation: 'slideDown 0.2s ease' }}>
                 {/* Geolocation Button */}
-                <div style={{ marginBottom: 16 }}>
-                  <button type="button" className="btn btn-outline" onClick={handleFetchCurrentLocation} disabled={fetchingLocation} style={{ width: '100%', justifyContent: 'center', display: 'flex', gap: 8, alignItems: 'center' }}>
+                <div className="mb-16">
+                  <button type="button" className="btn btn-outline w-full"
+                    style={{ justifyContent: 'center', display: 'flex', gap: 8, alignItems: 'center' }}
+                    onClick={handleFetchCurrentLocation} disabled={fetchingLocation}>
                     {fetchingLocation ? '⏳ Pining Coordinates...' : '📍 Pin My Current GPS Location *'}
                   </button>
-                  <p style={{ fontSize: '0.72rem', color: 'var(--color-text-light)', marginTop: 4 }}>* Required to verify you are within our 10km delivery radius.</p>
+                  <p className="fs-xxs text-light mt-4">* Required to verify you are within our 10km delivery radius.</p>
                 </div>
 
-                {/* GPS Pin range status indicator */}
+                {/* GPS range status indicator */}
                 {newAddr.latitude !== null && calculatedDistance !== null && (
-                  <div style={{
-                    background: calculatedDistance <= 10 ? 'var(--color-success-light, #E8F5E9)' : 'var(--color-error-light, #FFEBEE)',
-                    color: calculatedDistance <= 10 ? 'var(--color-success, #2E7D32)' : 'var(--color-error, #C62828)',
-                    padding: '10px 14px', borderRadius: 8, fontSize: '0.825rem', fontWeight: 600, display: 'flex', gap: 6, marginBottom: 16,
-                    border: '1px solid currentColor'
-                  }}>
+                  <div className={`${calculatedDistance <= 10 ? 'info-banner info-banner--success' : 'info-banner info-banner--error'} mb-16`}>
                     {calculatedDistance <= 10
                       ? `🟢 Within Delivery Area! (Distance: ${calculatedDistance.toFixed(1)} km)`
                       : `🔴 Out of Delivery Range! (Distance: ${calculatedDistance.toFixed(1)} km - limit is 10km)`
@@ -331,7 +260,7 @@ export default function Checkout() {
                   </div>
                 )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <div className="grid-2 mb-16">
                   {[['name','Full Name'],['phone','Phone Number'],['line1','Address Line 1'],['line2','Address Line 2 (Optional)'],['city','City'],['pincode','PIN Code']].map(([key, label]) => (
                     <div key={key} className="form-group" style={{ marginBottom: 0 }}>
                       <label className="form-label">{label}</label>
@@ -339,7 +268,7 @@ export default function Checkout() {
                     </div>
                   ))}
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div className="grid-2">
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label">State</label>
                     <select className="select" value={newAddr.state} onChange={e => setNewAddr(p => ({ ...p, state: e.target.value }))}>
@@ -353,48 +282,50 @@ export default function Checkout() {
                     </select>
                   </div>
                 </div>
-                <button className="btn btn-outline btn-sm" style={{ marginTop: 16 }} onClick={handleAddAddress}>Save Address</button>
+                <button className="btn btn-outline btn-sm mt-16" onClick={handleAddAddress}>Save Address</button>
               </div>
             )}
           </div>
 
           {/* Payment */}
-          <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--color-border)' }}>
-            <h3 style={{ fontWeight: 700, marginBottom: 16 }}>💳 Payment Method</h3>
+          <div className="card-panel">
+            <h3 className="fw-700 mb-16">💳 Payment Method</h3>
             <div style={{
               border: '2px solid var(--color-primary)', borderRadius: 12, padding: '16px 20px',
               background: 'var(--color-secondary)', display: 'flex', alignItems: 'center', gap: 12,
             }}>
-              <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="flex-center" style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--color-primary)' }}>
                 <Check size={12} color="white" />
               </div>
               <div>
-                <p style={{ fontWeight: 700 }}>💵 Cash on Delivery (COD)</p>
-                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-medium)' }}>Pay when your order arrives</p>
+                <p className="fw-700">💵 Cash on Delivery (COD)</p>
+                <p className="fs-xs text-medium">Pay when your order arrives</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Right: Summary */}
-        <div style={{ position: 'sticky', top: 80, alignSelf: 'start' }}>
-          <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
-            <h3 style={{ fontWeight: 700, marginBottom: 20 }}>Order Summary</h3>
+        <div className="sticky-sidebar">
+          <div className="card-panel-shadow">
+            <h3 className="card-panel-title mb-20">Order Summary</h3>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20, maxHeight: 250, overflowY: 'auto' }}>
+            <div className="flex-col gap-12 mb-20" style={{ maxHeight: 250, overflowY: 'auto' }}>
               {items.map(item => (
-                <div key={item.id} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <div key={item.id} className="flex gap-10 align-center">
                   <div style={{ width: 50, height: 50, borderRadius: 8, overflow: 'hidden', background: 'var(--color-secondary)', flexShrink: 0 }}>
-                    {item.product?.primary_image ? <img src={item.product.primary_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🧴</div>}
+                    {item.product?.primary_image
+                      ? <img src={item.product.primary_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <div className="flex-center" style={{ width: '100%', height: '100%' }}>🧴</div>}
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="flex-1 min-w-0">
                     <p style={{ fontSize: '0.8rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product?.name}</p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Qty: {item.quantity}</p>
+                    <p className="fs-xs text-light">Qty: {item.quantity}</p>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontWeight: 700, fontSize: '0.875rem', display: 'block' }}>₹{parseFloat(item.subtotal || 0).toFixed(0)}</span>
+                  <div className="text-right">
+                    <span className="fw-700 fs-sm" style={{ display: 'block' }}>₹{parseFloat(item.subtotal || 0).toFixed(0)}</span>
                     {parseFloat(item.product?.mrp || 0) > parseFloat(item.product?.offer_price || 0) && (
-                      <span style={{ fontSize: '0.7rem', color: 'var(--color-text-light)', textDecoration: 'line-through' }}>
+                      <span className="fs-xxs text-light" style={{ textDecoration: 'line-through' }}>
                         ₹{(parseFloat(item.product.mrp) * item.quantity).toFixed(0)}
                       </span>
                     )}
@@ -408,80 +339,69 @@ export default function Checkout() {
               const totalMRP = items.reduce((sum, item) => sum + parseFloat(item.product?.mrp || item.product?.offer_price || 0) * item.quantity, 0);
               const totalOfferPrice = subtotal;
               const productDiscount = totalMRP - totalOfferPrice;
-
               return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, fontSize: '0.875rem' }}>
+                <div className="order-summary-rows">
                   {productDiscount > 0 ? (
                     <>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ color: 'var(--color-text-medium)' }}>Total MRP</span>
-                        <span style={{ textDecoration: 'line-through', color: 'var(--color-text-light)' }}>₹{totalMRP.toFixed(0)}</span>
+                      <div className="order-summary-row">
+                        <span className="text-medium">Total MRP</span>
+                        <span className="text-light" style={{ textDecoration: 'line-through' }}>₹{totalMRP.toFixed(0)}</span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ color: 'var(--color-success)' }}>Product Discount</span>
-                        <span style={{ color: 'var(--color-success)' }}>-₹{productDiscount.toFixed(0)}</span>
+                      <div className="order-summary-row">
+                        <span className="text-success">Product Discount</span>
+                        <span className="text-success">-₹{productDiscount.toFixed(0)}</span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}>
-                        <span style={{ color: 'var(--color-text-medium)' }}>Discounted Price</span>
+                      <div className="order-summary-row fw-600">
+                        <span className="text-medium">Discounted Price</span>
                         <span>₹{totalOfferPrice.toFixed(0)}</span>
                       </div>
                     </>
                   ) : (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}>
-                      <span style={{ color: 'var(--color-text-medium)' }}>Discounted Price</span>
+                    <div className="order-summary-row fw-600">
+                      <span className="text-medium">Discounted Price</span>
                       <span>₹{subtotal.toFixed(0)}</span>
                     </div>
                   )}
                   {discount > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: 'var(--color-success)' }}>Coupon Discount</span>
-                      <span style={{ color: 'var(--color-success)' }}>-₹{discount.toFixed(0)}</span>
+                    <div className="order-summary-row">
+                      <span className="text-success">Coupon Discount</span>
+                      <span className="text-success">-₹{discount.toFixed(0)}</span>
                     </div>
                   )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--color-text-medium)' }}>Delivery</span>
-                    <span style={{ color: 'var(--color-success)' }}>FREE</span>
+                  <div className="order-summary-row">
+                    <span className="text-medium">Delivery</span>
+                    <span className="text-success">FREE</span>
                   </div>
                 </div>
               );
             })()}
             <div className="divider" />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.1rem', marginBottom: 20 }}>
-              <span>Total</span><span style={{ color: 'var(--color-primary)' }}>₹{total.toFixed(0)}</span>
+            <div className="order-total-row">
+              <span>Total</span>
+              <span className="text-primary">₹{total.toFixed(0)}</span>
             </div>
 
             {(() => {
-              const hasCoords = selectedAddress 
+              const hasCoords = selectedAddress
                 ? (!isNaN(parseFloat(selectedAddress.latitude)) && !isNaN(parseFloat(selectedAddress.longitude)))
                 : (showNewForm && !isNaN(parseFloat(newAddr.latitude)) && !isNaN(parseFloat(newAddr.longitude)));
-
               const isCheckoutDisabled = selectedAddress
                 ? (!hasCoords || calculatedDistance === null || calculatedDistance > 10)
-                : (showNewForm
-                    ? (!hasCoords || calculatedDistance === null || calculatedDistance > 10)
-                    : true);
-              
+                : (showNewForm ? (!hasCoords || calculatedDistance === null || calculatedDistance > 10) : true);
               return (
-                <button className="btn btn-primary btn-lg" style={{ width: '100%', justifyContent: 'center' }}
+                <button className="btn btn-primary btn-lg w-full" style={{ justifyContent: 'center' }}
                   onClick={handlePlaceOrder} disabled={placing || isCheckoutDisabled}>
                   {placing ? '⏳ Placing Order...' : '✅ Place Order (COD)'}
                 </button>
               );
             })()}
 
-            <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--color-text-light)', marginTop: 12 }}>
+            <p className="text-center fs-xs text-light mt-12">
               By placing order, you agree to our terms
             </p>
           </div>
         </div>
       </div>
-
-      <style>{`
-        @media (max-width: 768px) {
-          [style*="grid-template-columns: 1fr 360px"] { grid-template-columns: 1fr !important; }
-          [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </div>
   );
 }

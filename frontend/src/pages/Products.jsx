@@ -62,19 +62,19 @@ export default function Products() {
   const activeFilters = [categorySlug && `Category`, minPrice && `Min ₹${minPrice}`, maxPrice && `Max ₹${maxPrice}`, isFeatured && 'Featured'].filter(Boolean);
 
   return (
-    <div className="container" style={{ padding: '32px 20px' }}>
+    <div className="container page-container-sm">
       {/* Header */}
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 700, marginBottom: 8 }}>
+      <div className="page-header">
+        <h1 className="page-title">
           {categorySlug ? categories.find(c => c.slug === categorySlug)?.name || 'Products' : 'All Products'}
         </h1>
-        <p style={{ color: 'var(--color-text-medium)' }}>
+        <p className="text-medium">
           {loading ? 'Loading...' : `${totalCount} products found`}
         </p>
       </div>
 
       {/* Controls */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap', alignItems: 'center' }}>
+      <div className="flex gap-12 mb-24 flex-wrap align-center">
         {/* Search */}
         <div style={{ position: 'relative', flex: '1 1 240px' }}>
           <Search size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-light)' }} />
@@ -115,12 +115,7 @@ export default function Products() {
 
       {/* Price filters */}
       {showFilters && (
-        <div style={{
-          background: 'white', borderRadius: 12, padding: '20px 24px', marginBottom: 24,
-          border: '1px solid var(--color-border)',
-          display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end',
-          animation: 'slideDown 0.2s ease',
-        }}>
+        <div className="filter-panel">
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Min Price (₹)</label>
             <input className="input" type="number" placeholder="0" style={{ width: 120 }}
@@ -131,10 +126,10 @@ export default function Products() {
             <input className="input" type="number" placeholder="5000" style={{ width: 120 }}
               value={maxPrice} onChange={e => updateParam('max_price', e.target.value)} />
           </div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+          <label className="flex align-center gap-8" style={{ cursor: 'pointer' }}>
             <input type="checkbox" checked={!!isFeatured}
               onChange={e => updateParam('is_featured', e.target.checked ? 'true' : '')} />
-            <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Featured Only</span>
+            <span className="fs-sm fw-600">Featured Only</span>
           </label>
         </div>
       )}
@@ -144,9 +139,9 @@ export default function Products() {
 
       {/* Pagination */}
       {totalCount > 20 && !loading && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 40 }}>
+        <div className="pagination-row">
           <button className="btn btn-ghost btn-sm" disabled={page === 1} onClick={() => setPage(p => p - 1)}>← Previous</button>
-          <span style={{ padding: '8px 16px', fontSize: '0.875rem', color: 'var(--color-text-medium)' }}>
+          <span className="fs-sm text-medium" style={{ padding: '8px 16px' }}>
             Page {page} of {Math.ceil(totalCount / 20)}
           </span>
           <button className="btn btn-ghost btn-sm" disabled={page >= Math.ceil(totalCount / 20)} onClick={() => setPage(p => p + 1)}>Next →</button>

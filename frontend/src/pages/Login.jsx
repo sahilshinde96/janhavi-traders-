@@ -42,7 +42,7 @@ export default function Login() {
       // Escape Google's third-party callback context to ensure React Router navigates correctly
       setTimeout(() => {
         login(data.user, data.access, data.refresh);
-        toast.success(data.is_new_user ? 'Welcome to Janhavi Traders! 🎉' : 'Welcome back! 👋');
+        toast.success(data.is_new_user ? 'Welcome to BLUSHH! 🎉' : 'Welcome back! 👋');
         navigate(data.user.is_staff ? '/admin' : from, { replace: true });
         setLoading(false);
       }, 100);
@@ -127,7 +127,7 @@ export default function Login() {
     try {
       const { data } = await api.post('/auth/verify-otp/', { identifier: identifier.trim(), type: loginType, code });
       login(data.user, data.access, data.refresh);
-      toast.success(data.is_new_user ? 'Welcome to Janhavi Traders! 🎉' : 'Welcome back! 👋');
+      toast.success(data.is_new_user ? 'Welcome to BLUSHH! 🎉' : 'Welcome back! 👋');
       navigate(data.user.is_staff ? '/admin' : from, { replace: true });
     } catch (err) {
       toast.error(err.response?.data?.error || 'Invalid OTP');
@@ -139,45 +139,30 @@ export default function Login() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'linear-gradient(135deg, #1C1C2E 0%, #2D1B3D 50%, #4A1942 100%)',
-      padding: 20,
-    }}>
-      <div style={{
-        background: 'white', borderRadius: 24, padding: 40, width: '100%', maxWidth: 440,
-        boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
-        animation: 'scaleIn 0.3s ease',
-      }}>
+    <div className="login-page">
+      <div className="login-card">
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 32, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <img src={logo} alt="Janhavi Traders Logo" style={{ height: 64, width: 64, borderRadius: '50%', objectFit: 'cover', marginBottom: 12, boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }} />
+        <div className="text-center mb-32 flex-col flex align-center">
+          <img src={logo} alt="BLUSHH Logo" style={{ height: 64, width: 64, borderRadius: '50%', objectFit: 'cover', marginBottom: 12, boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }} />
           <h1 style={{
             fontFamily: 'var(--font-display)', fontSize: '1.6rem', fontWeight: 700,
             color: 'var(--color-primary)', marginBottom: 4, margin: 0
-          }}>JANHAVI<span style={{ color: 'var(--color-dark)' }}> TRADERS</span></h1>
-          <p style={{ color: 'var(--color-text-medium)', fontSize: '0.875rem', marginTop: 4 }}>Your premium beauty destination</p>
+          }}>BLUSHH</h1>
+          <p className="text-medium fs-sm mt-4">Your premium beauty destination</p>
         </div>
 
         {step === 1 ? (
           <>
-            <h2 style={{ fontWeight: 700, fontSize: '1.3rem', marginBottom: 6 }}>Sign In / Register</h2>
-            <p style={{ color: 'var(--color-text-medium)', fontSize: '0.875rem', marginBottom: 24 }}>
+            <h2 className="fw-700" style={{ fontSize: '1.3rem', marginBottom: 6 }}>Sign In / Register</h2>
+            <p className="text-medium fs-sm mb-24">
               Enter your email or phone. New users will be registered automatically!
             </p>
 
             {/* Type toggle */}
-            <div style={{ display: 'flex', background: 'var(--color-bg)', borderRadius: 10, padding: 4, marginBottom: 24 }}>
+            <div className="auth-tabs">
               {[{ type: 'email', icon: Mail, label: 'Email' }, { type: 'phone', icon: Phone, label: 'Phone' }].map(({ type, icon: Icon, label }) => (
-                <button key={type} onClick={() => setLoginType(type)} style={{
-                  flex: 1, padding: '10px', border: 'none', borderRadius: 8, cursor: 'pointer',
-                  background: loginType === type ? 'white' : 'transparent',
-                  boxShadow: loginType === type ? 'var(--shadow-sm)' : 'none',
-                  color: loginType === type ? 'var(--color-primary)' : 'var(--color-text-medium)',
-                  fontWeight: loginType === type ? 700 : 400,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                  fontSize: '0.875rem', transition: 'all 0.2s',
-                }}>
+                <button key={type} onClick={() => setLoginType(type)}
+                  className={`auth-tab${loginType === type ? ' auth-tab--active' : ''}`}>
                   <Icon size={15} /> {label}
                 </button>
               ))}
@@ -198,15 +183,15 @@ export default function Login() {
               />
             </div>
 
-            <button className="btn btn-primary btn-lg" style={{ width: '100%', justifyContent: 'center', marginTop: 8 }}
+            <button className="btn btn-primary btn-lg w-full" style={{ justifyContent: 'center', marginTop: 8 }}
               onClick={handleSendOTP} disabled={loading}>
               {loading ? '⏳ Sending...' : <><span>Send OTP</span> <ArrowRight size={18} /></>}
             </button>
 
             {/* Google Sign-in section */}
-            <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', gap: 12 }}>
+            <div className="flex align-center gap-12" style={{ margin: '20px 0' }}>
               <div style={{ flex: 1, height: 1, background: 'var(--color-border)' }} />
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)', fontWeight: 500 }}>OR</span>
+              <span className="fs-xs text-light fw-600">OR</span>
               <div style={{ flex: 1, height: 1, background: 'var(--color-border)' }} />
             </div>
 
@@ -214,27 +199,26 @@ export default function Login() {
           </>
         ) : (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
+            <div className="flex align-center gap-8 mb-24">
               <button onClick={() => { setStep(1); setOtp(['', '', '', '', '', '']); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-medium)', padding: 0 }}>
                 ←
               </button>
               <div>
-                <h2 style={{ fontWeight: 700, fontSize: '1.2rem', marginBottom: 2 }}>Enter OTP</h2>
-                <p style={{ color: 'var(--color-text-medium)', fontSize: '0.8rem' }}>
+                <h2 className="fw-700" style={{ fontSize: '1.2rem', marginBottom: 2 }}>Enter OTP</h2>
+                <p className="text-medium" style={{ fontSize: '0.8rem' }}>
                   Sent to <strong>{identifier}</strong>
                 </p>
               </div>
             </div>
 
             {/* 6-box OTP input */}
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: 28 }}>
+            <div className="flex gap-10" style={{ justifyContent: 'center', marginBottom: 28 }}>
               {otp.map((digit, idx) => (
                 <input
                   key={idx}
                   ref={el => inputRefs.current[idx] = el}
                   type="text"
                   inputMode="numeric"
-                  
                   value={digit}
                   onChange={e => handleOTPInput(e.target.value, idx)}
                   onKeyDown={e => handleKeyDown(e, idx)}
@@ -248,14 +232,14 @@ export default function Login() {
               ))}
             </div>
 
-            <button className="btn btn-primary btn-lg" style={{ width: '100%', justifyContent: 'center', marginBottom: 16 }}
+            <button className="btn btn-primary btn-lg w-full" style={{ justifyContent: 'center', marginBottom: 16 }}
               onClick={() => handleVerify()} disabled={loading || otp.join('').length < 6}>
               {loading ? '⏳ Verifying...' : 'Verify & Login'}
             </button>
 
-            <div style={{ textAlign: 'center' }}>
+            <div className="text-center">
               {countdown > 0 ? (
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-text-medium)' }}>
+                <p className="text-medium fs-sm">
                   Resend OTP in <strong>{countdown}s</strong>
                 </p>
               ) : (
@@ -271,11 +255,11 @@ export default function Login() {
           </>
         )}
 
-        <p style={{ textAlign: 'center', fontSize: '0.825rem', color: 'var(--color-primary)', fontWeight: 500, marginTop: 24 }}>
+        <p className="text-center text-primary fw-600 mt-24" style={{ fontSize: '0.825rem' }}>
           Don't have an account? Just enter your details above to sign up instantly!
         </p>
-        <p style={{ textAlign: 'center', fontSize: '0.7rem', color: 'var(--color-text-light)', marginTop: 12 }}>
-          By signing in, you agree to our Terms & Privacy Policy
+        <p className="text-center text-light mt-12" style={{ fontSize: '0.7rem' }}>
+          By signing in, you agree to our Terms &amp; Privacy Policy
         </p>
       </div>
     </div>

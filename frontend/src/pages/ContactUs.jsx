@@ -128,7 +128,7 @@ export default function ContactUs() {
               <div className="info-card-body">
                 <div className="info-row">
                   <span className="info-label">Registered Entity</span>
-                  <span className="info-value-text">Janhavi Traders</span>
+                  <span className="info-value-text">BLUSHH</span>
                 </div>
                 <div className="info-row">
                   <span className="info-label">Office Address</span>

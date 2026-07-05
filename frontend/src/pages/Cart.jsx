@@ -37,87 +37,81 @@ export default function Cart() {
   const handleRemoveCoupon = () => { setAppliedCoupon(null); setCouponCode(''); };
 
   if (!cart || items.length === 0) return (
-    <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 20, padding: 40 }}>
+    <div className="empty-state">
       <ShoppingBag size={64} color="var(--color-border)" />
-      <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem' }}>Your cart is empty</h2>
-      <p style={{ color: 'var(--color-text-medium)' }}>Add some beautiful products to get started</p>
+      <h2 className="empty-state-title">Your cart is empty</h2>
+      <p className="text-medium">Add some beautiful products to get started</p>
       <button className="btn btn-primary btn-lg" onClick={() => navigate('/products')}>Shop Now</button>
     </div>
   );
 
   return (
-    <div className="container" style={{ padding: '40px 20px' }}>
-      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 700, marginBottom: 32 }}>Shopping Cart</h1>
+    <div className="container page-container">
+      <h1 className="page-title mb-32">Shopping Cart</h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 32 }}>
+      <div className="cart-grid">
         {/* Cart Items */}
-        <div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {items.map(item => (
-              <div key={item.id} style={{
-                background: 'white', borderRadius: 16, padding: 20,
-                border: '1px solid var(--color-border)', display: 'flex', gap: 16,
-                boxShadow: 'var(--shadow-xs)',
-              }}>
-                <div style={{ width: 100, height: 100, borderRadius: 12, overflow: 'hidden', background: 'var(--color-secondary)', flexShrink: 0 }}>
-                  {item.product?.primary_image ? (
-                    <img src={item.product.primary_image} alt={item.product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>🧴</div>}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: 4 }}>{item.product?.name}</p>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', marginBottom: 12 }}>{item.product?.category_name}</p>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 0, border: '1.5px solid var(--color-border)', borderRadius: 8, overflow: 'hidden' }}>
-                      <button onClick={() => updateItem(item.id, item.quantity - 1)} style={{ padding: '8px 14px', background: 'var(--color-bg)', border: 'none', cursor: 'pointer' }}><Minus size={14} /></button>
-                      <span style={{ padding: '8px 16px', fontWeight: 700, borderLeft: '1px solid var(--color-border)', borderRight: '1px solid var(--color-border)' }}>{item.quantity}</span>
-                      <button onClick={() => updateItem(item.id, item.quantity + 1)} style={{ padding: '8px 14px', background: 'var(--color-bg)', border: 'none', cursor: 'pointer' }}><Plus size={14} /></button>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                          <span style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--color-primary)' }}>₹{parseFloat(item.subtotal || 0).toFixed(0)}</span>
-                          {parseFloat(item.product?.mrp || 0) > parseFloat(item.product?.offer_price || 0) && (
-                            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', textDecoration: 'line-through' }}>
-                              ₹{(parseFloat(item.product.mrp) * item.quantity).toFixed(0)}
-                            </span>
-                          )}
-                        </div>
-                        <span style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', display: 'block', marginTop: 2 }}>
-                          (₹{parseFloat(item.product?.offer_price || 0).toFixed(0)} each)
-                        </span>
+        <div className="flex-col gap-16">
+          {items.map(item => (
+            <div key={item.id} className="card-panel flex gap-16">
+              <div style={{ width: 100, height: 100, borderRadius: 12, overflow: 'hidden', background: 'var(--color-secondary)', flexShrink: 0 }}>
+                {item.product?.primary_image ? (
+                  <img src={item.product.primary_image} alt={item.product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : <div className="flex-center" style={{ width: '100%', height: '100%', fontSize: '2rem' }}>🧴</div>}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="fw-700 mb-4" style={{ fontSize: '1rem' }}>{item.product?.name}</p>
+                <p className="fs-xs text-light mb-12">{item.product?.category_name}</p>
+                <div className="flex-between flex-wrap gap-12">
+                  <div className="qty-control">
+                    <button className="qty-control-btn" onClick={() => updateItem(item.id, item.quantity - 1)}><Minus size={14} /></button>
+                    <span className="qty-control-value">{item.quantity}</span>
+                    <button className="qty-control-btn" onClick={() => updateItem(item.id, item.quantity + 1)}><Plus size={14} /></button>
+                  </div>
+                  <div className="flex align-center gap-16">
+                    <div>
+                      <div className="flex align-center gap-6">
+                        <span className="fw-800 text-primary" style={{ fontSize: '1.1rem' }}>₹{parseFloat(item.subtotal || 0).toFixed(0)}</span>
+                        {parseFloat(item.product?.mrp || 0) > parseFloat(item.product?.offer_price || 0) && (
+                          <span className="fs-sm text-light" style={{ textDecoration: 'line-through' }}>
+                            ₹{(parseFloat(item.product.mrp) * item.quantity).toFixed(0)}
+                          </span>
+                        )}
                       </div>
-                      <button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-error)', padding: 4 }}>
-                        <X size={18} />
-                      </button>
+                      <span className="fs-xs text-light mt-4" style={{ display: 'block' }}>
+                        (₹{parseFloat(item.product?.offer_price || 0).toFixed(0)} each)
+                      </span>
                     </div>
+                    <button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-error)', padding: 4 }}>
+                      <X size={18} />
+                    </button>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
 
         {/* Summary */}
-        <div style={{ position: 'sticky', top: 80, alignSelf: 'start' }}>
-          <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
-            <h3 style={{ fontWeight: 700, marginBottom: 20, fontSize: '1.1rem' }}>Order Summary</h3>
+        <div className="sticky-sidebar">
+          <div className="card-panel-shadow">
+            <h3 className="card-panel-title mb-20">Order Summary</h3>
 
             {/* Coupon */}
-            <div style={{ marginBottom: 20 }}>
+            <div className="mb-20">
               {appliedCoupon ? (
-                <div style={{ background: 'var(--color-success-light)', borderRadius: 8, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="coupon-applied">
                   <div>
-                    <span style={{ fontWeight: 700, color: 'var(--color-success)', fontSize: '0.875rem' }}>
+                    <span className="fw-700 text-success fs-sm">
                       <Tag size={12} style={{ marginRight: 4 }} />{appliedCoupon.code}
                     </span>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-success)', marginTop: 2 }}>{appliedCoupon.description}</p>
+                    <p className="fs-xs text-success mt-4">{appliedCoupon.description}</p>
                   </div>
                   <button onClick={handleRemoveCoupon} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-success)' }}><X size={16} /></button>
                 </div>
               ) : (
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <input className="input" style={{ flex: 1, fontSize: '0.875rem' }}
+                <div className="flex gap-8">
+                  <input className="input flex-1" style={{ fontSize: '0.875rem' }}
                     placeholder="Coupon code" value={couponCode} onChange={e => setCouponCode(e.target.value.toUpperCase())}
                     onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()} />
                   <button className="btn btn-outline btn-sm" onClick={handleApplyCoupon} disabled={couponLoading}>
@@ -136,40 +130,40 @@ export default function Cart() {
               const productDiscount = totalMRP - totalOfferPrice;
 
               return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+                <div className="order-summary-rows">
                   {productDiscount > 0 ? (
                     <>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                        <span style={{ color: 'var(--color-text-medium)' }}>Total MRP</span>
-                        <span style={{ textDecoration: 'line-through', color: 'var(--color-text-light)' }}>₹{totalMRP.toFixed(0)}</span>
+                      <div className="order-summary-row">
+                        <span className="text-medium">Total MRP</span>
+                        <span style={{ textDecoration: 'line-through' }} className="text-light">₹{totalMRP.toFixed(0)}</span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                        <span style={{ color: 'var(--color-success)' }}>Product Discount</span>
-                        <span style={{ color: 'var(--color-success)' }}>-₹{productDiscount.toFixed(0)}</span>
+                      <div className="order-summary-row">
+                        <span className="text-success">Product Discount</span>
+                        <span className="text-success">-₹{productDiscount.toFixed(0)}</span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', fontWeight: 600 }}>
-                        <span style={{ color: 'var(--color-text-medium)' }}>Discounted Price</span>
+                      <div className="order-summary-row fw-600">
+                        <span className="text-medium">Discounted Price</span>
                         <span>₹{totalOfferPrice.toFixed(0)}</span>
                       </div>
                     </>
                   ) : (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', fontWeight: 600 }}>
-                      <span style={{ color: 'var(--color-text-medium)' }}>Discounted Price</span>
+                    <div className="order-summary-row fw-600">
+                      <span className="text-medium">Discounted Price</span>
                       <span>₹{subtotal.toFixed(0)}</span>
                     </div>
                   )}
                   {discount > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                      <span style={{ color: 'var(--color-success)' }}>Coupon Discount</span>
-                      <span style={{ color: 'var(--color-success)' }}>-₹{discount.toFixed(0)}</span>
+                    <div className="order-summary-row">
+                      <span className="text-success">Coupon Discount</span>
+                      <span className="text-success">-₹{discount.toFixed(0)}</span>
                     </div>
                   )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                    <span style={{ color: 'var(--color-text-medium)' }}>Delivery</span>
-                    <span style={{ color: 'var(--color-success)' }}>FREE</span>
+                  <div className="order-summary-row">
+                    <span className="text-medium">Delivery</span>
+                    <span className="text-success">FREE</span>
                   </div>
                   {subtotal < 150 && (
-                    <p style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 600, marginTop: 4 }}>
+                    <p className="fs-xs fw-600 mt-4" style={{ color: '#dc2626' }}>
                       Minimum order value is ₹150. Add ₹{(150 - subtotal).toFixed(0)} more to checkout.
                     </p>
                   )}
@@ -179,37 +173,26 @@ export default function Cart() {
 
             <div className="divider" />
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.1rem', marginBottom: 20 }}>
+            <div className="order-total-row">
               <span>Total</span>
-              <span style={{ color: 'var(--color-primary)' }}>₹{total.toFixed(0)}</span>
+              <span className="text-primary">₹{total.toFixed(0)}</span>
             </div>
 
-            <button 
-              className="btn btn-primary btn-lg" 
-              style={{ 
-                width: '100%', 
-                justifyContent: 'center', 
-                opacity: subtotal < 150 ? 0.6 : 1, 
-                cursor: subtotal < 150 ? 'not-allowed' : 'pointer' 
-              }}
+            <button
+              className="btn btn-primary btn-lg w-full"
+              style={{ justifyContent: 'center', opacity: subtotal < 150 ? 0.6 : 1, cursor: subtotal < 150 ? 'not-allowed' : 'pointer' }}
               disabled={subtotal < 150}
               onClick={() => navigate('/checkout', { state: { appliedCoupon } })}
             >
               Proceed to Checkout
             </button>
 
-            <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--color-text-light)', marginTop: 12 }}>
+            <p className="text-center fs-xs text-light mt-12">
               💳 Cash on Delivery | 🔒 Secure Checkout
             </p>
           </div>
         </div>
       </div>
-
-      <style>{`
-        @media (max-width: 768px) {
-          [style*="grid-template-columns: 1fr 380px"] { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </div>
   );
 }

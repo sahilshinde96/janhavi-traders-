@@ -136,7 +136,7 @@ export default function PrivacyPolicy() {
               <h2 className="section-heading">Overview</h2>
               <div className="section-body">
                 <p>
-                  The website <a href="https://www.janhavitraders.com" target="_blank" rel="noopener noreferrer" className="inline-link">www.janhavitraders.com</a> (hereinafter referred to as the <strong>"Platform"</strong>) is owned and operated by <strong>Janhavi Traders</strong>, a partnership firm registered under the Indian Partnership Act, 1932, engaged in the wholesale and retail supply of genuine cosmetic and personal care products, including brands such as Dermalogica, Mamaearth, Nivea, and other premium beauty labels.
+                  The website <a href="https://www.janhavitraders.com" target="_blank" rel="noopener noreferrer" className="inline-link">www.janhavitraders.com</a> (hereinafter referred to as the <strong>"Platform"</strong>) is owned and operated by <strong>BLUSHH</strong>, a partnership firm registered under the Indian Partnership Act, 1932, engaged in the wholesale and retail supply of genuine cosmetic and personal care products, including brands such as Dermalogica, Mamaearth, Nivea, and other premium beauty labels.
                 </p>
                 <p>
                   Our principal place of business is located at:
@@ -160,7 +160,7 @@ export default function PrivacyPolicy() {
               <div className="section-body">
                 <ul className="custom-list">
                   <li>
-                    <strong>"We", "Our", and "Us":</strong> Refers to Janhavi Traders, its registered partners, employees, agents, and authorised representatives.
+                    <strong>"We", "Our", and "Us":</strong> Refers to BLUSHH, its registered partners, employees, agents, and authorised representatives.
                   </li>
                   <li>
                     <strong>"You", "Your", "Yourself", and "User":</strong> Refers to natural and legal individuals who access, browse, or transact on the Platform and avail Services for purchasing cosmetic, skincare, haircare, and personal care products.
@@ -278,7 +278,7 @@ export default function PrivacyPolicy() {
               <h2 className="section-heading">7. Links to Other Sites</h2>
               <div className="section-body">
                 <p>
-                  Our site links to other websites that may collect personally identifiable information about you. Janhavi Traders is not responsible for the privacy practices or the content of those linked websites.
+                  Our site links to other websites that may collect personally identifiable information about you. BLUSHH is not responsible for the privacy practices or the content of those linked websites.
                 </p>
               </div>
             </section>
@@ -374,7 +374,7 @@ export default function PrivacyPolicy() {
               <h2 className="section-heading">13. Grievance Officer</h2>
               <div className="section-body">
                 <p>
-                  In accordance with the Information Technology Act, 2000, and the IT (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021, and the Digital Personal Data Protection Act, 2023, Janhavi Traders has appointed a Grievance Officer to address concerns related to this Privacy Policy and the handling of your Personal Data. All grievances, queries, and complaints shall be directed to:
+                  In accordance with the Information Technology Act, 2000, and the IT (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021, and the Digital Personal Data Protection Act, 2023, BLUSHH has appointed a Grievance Officer to address concerns related to this Privacy Policy and the handling of your Personal Data. All grievances, queries, and complaints shall be directed to:
                 </p>
                 
                 {/* Contact Card Widget */}
@@ -383,7 +383,7 @@ export default function PrivacyPolicy() {
                     <div className="avatar-placeholder">RJ</div>
                     <div>
                       <h4 className="contact-name">Rohit Jaiswar</h4>
-                      <p className="contact-title">Grievance Officer, Janhavi Traders</p>
+                      <p className="contact-title">Grievance Officer, BLUSHH</p>
                     </div>
                   </div>
                   <div className="contact-card-body">

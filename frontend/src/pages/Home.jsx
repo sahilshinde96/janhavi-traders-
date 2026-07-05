@@ -66,30 +66,16 @@ export default function Home() {
       <section style={{ position: 'relative', height: '85vh', overflow: 'hidden', background: '#1C1C2E' }}>
         
         {/* Slide 1: Custom Image Uploaded */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: `url(${hero1})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          opacity: activeSlide === 0 ? 1 : 0,
-          visibility: activeSlide === 0 ? 'visible' : 'hidden',
-          transition: 'opacity 0.8s ease-in-out, visibility 0.8s ease-in-out',
-          display: 'flex', alignItems: 'center',
-        }}>
+        <div
+          className={`hero-slide ${activeSlide === 0 ? 'hero-slide--visible' : 'hero-slide--hidden'}`}
+          style={{ backgroundImage: `url(${hero1})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+        >
           {/* Dark overlay for readability */}
           <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1 }} />
-          
           <div className="container" style={{ position: 'relative', zIndex: 2 }}>
             <div style={{ maxWidth: 580, animation: activeSlide === 0 ? 'slideUp 0.7s ease' : 'none' }}>
-              <div style={{
-                display: 'inline-block',
-                background: 'rgba(200,73,106,0.3)', color: '#FFB3C6',
-                border: '1px solid rgba(200,73,106,0.6)',
-                padding: '6px 18px', borderRadius: 99, fontSize: '0.78rem',
-                fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase',
-                marginBottom: 24,
-              }}>
-                ✨ Premium Cosmetics & Skincare
+              <div className="hero-pill hero-pill--primary-bright">
+                ✨ Premium Cosmetics &amp; Skincare
               </div>
               <h1 className="hero-title" style={{ color: 'white' }}>
                 Your Glow Journey<br />
@@ -98,7 +84,7 @@ export default function Home() {
               <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.1rem', marginBottom: 36, lineHeight: 1.7 }}>
                 Explore dermatologist-tested cosmetics and skincare products curated to match your skin's unique needs.
               </p>
-              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              <div className="flex gap-16 flex-wrap">
                 <button className="btn btn-primary btn-lg" onClick={() => navigate('/products?category=skincare')}>
                   Explore Skincare
                 </button>
@@ -112,28 +98,17 @@ export default function Home() {
         </div>
 
         {/* Slide 2: Original Landing Page Template */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(135deg, #1C1C2E 0%, #2D1B3D 50%, #4A1942 100%)',
-          opacity: activeSlide === 1 ? 1 : 0,
-          visibility: activeSlide === 1 ? 'visible' : 'hidden',
-          transition: 'opacity 0.8s ease-in-out, visibility 0.8s ease-in-out',
-          display: 'flex', alignItems: 'center',
-        }}>
+        <div
+          className={`hero-slide ${activeSlide === 1 ? 'hero-slide--visible' : 'hero-slide--hidden'}`}
+          style={{ background: 'linear-gradient(135deg, #1C1C2E 0%, #2D1B3D 50%, #4A1942 100%)' }}
+        >
           <div style={{
             position: 'absolute', inset: 0,
             background: 'radial-gradient(circle at 70% 50%, rgba(200,73,106,0.25) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(201,168,76,0.15) 0%, transparent 50%)',
           }} />
           <div className="container" style={{ position: 'relative', zIndex: 2 }}>
             <div style={{ maxWidth: 580, animation: activeSlide === 1 ? 'slideUp 0.7s ease' : 'none' }}>
-              <div style={{
-                display: 'inline-block',
-                background: 'rgba(200,73,106,0.2)', color: '#E8849A',
-                border: '1px solid rgba(200,73,106,0.4)',
-                padding: '6px 18px', borderRadius: 99, fontSize: '0.78rem',
-                fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase',
-                marginBottom: 24,
-              }}>
+              <div className="hero-pill hero-pill--primary">
                 ✨ Premium Cosmetics
               </div>
               <h1 className="hero-title" style={{ color: 'white' }}>
@@ -142,9 +117,9 @@ export default function Home() {
               </h1>
               <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: 36, lineHeight: 1.7 }}>
                 Discover authentic cosmetics from top brands.<br />
-                Makeup, Skincare & Haircare — all in one place.
+                Makeup, Skincare &amp; Haircare — all in one place.
               </p>
-              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              <div className="flex gap-16 flex-wrap">
                 <button className="btn btn-primary btn-lg" onClick={() => navigate('/products')}>
                   Shop Now
                 </button>
@@ -160,26 +135,15 @@ export default function Home() {
         </div>
 
         {/* Slide 3: Most Discounted Item Banner */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(135deg, #1C1C2E 0%, #29153B 50%, #15253A 100%)',
-          opacity: activeSlide === 2 ? 1 : 0,
-          visibility: activeSlide === 2 ? 'visible' : 'hidden',
-          transition: 'opacity 0.8s ease-in-out, visibility 0.8s ease-in-out',
-          display: 'flex', alignItems: 'center',
-        }}>
+        <div
+          className={`hero-slide ${activeSlide === 2 ? 'hero-slide--visible' : 'hero-slide--hidden'}`}
+          style={{ background: 'linear-gradient(135deg, #1C1C2E 0%, #29153B 50%, #15253A 100%)' }}
+        >
           <div className="container" style={{ position: 'relative', zIndex: 2, width: '100%' }}>
             {bestDiscountProduct ? (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 40, animation: activeSlide === 2 ? 'slideUp 0.7s ease' : 'none' }}>
+              <div className="flex-between flex-wrap gap-40" style={{ animation: activeSlide === 2 ? 'slideUp 0.7s ease' : 'none' }}>
                 <div style={{ maxWidth: 550 }}>
-                  <div style={{
-                    display: 'inline-block',
-                    background: 'rgba(201,168,76,0.2)', color: '#FFD369',
-                    border: '1px solid rgba(201,168,76,0.4)',
-                    padding: '6px 18px', borderRadius: 99, fontSize: '0.78rem',
-                    fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
-                    marginBottom: 24,
-                  }}>
+                  <div className="hero-pill hero-pill--gold">
                     🔥 Deal of the Day: {maxDiscountPercent.toFixed(0)}% OFF
                   </div>
                   <h1 className="hero-title" style={{ color: 'white', fontSize: 'clamp(2rem, 4vw, 3rem)' }}>
@@ -188,7 +152,7 @@ export default function Home() {
                   <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: 28, lineHeight: 1.6 }}>
                     Get this bestseller now at an unbeatable price! Only COD and free shipping above ₹500.
                   </p>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 36 }}>
+                  <div className="flex align-center gap-16 mb-32">
                     <span style={{ fontSize: '2.5rem', fontWeight: 800, color: '#FFD369' }}>₹{bestDiscountProduct.offer_price}</span>
                     <span style={{ fontSize: '1.4rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>₹{bestDiscountProduct.mrp}</span>
                   </div>
@@ -197,7 +161,6 @@ export default function Home() {
                   <button className="btn btn-primary btn-lg" onClick={() => navigate(`/products/${bestDiscountProduct.slug}`)}>
                     Grab this Offer
                   </button>
-
                 </div>
                 {/* Floating Product Image on the Right */}
                 <div className="hidden-mobile" style={{
@@ -225,14 +188,7 @@ export default function Home() {
               </div>
             ) : (
               <div style={{ maxWidth: 580 }}>
-                <div style={{
-                  display: 'inline-block',
-                  background: 'rgba(201,168,76,0.2)', color: '#FFD369',
-                  border: '1px solid rgba(201,168,76,0.4)',
-                  padding: '6px 18px', borderRadius: 99, fontSize: '0.78rem',
-                  fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
-                  marginBottom: 24,
-                }}>
+                <div className="hero-pill hero-pill--gold">
                   🔥 Exclusive Offers
                 </div>
                 <h1 className="hero-title" style={{ color: 'white' }}>
@@ -288,10 +244,10 @@ export default function Home() {
       {/* ─── Featured Products ────────────────────────────────────────────── */}
       <section className="section" style={{ background: 'white' }}>
         <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 40 }}>
+          <div className="flex-between mb-40">
             <div>
               <h2 className="section-title">Featured Products</h2>
-              <p style={{ color: 'var(--color-text-medium)' }}>Handpicked bestsellers just for you</p>
+              <p className="text-medium">Handpicked bestsellers just for you</p>
             </div>
             <Link to="/products?is_featured=true" style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: '0.9rem' }}>
               View All →
@@ -304,20 +260,16 @@ export default function Home() {
       {/* ─── Why Choose Us ────────────────────────────────────────────────── */}
       <section className="section" style={{ background: 'var(--color-secondary)' }}>
         <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <h2 className="section-title">Why Janhavi Traders?</h2>
+          <div className="text-center mb-48">
+            <h2 className="section-title">Why BLUSHH?</h2>
             <p className="section-subtitle">We take pride in what we deliver</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
+          <div className="grid-4">
             {WHY_US.map((item, i) => (
-              <div key={i} style={{
-                background: 'white', borderRadius: 16, padding: '32px 24px',
-                textAlign: 'center', boxShadow: 'var(--shadow-sm)',
-                border: '1px solid var(--color-border)',
-              }}>
+              <div key={i} className="feature-card">
                 <div style={{ fontSize: '2.5rem', marginBottom: 16 }}>{item.icon}</div>
-                <h4 style={{ fontWeight: 700, marginBottom: 8 }}>{item.title}</h4>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-text-medium)', lineHeight: 1.6 }}>{item.desc}</p>
+                <h4 className="feature-title">{item.title}</h4>
+                <p className="feature-desc">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -327,10 +279,10 @@ export default function Home() {
       {/* ─── New Arrivals ─────────────────────────────────────────────────── */}
       <section className="section" style={{ background: 'white' }}>
         <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 40 }}>
+          <div className="flex-between mb-40">
             <div>
               <h2 className="section-title">New Arrivals</h2>
-              <p style={{ color: 'var(--color-text-medium)' }}>Fresh additions to our collection</p>
+              <p className="text-medium">Fresh additions to our collection</p>
             </div>
             <Link to="/products" style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: '0.9rem' }}>
               Shop All →
@@ -341,64 +293,25 @@ export default function Home() {
       </section>
 
       {/* ─── Newsletter ───────────────────────────────────────────────────── */}
-      <section style={{
-        background: 'linear-gradient(135deg, #1C1C2E, #2D1B3D)',
-        padding: '80px 0', textAlign: 'center', color: 'white',
-      }}>
+      <section className="section-dark">
         <div className="container">
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 3vw, 2.5rem)', marginBottom: 16 }}>
             Stay in the Loop
           </h2>
           <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: 40, fontSize: '1.1rem' }}>
-            Subscribe for exclusive offers, new arrivals & beauty tips
+            Subscribe for exclusive offers, new arrivals &amp; beauty tips
           </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', maxWidth: 480, margin: '0 auto' }}>
+          <div className="flex gap-12" style={{ justifyContent: 'center', maxWidth: 480, margin: '0 auto' }}>
             <input
               type="email"
               placeholder="Enter your email"
-              className="input"
-              style={{ flex: 1, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white' }}
+              className="input flex-1"
+              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white' }}
             />
             <button className="btn btn-primary">Subscribe</button>
           </div>
         </div>
       </section>
-
-      <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .marquee-container {
-          overflow: hidden;
-          white-space: nowrap;
-          background: linear-gradient(90deg, var(--color-primary-dark), var(--color-primary), var(--color-primary-light));
-          padding: 14px 0;
-          color: white;
-          font-size: 0.95rem;
-          font-weight: 700;
-          letter-spacing: 0.5px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .marquee-track {
-          display: inline-block;
-          white-space: nowrap;
-          animation: marquee 25s linear infinite;
-        }
-        .marquee-item {
-          display: inline-block;
-          padding: 0 40px;
-        }
-        @media (max-width: 768px) {
-          .hero-title { font-size: 2.2rem !important; }
-          .hidden-mobile { display: none !important; }
-          [style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
-          [style*="grid-template-columns: repeat(3, 1fr)"] { grid-template-columns: 1fr !important; }
-        }
-        @media (max-width: 480px) {
-          [style*="grid-template-columns: repeat(2, 1fr)"] { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </div>
   );
 }

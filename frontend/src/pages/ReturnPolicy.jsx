@@ -128,10 +128,10 @@ export default function ReturnPolicy() {
               <h2 className="section-heading">Overview</h2>
               <div className="section-body">
                 <p>
-                  This Return & Cancellation Policy (<strong>"Policy"</strong>) governs all purchase transactions made through the website <a href="https://www.janhavitraders.com" target="_blank" rel="noopener noreferrer" className="inline-link">www.janhavitraders.com</a> (the <strong>"Platform"</strong>) operated by <strong>Janhavi Traders</strong>, a partnership firm registered under the Indian Partnership Act, 1932, based in Maharashtra, India.
+                  This Return & Cancellation Policy (<strong>"Policy"</strong>) governs all purchase transactions made through the website <a href="https://www.janhavitraders.com" target="_blank" rel="noopener noreferrer" className="inline-link">www.janhavitraders.com</a> (the <strong>"Platform"</strong>) operated by <strong>BLUSHH</strong>, a partnership firm registered under the Indian Partnership Act, 1932, based in Maharashtra, India.
                 </p>
                 <p>
-                  To protect our consumers and maintain strict hygiene standards for cosmetic and personal care products, Janhavi Traders operates on an <strong>Exclusive Cash on Delivery (COD) model</strong> backed by a mandatory <strong>Open Box Delivery framework</strong>. This Policy applies to both retail customers and wholesale / B2B buyers. By completing a purchase on the Platform, you agree to be bound by the terms of this Policy.
+                  To protect our consumers and maintain strict hygiene standards for cosmetic and personal care products, BLUSHH operates on an <strong>Exclusive Cash on Delivery (COD) model</strong> backed by a mandatory <strong>Open Box Delivery framework</strong>. This Policy applies to both retail customers and wholesale / B2B buyers. By completing a purchase on the Platform, you agree to be bound by the terms of this Policy.
                 </p>
               </div>
             </section>
@@ -170,7 +170,7 @@ export default function ReturnPolicy() {
               <h2 className="section-heading">2. Order Cancellation Policy</h2>
               <div className="section-body">
                 <p>
-                  Because Janhavi Traders operates exclusively on a Cash on Delivery (COD) model, no advance digital payments are collected at checkout. Consequently, customers maintain the flexibility to cancel an order at any stage of the fulfillment process without incurring any cancellation fees or financial penalties.
+                  Because BLUSHH operates exclusively on a Cash on Delivery (COD) model, no advance digital payments are collected at checkout. Consequently, customers maintain the flexibility to cancel an order at any stage of the fulfillment process without incurring any cancellation fees or financial penalties.
                 </p>
                 
                 <div className="sub-sections-grid">
@@ -200,7 +200,7 @@ export default function ReturnPolicy() {
                 </div>
 
                 <div className="alert-card info" style={{ marginTop: 24 }}>
-                  <div className="alert-title">📢 2.5 Cancellation by Janhavi Traders</div>
+                  <div className="alert-title">📢 2.5 Cancellation by BLUSHH</div>
                   <p style={{ margin: 0 }}>
                     We reserve the right to automatically cancel any order if an item is completely out of stock, if the delivery address provided is unreachable by our courier network, or if a critical pricing glitch occurs on the Platform. No liability or refund obligations apply to such cancellations.
                   </p>
@@ -320,7 +320,7 @@ export default function ReturnPolicy() {
                   <div className="contact-card-header">
                     <div className="avatar-placeholder">JT</div>
                     <div>
-                      <h4 className="contact-name">Janhavi Traders Support</h4>
+                      <h4 className="contact-name">BLUSHH Support</h4>
                       <p className="contact-title">Help & Returns Department</p>
                     </div>
                   </div>
@@ -362,7 +362,7 @@ export default function ReturnPolicy() {
               <h2 className="section-heading">7. Changes to This Policy</h2>
               <div className="section-body">
                 <p>
-                  Janhavi Traders reserves the right to revise, amend, or update this Return & Cancellation Policy at any time. All updates will be published on the Platform with a revised effective date.
+                  BLUSHH reserves the right to revise, amend, or update this Return & Cancellation Policy at any time. All updates will be published on the Platform with a revised effective date.
                 </p>
               </div>
             </section>

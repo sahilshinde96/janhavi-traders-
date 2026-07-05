@@ -11,7 +11,7 @@ export default function Footer() {
       {/* Newsletter */}
       <section className="newsletter-section">
         <div className="container">
-          <div className="newsletter-title">✨ Get Beauty Tips & Exclusive Offers</div>
+          <div className="newsletter-title">✨ Get Beauty Tips &amp; Exclusive Offers</div>
           <p className="newsletter-sub">Subscribe to our newsletter and get 10% off your first order</p>
           <form className="newsletter-form" onSubmit={(e) => { e.preventDefault(); }}>
             <input type="email" placeholder="Enter your email address" />
@@ -25,33 +25,17 @@ export default function Footer() {
           <div className="footer-grid">
             {/* Brand */}
             <div>
-              <div className="footer-logo" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                <img src={logo} alt="Janhavi Traders Logo" style={{ height: 40, width: 40, borderRadius: '50%', objectFit: 'cover' }} />
-                <span>JANHAVI <span>TRADERS</span></span>
+              <div className="footer-logo flex align-center gap-10 mb-16">
+                <img src={logo} alt="BLUSHH Logo" style={{ height: 40, width: 40, borderRadius: '50%', objectFit: 'cover' }} />
+                <span>BLUSHH</span>
               </div>
               <p className="footer-tagline">
                 Your trusted destination for premium, authentic cosmetics and beauty products.
                 Beauty that defines you. 💄
               </p>
-              <div style={{ display: 'flex', gap: 12 }}>
+              <div className="flex gap-12">
                 {[Instagram, Facebook, Twitter, Youtube].map((Icon, i) => (
-                  <button
-                    key={i}
-                    style={{
-                      width: 36, height: 36,
-                      borderRadius: '50%',
-                      background: 'rgba(255,255,255,0.1)',
-                      border: 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      color: 'rgba(255,255,255,0.7)',
-                      transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--color-primary)'; e.currentTarget.style.color = 'white'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; }}
-                  >
+                  <button key={i} className="social-btn">
                     <Icon size={16} />
                   </button>
                 ))}
@@ -80,13 +64,9 @@ export default function Footer() {
                   key={item}
                   className="footer-link"
                   onClick={() => {
-                    if (item === 'Privacy Policy') {
-                      navigate('/privacy-policy');
-                    } else if (item === 'Returns & Exchange') {
-                      navigate('/returns-policy');
-                    } else if (item === 'Contact Us') {
-                      navigate('/contact-us');
-                    }
+                    if (item === 'Privacy Policy') navigate('/privacy-policy');
+                    else if (item === 'Returns & Exchange') navigate('/returns-policy');
+                    else if (item === 'Contact Us') navigate('/contact-us');
                   }}
                 >
                   {item}
@@ -97,21 +77,21 @@ export default function Footer() {
             {/* Contact */}
             <div>
               <div className="footer-section-title">Contact Us</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div className="flex-col gap-12">
                 {[
-                  { Icon: Mail, text: 'janhavitraderss@gmail.com' },
-                  { Icon: Phone, text: '+91 8928762528' },
-                  { Icon: MapPin, text: 'Kalyan, Maharashtra, India' },
+                  { Icon: Mail,    text: 'janhavitraderss@gmail.com' },
+                  { Icon: Phone,   text: '+91 8928762528' },
+                  { Icon: MapPin,  text: 'Kalyan, Maharashtra, India' },
                 ].map(({ Icon, text }) => (
-                  <div key={text} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: '0.875rem', color: 'rgba(255,255,255,0.6)' }}>
+                  <div key={text} className="flex gap-10 align-center fs-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
                     <Icon size={16} style={{ marginTop: 2, flexShrink: 0, color: 'var(--color-primary-light)' }} />
                     {text}
                   </div>
                 ))}
               </div>
-              <div style={{ marginTop: 20 }}>
-                <div className="footer-section-title" style={{ marginBottom: 10 }}>We Accept</div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div className="mt-20">
+                <div className="footer-section-title mb-10">We Accept</div>
+                <div className="flex gap-8 flex-wrap">
                   {['Cash On Delivery'].map((m) => (
                     <span
                       key={m}
@@ -131,8 +111,8 @@ export default function Footer() {
           </div>
 
           <div className="footer-bottom">
-            <span>© {year} Janhavi Traders. All rights reserved.</span>
-            <div style={{ display: 'flex', gap: 20 }}>
+            <span>© {year} BLUSHH. All rights reserved.</span>
+            <div className="flex gap-20">
               <button className="footer-link" style={{ margin: 0 }} onClick={() => navigate('/terms-of-service')}>Terms of Service</button>
               <button className="footer-link" style={{ margin: 0 }} onClick={() => navigate('/privacy-policy')}>Privacy Policy</button>
             </div>

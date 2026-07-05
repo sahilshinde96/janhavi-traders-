@@ -35,35 +35,35 @@ export default function OrderDetail() {
   if (!order) return null;
 
   return (
-    <div className="container" style={{ padding: '32px 20px' }}>
-      <button className="btn btn-ghost btn-sm" style={{ marginBottom: 24 }} onClick={() => navigate('/orders')}>
+    <div className="container page-container-sm">
+      <button className="btn btn-ghost btn-sm mb-24" onClick={() => navigate('/orders')}>
         <ChevronLeft size={16} /> My Orders
       </button>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32, flexWrap: 'wrap', gap: 12 }}>
+      <div className="flex-between flex-wrap gap-12 mb-32">
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', fontWeight: 700 }}>Order #{order.id}</h1>
-        <p style={{ color: 'var(--color-text-medium)', fontSize: '0.875rem' }}>
+        <p className="text-medium fs-sm">
           {new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
         </p>
       </div>
 
       {/* Tracker */}
-      <div style={{ background: 'white', borderRadius: 16, padding: '24px', border: '1px solid var(--color-border)', marginBottom: 24 }}>
-        <h3 style={{ fontWeight: 700, marginBottom: 16 }}>Order Status</h3>
+      <div className="card-panel mb-24">
+        <h3 className="fw-700 mb-16">Order Status</h3>
         <OrderTracker status={order.status} />
 
         {/* Shipment info */}
         {order.courier_name && (
           <div style={{ marginTop: 20, padding: '16px', background: 'var(--color-bg)', borderRadius: 10 }}>
-            <p style={{ fontWeight: 700, marginBottom: 8, fontSize: '0.875rem' }}>📦 Shipment Details</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, fontSize: '0.8rem' }}>
-              <div><span style={{ color: 'var(--color-text-light)' }}>Courier</span><p style={{ fontWeight: 600 }}>{order.courier_name}</p></div>
-              <div><span style={{ color: 'var(--color-text-light)' }}>Tracking #</span><p style={{ fontWeight: 600 }}>{order.tracking_number || 'N/A'}</p></div>
-              {order.estimated_delivery && <div><span style={{ color: 'var(--color-text-light)' }}>Expected By</span><p style={{ fontWeight: 600 }}>{new Date(order.estimated_delivery).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</p></div>}
+            <p className="fw-700 mb-8 fs-sm">📦 Shipment Details</p>
+            <div className="grid-2" style={{ fontSize: '0.8rem' }}>
+              <div><span className="text-light">Courier</span><p className="fw-600">{order.courier_name}</p></div>
+              <div><span className="text-light">Tracking #</span><p className="fw-600">{order.tracking_number || 'N/A'}</p></div>
+              {order.estimated_delivery && <div><span className="text-light">Expected By</span><p className="fw-600">{new Date(order.estimated_delivery).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</p></div>}
               {order.tracking_url && (
                 <div>
                   <a href={order.tracking_url} target="_blank" rel="noopener noreferrer"
-                    style={{ color: 'var(--color-primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8rem', marginTop: 16 }}>
+                    className="text-primary fw-600 flex align-center gap-4 fs-sm mt-16">
                     Track on Courier Site <ExternalLink size={12} />
                   </a>
                 </div>
@@ -73,32 +73,34 @@ export default function OrderDetail() {
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 24 }}>
+      <div className="order-detail-grid">
         {/* Items */}
         <div>
-          <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--color-border)', marginBottom: 24 }}>
-            <h3 style={{ fontWeight: 700, marginBottom: 16 }}>Items Ordered</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="card-panel mb-24">
+            <h3 className="fw-700 mb-16">Items Ordered</h3>
+            <div className="flex-col gap-16">
               {order.items?.map(item => (
-                <div key={item.id} style={{ display: 'flex', gap: 14, alignItems: 'center', paddingBottom: 16, borderBottom: '1px solid var(--color-border)' }}>
+                <div key={item.id} className="flex gap-12 align-center" style={{ paddingBottom: 16, borderBottom: '1px solid var(--color-border)' }}>
                   <div style={{ width: 64, height: 64, borderRadius: 10, overflow: 'hidden', background: 'var(--color-secondary)', flexShrink: 0 }}>
-                    {item.product_image ? <img src={item.product_image} alt={item.product_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>🧴</div>}
+                    {item.product_image
+                      ? <img src={item.product_image} alt={item.product_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <div className="flex-center" style={{ width: '100%', height: '100%', fontSize: '1.5rem' }}>🧴</div>}
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontWeight: 600, marginBottom: 2 }}>{item.product_name}</p>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--color-text-light)' }}>SKU: {item.product_sku} · Qty: {item.quantity}</p>
+                  <div className="flex-1">
+                    <p className="fw-600 mb-4">{item.product_name}</p>
+                    <p className="fs-xs text-light">SKU: {item.product_sku} · Qty: {item.quantity}</p>
                   </div>
-                  <p style={{ fontWeight: 700 }}>₹{parseFloat(item.subtotal).toFixed(0)}</p>
+                  <p className="fw-700">₹{parseFloat(item.subtotal).toFixed(0)}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Delivery Address */}
-          <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--color-border)' }}>
-            <h3 style={{ fontWeight: 700, marginBottom: 16 }}>📍 Delivery Address</h3>
-            <p style={{ fontWeight: 600, marginBottom: 4 }}>{order.address_name}</p>
-            <p style={{ color: 'var(--color-text-medium)', fontSize: '0.875rem', lineHeight: 1.7 }}>
+          <div className="card-panel">
+            <h3 className="fw-700 mb-16">📍 Delivery Address</h3>
+            <p className="fw-600 mb-4">{order.address_name}</p>
+            <p className="text-medium fs-sm" style={{ lineHeight: 1.7 }}>
               {order.address_line1}{order.address_line2 && `, ${order.address_line2}`}<br />
               {order.address_city}, {order.address_state} – {order.address_pincode}<br />
               📞 {order.address_phone}
@@ -108,33 +110,39 @@ export default function OrderDetail() {
 
         {/* Price summary */}
         <div>
-          <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--color-border)', position: 'sticky', top: 80 }}>
-            <h3 style={{ fontWeight: 700, marginBottom: 20 }}>Price Breakdown</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: '0.875rem', marginBottom: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}><span style={{ color: 'var(--color-text-medium)' }}>Discounted Price</span><span>₹{parseFloat(order.subtotal).toFixed(0)}</span></div>
-              {parseFloat(order.discount_amount) > 0 && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--color-success)' }}>Discount ({order.coupon_code})</span><span style={{ color: 'var(--color-success)' }}>-₹{parseFloat(order.discount_amount).toFixed(0)}</span></div>}
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--color-text-medium)' }}>Delivery</span><span style={{ color: parseFloat(order.delivery_charge) === 0 ? 'var(--color-success)' : undefined }}>{parseFloat(order.delivery_charge) === 0 ? 'FREE' : `₹${parseFloat(order.delivery_charge).toFixed(0)}`}</span></div>
+          <div className="card-panel-shadow sticky-sidebar">
+            <h3 className="fw-700 mb-20">Price Breakdown</h3>
+            <div className="order-summary-rows">
+              <div className="order-summary-row fw-600">
+                <span className="text-medium">Discounted Price</span>
+                <span>₹{parseFloat(order.subtotal).toFixed(0)}</span>
+              </div>
+              {parseFloat(order.discount_amount) > 0 && (
+                <div className="order-summary-row">
+                  <span className="text-success">Discount ({order.coupon_code})</span>
+                  <span className="text-success">-₹{parseFloat(order.discount_amount).toFixed(0)}</span>
+                </div>
+              )}
+              <div className="order-summary-row">
+                <span className="text-medium">Delivery</span>
+                <span className={parseFloat(order.delivery_charge) === 0 ? 'text-success' : ''}>
+                  {parseFloat(order.delivery_charge) === 0 ? 'FREE' : `₹${parseFloat(order.delivery_charge).toFixed(0)}`}
+                </span>
+              </div>
             </div>
             <div className="divider" />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.1rem', marginBottom: 16 }}>
+            <div className="order-total-row">
               <span>Total Paid</span>
-              <span style={{ color: 'var(--color-primary)' }}>₹{parseFloat(order.total_amount).toFixed(0)}</span>
+              <span className="text-primary">₹{parseFloat(order.total_amount).toFixed(0)}</span>
             </div>
             <div style={{ background: 'var(--color-bg)', borderRadius: 8, padding: '10px 14px', fontSize: '0.8rem' }}>
-              <p style={{ fontWeight: 600 }}>💵 Payment: Cash on Delivery</p>
+              <p className="fw-600">💵 Payment: Cash on Delivery</p>
             </div>
 
             {['placed', 'confirmed', 'packed', 'shipped', 'out_for_delivery'].includes(order.status) && (
-              <button 
-                className="btn btn-outline" 
-                style={{ 
-                  width: '100%', 
-                  marginTop: 16, 
-                  justifyContent: 'center', 
-                  color: '#dc2626', 
-                  borderColor: '#dc2626',
-                  fontWeight: 600
-                }}
+              <button
+                className="btn btn-outline w-full mt-16"
+                style={{ justifyContent: 'center', color: '#dc2626', borderColor: '#dc2626', fontWeight: 600 }}
                 onClick={() => setShowConfirmCancel(true)}
               >
                 Cancel Order
@@ -144,46 +152,19 @@ export default function OrderDetail() {
         </div>
       </div>
 
-      <style>{`
-        @media (max-width: 768px) {
-          [style*="grid-template-columns: 1fr 360px"] { grid-template-columns: 1fr !important; }
-          [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
-
+      {/* Cancel Confirmation */}
       {showConfirmCancel && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          backdropFilter: 'blur(4px)',
-        }}>
-          <div style={{
-            background: 'white',
-            borderRadius: 16,
-            padding: 32,
-            maxWidth: 400,
-            width: '90%',
-            boxShadow: 'var(--shadow-lg)',
-            textAlign: 'center',
-            border: '1px solid var(--color-border)',
-          }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: 12, color: 'var(--color-primary)' }}>Cancel Order?</h3>
-            <p style={{ color: 'var(--color-text-medium)', fontSize: '0.875rem', lineHeight: 1.5, marginBottom: 24 }}>
+        <div className="confirm-overlay">
+          <div className="confirm-modal">
+            <h3 className="fw-800 text-primary mb-12" style={{ fontSize: '1.25rem' }}>Cancel Order?</h3>
+            <p className="text-medium fs-sm mb-24" style={{ lineHeight: 1.5 }}>
               Are you sure you want to cancel your Order #{order.id}? This action cannot be undone and will restore stock items.
             </p>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-              <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowConfirmCancel(false)} disabled={cancelling}>
+            <div className="flex gap-12" style={{ justifyContent: 'center' }}>
+              <button className="btn btn-outline flex-1" onClick={() => setShowConfirmCancel(false)} disabled={cancelling}>
                 No, Keep Order
               </button>
-              <button className="btn btn-primary" style={{ flex: 1, backgroundColor: '#dc2626', borderColor: '#dc2626', color: 'white' }} onClick={handleCancelOrder} disabled={cancelling}>
+              <button className="btn btn-primary flex-1" style={{ backgroundColor: '#dc2626', borderColor: '#dc2626', color: 'white' }} onClick={handleCancelOrder} disabled={cancelling}>
                 {cancelling ? 'Cancelling...' : 'Yes, Cancel'}
               </button>
             </div>
