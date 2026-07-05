@@ -1588,6 +1588,7 @@ tr:hover td { background: var(--color-bg); }
   inset: 0;
   display: flex;
   align-items: center;
+  padding-top: 50px; /* Prevents top pill from hitting the card border */
   padding-bottom: 60px; /* Reserves breathing room at the bottom for navigation dots */
   transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
 }
