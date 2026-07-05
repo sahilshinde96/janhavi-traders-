@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Package, Tag, ShoppingBag, Percent,
-  Warehouse, LogOut, ChevronRight,
+  Warehouse, LogOut, ChevronRight, Globe,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import logo from '../../assets/logo.jpg';
@@ -86,11 +86,24 @@ export default function AdminSidebar() {
             </p>
           </div>
         </div>
+        <button onClick={() => navigate('/')} style={{
+          width: '100%', padding: '10px 14px', background: 'rgba(244,137,147,0.15)',
+          border: '1px solid rgba(244,137,147,0.25)', borderRadius: 8, cursor: 'pointer',
+          color: '#ffb4be', display: 'flex', alignItems: 'center', gap: 8,
+          fontSize: '0.875rem', transition: 'all 0.2s', marginBottom: 8,
+          fontWeight: 600, justifyContent: 'center'
+        }} onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(244,137,147,0.25)';
+        }} onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'rgba(244,137,147,0.15)';
+        }}>
+          <Globe size={16} /> View Storefront
+        </button>
         <button onClick={handleLogout} style={{
           width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.05)',
           border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, cursor: 'pointer',
           color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: 8,
-          fontSize: '0.875rem', transition: 'all 0.2s',
+          fontSize: '0.875rem', transition: 'all 0.2s', justifyContent: 'center'
         }}>
           <LogOut size={16} /> Sign Out
         </button>
