@@ -269,7 +269,7 @@ export default function Home() {
           <div className="grid-4">
             {WHY_US.map((item, i) => (
               <div key={i} className="feature-card">
-                <div style={{ fontSize: '2.5rem', marginBottom: 16 }}>{item.icon}</div>
+                <div className="feature-icon">{item.icon}</div>
                 <h4 className="feature-title">{item.title}</h4>
                 <p className="feature-desc">{item.desc}</p>
               </div>

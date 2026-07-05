@@ -549,26 +549,25 @@ input, select, textarea { font-family: inherit; }
 /* ===================== FEATURE CARD ===================== */
 .feature-card {
   text-align: center;
-  padding: 32px 24px;
-  border-radius: var(--radius-xl);
-  background: white;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--color-border);
+  padding: 24px 16px;
+  background: transparent;
+  border: none;
   transition: all var(--transition-slow);
 }
-.feature-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+.feature-card:hover { transform: translateY(-4px); }
 .feature-icon {
   width: 64px; height: 64px;
-  background: var(--color-secondary);
-  border-radius: var(--radius-xl);
+  background: var(--color-white);
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 16px;
-  font-size: 1.8rem;
+  font-size: 1.6rem;
+  box-shadow: var(--shadow-xs);
   transition: all var(--transition);
 }
-.feature-card:hover .feature-icon { background: var(--color-primary); }
+.feature-card:hover .feature-icon { background: var(--color-primary); transform: scale(1.05); }
 .feature-title { font-weight: 700; margin-bottom: 8px; font-size: 1rem; }
 .feature-desc { font-size: 0.85rem; color: var(--color-text-medium); line-height: 1.6; }
 
