@@ -62,11 +62,14 @@ export default function Checkout() {
     navigator.geolocation.getCurrentPosition(
       (pos) => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
       (err) => {
-        if (err.code === err.PERMISSION_DENIED) toast.error('GPS access denied. We need location permissions to verify delivery radius.');
-        else toast.error('Failed to retrieve GPS location. Please try again.');
+        if (err.code === err.PERMISSION_DENIED) {
+          toast.error('GPS permission denied. Please allow location access or manually drag the pin on the map.');
+        } else {
+          toast.error('Could not retrieve GPS coordinates. You can still type your pincode or manually drag the pin on the map!');
+        }
         reject(err);
       },
-      { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 300000 }
     );
   });
 
