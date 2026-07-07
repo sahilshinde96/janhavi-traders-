@@ -23,7 +23,6 @@ export default function Checkout() {
   });
 
   const [fetchingLocation, setFetchingLocation] = useState(false);
-  const [mapSearchQuery, setMapSearchQuery] = useState('');
   const [calculatedDistance, setCalculatedDistance] = useState(null);
 
   const STORE_LAT = 19.213000;
@@ -64,73 +63,15 @@ export default function Checkout() {
       (pos) => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
       (err) => {
         if (err.code === err.PERMISSION_DENIED) {
-          toast.error('GPS permission denied. Please allow location access or manually drag the pin on the map.');
+          toast.error('GPS permission denied. Please allow location access in your browser settings.');
         } else {
-          toast.error('Could not retrieve GPS coordinates. You can still type your pincode or manually drag the pin on the map!');
+          toast.error('Could not retrieve GPS coordinates. Please try again or verify location settings are enabled.');
         }
         reject(err);
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 300000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   });
-
-  const mapRef = useRef(null);
-  const mapInstance = useRef(null);
-  const markerInstance = useRef(null);
-
-  useEffect(() => {
-    if (showNewForm && window.L && mapRef.current) {
-      const timer = setTimeout(() => {
-        if (!mapInstance.current && mapRef.current) {
-          const map = window.L.map(mapRef.current).setView([STORE_LAT, STORE_LON], 13);
-
-          window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-          }).addTo(map);
-
-          // 10km circle overlay
-          window.L.circle([STORE_LAT, STORE_LON], {
-            color: '#C8496A',
-            fillColor: '#C8496A',
-            fillOpacity: 0.1,
-            radius: 10000
-          }).addTo(map);
-
-          // Store marker
-          const storeIcon = window.L.divIcon({
-            html: '<div style="background-color: #C8496A; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4)"></div>',
-            className: 'store-div-icon',
-            iconSize: [14, 14],
-            iconAnchor: [7, 7]
-          });
-          window.L.marker([STORE_LAT, STORE_LON], { icon: storeIcon }).addTo(map)
-            .bindPopup('<b>BLUSHH Kalyan East Store</b>').openPopup();
-
-          // Customer draggable marker pin
-          const startLat = parseFloat(newAddr.latitude) || STORE_LAT;
-          const startLon = parseFloat(newAddr.longitude) || STORE_LON;
-          const pin = window.L.marker([startLat, startLon], { draggable: true }).addTo(map);
-
-          pin.on('dragend', () => {
-            const position = pin.getLatLng();
-            setNewAddr(prev => ({ ...prev, latitude: position.lat, longitude: position.lng }));
-          });
-
-          mapInstance.current = map;
-          markerInstance.current = pin;
-        }
-      }, 100);
-
-      return () => {
-        clearTimeout(timer);
-        if (mapInstance.current) {
-          mapInstance.current.remove();
-          mapInstance.current = null;
-          markerInstance.current = null;
-        }
-      };
-    }
-  }, [showNewForm]);
 
   const handleFetchCurrentLocation = async () => {
     setFetchingLocation(true);
@@ -138,38 +79,7 @@ export default function Checkout() {
       const coords = await getBrowserLocation();
       setNewAddr(prev => ({ ...prev, latitude: coords.latitude, longitude: coords.longitude }));
       toast.success('Location coordinates pinned successfully!');
-
-      if (mapInstance.current && markerInstance.current) {
-        markerInstance.current.setLatLng([coords.latitude, coords.longitude]);
-        mapInstance.current.setView([coords.latitude, coords.longitude], 14);
-      }
     } catch (err) { console.error(err); } finally { setFetchingLocation(false); }
-  };
-
-  const handleMapSearch = async () => {
-    if (!mapSearchQuery.trim()) return;
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(mapSearchQuery)}`);
-      const data = await res.json();
-      if (data && data.length > 0) {
-        const first = data[0];
-        const lat = parseFloat(first.lat);
-        const lon = parseFloat(first.lon);
-        
-        setNewAddr(prev => ({ ...prev, latitude: lat, longitude: lon }));
-        toast.success(`Found: ${first.display_name.split(',').slice(0, 3).join(',')}`);
-
-        if (mapInstance.current && markerInstance.current) {
-          markerInstance.current.setLatLng([lat, lon]);
-          mapInstance.current.setView([lat, lon], 15);
-        }
-      } else {
-        toast.error('Location not found. Please try adding more details (e.g. city).');
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error('Search failed. Please try manual pinning.');
-    }
   };
 
   useEffect(() => {
@@ -356,53 +266,24 @@ export default function Checkout() {
 
                 <div className="divider" style={{ margin: '20px 0' }} />
 
-                {/* Leaflet Interactive Map */}
-                <p className="fs-xs fw-600 mt-16 text-medium">📍 Pin your precise delivery location on the map (optional):</p>
-                
-                {/* Geocoding Search Bar */}
-                <div style={{ display: 'flex', gap: 8, marginTop: '8px', marginBottom: '8px' }}>
-                  <input 
-                    className="input" 
-                    style={{ fontSize: '0.875rem', height: '36px', padding: '0 12px', flex: 1 }}
-                    placeholder="Search address (e.g. Kalyan Station, Dombivli East)" 
-                    value={mapSearchQuery} 
-                    onChange={e => setMapSearchQuery(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleMapSearch();
-                      }
-                    }} 
-                  />
-                  <button 
-                    type="button" 
-                    className="btn btn-outline btn-sm" 
-                    style={{ height: '36px' }}
-                    onClick={handleMapSearch}
-                  >
-                    Search Map
-                  </button>
-                </div>
-
-                <div ref={mapRef} style={{ height: '240px', width: '100%', borderRadius: '12px', border: '1px solid var(--color-border)', marginTop: '8px', zIndex: 1 }} />
+                {/* Location pinning via GPS */}
+                <button type="button" className="btn btn-outline btn-sm w-full"
+                  style={{ justifyContent: 'center', display: 'flex', gap: 8, alignItems: 'center' }}
+                  onClick={handleFetchCurrentLocation} disabled={fetchingLocation}>
+                  {fetchingLocation ? '⏳ Querying GPS Location...' : '📍 Verify My Current Location via GPS'}
+                </button>
                 
                 {newAddr.latitude !== null && (() => {
                   const dist = calculateDistance(STORE_LAT, STORE_LON, parseFloat(newAddr.latitude), parseFloat(newAddr.longitude));
                   return (
                     <div className={`info-banner info-banner--${dist <= 10 ? 'success' : 'error'} mt-12`}>
                       {dist <= 10 
-                        ? `🟢 Deliverable: Pinned location is ${dist.toFixed(1)} km from Kalyan store.`
-                        : `🔴 Undeliverable: Pinned location is ${dist.toFixed(1)} km from Kalyan store (exceeds 10km limit).`
+                        ? `🟢 Deliverable Location: Coordinates verified. Distance: ${dist.toFixed(1)} km from Kalyan store.`
+                        : `🔴 Undeliverable Location: Distance is ${dist.toFixed(1)} km from Kalyan store (exceeds 10km radius).`
                       }
                     </div>
                   );
                 })()}
-
-                <button type="button" className="btn btn-outline btn-sm mt-12 w-full"
-                  style={{ justifyContent: 'center', display: 'flex', gap: 8, alignItems: 'center' }}
-                  onClick={handleFetchCurrentLocation} disabled={fetchingLocation}>
-                  {fetchingLocation ? '⏳ Pinning Location...' : '📍 Use My Current GPS Location'}
-                </button>
 
                 <div className="divider" style={{ margin: '20px 0' }} />
 
