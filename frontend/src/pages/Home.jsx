@@ -161,7 +161,7 @@ export default function Home() {
                     {bestDiscountProduct.name}
                   </h1>
                   <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', marginBottom: 16, lineHeight: 1.5 }}>
-                    Get this bestseller now at an unbeatable price! Only COD and free shipping above ₹500.
+                    Get this bestseller now at an unbeatable price! Only COD and free shipping above ₹299.
                   </p>
                   <div className="flex align-center gap-16 mb-20">
                     <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#FFD369' }}>₹{bestDiscountProduct.offer_price}</span>

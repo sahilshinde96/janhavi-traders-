@@ -19,7 +19,7 @@ export default function CartDrawer() {
 
   const items = cart?.items || [];
   const total = parseFloat(cart?.total || 0);
-  const deliveryCharge = total >= 500 ? 0 : 50;
+  const deliveryCharge = total >= 299 ? 0 : 20;
   const finalTotal = total + deliveryCharge;
 
   const handleCheckout = () => {
@@ -152,11 +152,11 @@ export default function CartDrawer() {
                   {deliveryCharge === 0 ? 'FREE' : `₹${deliveryCharge}`}
                 </span>
               </div>
-              {deliveryCharge > 0 && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-primary)', marginBottom: 8 }}>
-                  Add ₹{(500 - total).toFixed(0)} more for free delivery!
-                </p>
-              )}
+                {deliveryCharge > 0 && (
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-primary)', marginBottom: 8 }}>
+                    Add ₹{(299 - total).toFixed(0)} more for free delivery!
+                  </p>
+                )}
               <div style={{
                 display: 'flex', justifyContent: 'space-between',
                 fontWeight: 700, fontSize: '1rem', paddingTop: 8,
