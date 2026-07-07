@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus, MapPin, Check } from 'lucide-react';
 import api from '../api/axios';
@@ -27,6 +27,8 @@ export default function Checkout() {
 
   const STORE_LAT = 19.213000;
   const STORE_LON = 73.151000;
+
+  const ALLOWED_PINCODES = ['421301', '421306', '421308', '421201', '421202', '421203', '421204', '421004'];
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
@@ -68,24 +70,76 @@ export default function Checkout() {
     );
   });
 
+  const mapRef = useRef(null);
+  const mapInstance = useRef(null);
+  const markerInstance = useRef(null);
+
+  useEffect(() => {
+    if (showNewForm && window.L && mapRef.current) {
+      const timer = setTimeout(() => {
+        if (!mapInstance.current && mapRef.current) {
+          const map = window.L.map(mapRef.current).setView([STORE_LAT, STORE_LON], 13);
+
+          window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+          }).addTo(map);
+
+          // 10km circle overlay
+          window.L.circle([STORE_LAT, STORE_LON], {
+            color: '#C8496A',
+            fillColor: '#C8496A',
+            fillOpacity: 0.1,
+            radius: 10000
+          }).addTo(map);
+
+          // Store marker
+          const storeIcon = window.L.divIcon({
+            html: '<div style="background-color: #C8496A; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4)"></div>',
+            className: 'store-div-icon',
+            iconSize: [14, 14],
+            iconAnchor: [7, 7]
+          });
+          window.L.marker([STORE_LAT, STORE_LON], { icon: storeIcon }).addTo(map)
+            .bindPopup('<b>BLUSHH Kalyan East Store</b>').openPopup();
+
+          // Customer draggable marker pin
+          const startLat = parseFloat(newAddr.latitude) || STORE_LAT;
+          const startLon = parseFloat(newAddr.longitude) || STORE_LON;
+          const pin = window.L.marker([startLat, startLon], { draggable: true }).addTo(map);
+
+          pin.on('dragend', () => {
+            const position = pin.getLatLng();
+            setNewAddr(prev => ({ ...prev, latitude: position.lat, longitude: position.lng }));
+          });
+
+          mapInstance.current = map;
+          markerInstance.current = pin;
+        }
+      }, 100);
+
+      return () => {
+        clearTimeout(timer);
+        if (mapInstance.current) {
+          mapInstance.current.remove();
+          mapInstance.current = null;
+          markerInstance.current = null;
+        }
+      };
+    }
+  }, [showNewForm]);
+
   const handleFetchCurrentLocation = async () => {
     setFetchingLocation(true);
     try {
       const coords = await getBrowserLocation();
       setNewAddr(prev => ({ ...prev, latitude: coords.latitude, longitude: coords.longitude }));
       toast.success('Location coordinates pinned successfully!');
-    } catch (err) { console.error(err); } finally { setFetchingLocation(false); }
-  };
 
-  const handlePinCoordinatesToAddress = async (addressId) => {
-    setFetchingLocation(true);
-    try {
-      const coords = await getBrowserLocation();
-      const { data } = await api.put(`/auth/addresses/${addressId}/`, { latitude: coords.latitude, longitude: coords.longitude });
-      setAddresses(prev => prev.map(addr => addr.id === addressId ? data : addr));
-      setSelectedAddress(data);
-      toast.success('GPS coordinates pinned to this address successfully!');
-    } catch (err) { console.error(err); toast.error('Failed to update coordinates for the address.'); } finally { setFetchingLocation(false); }
+      if (mapInstance.current && markerInstance.current) {
+        markerInstance.current.setLatLng([coords.latitude, coords.longitude]);
+        mapInstance.current.setView([coords.latitude, coords.longitude], 14);
+      }
+    } catch (err) { console.error(err); } finally { setFetchingLocation(false); }
   };
 
   useEffect(() => {
@@ -109,6 +163,11 @@ export default function Checkout() {
     for (const f of required) {
       if (!newAddr[f].trim()) { toast.error(`Please fill in ${f}`); return; }
     }
+    const pincode = newAddr.pincode.trim();
+    if (!ALLOWED_PINCODES.includes(pincode)) {
+      toast.error(`Sorry, we do not deliver to pincode ${pincode}. Delivery is only available in Kalyan/Dombivli areas.`);
+      return;
+    }
     try {
       const { data } = await api.post('/auth/addresses/', newAddr);
       setAddresses(prev => [...prev, data]);
@@ -130,6 +189,24 @@ export default function Checkout() {
       address = newAddr;
     }
 
+    // Pincode validation
+    const pincode = address.pincode.trim();
+    if (!ALLOWED_PINCODES.includes(pincode)) {
+      toast.error(`Sorry, we do not deliver to pincode ${pincode}. Delivery is only available in Kalyan/Dombivli areas.`);
+      return;
+    }
+
+    // GPS Geofence validation (only if coordinates are present)
+    const lat = parseFloat(address.latitude);
+    const lon = parseFloat(address.longitude);
+    if (!isNaN(lat) && !isNaN(lon)) {
+      const distance = calculateDistance(STORE_LAT, STORE_LON, lat, lon);
+      if (distance > 10) {
+        toast.error(`Delivery is only available within 10km of our store. Your location is ${distance.toFixed(1)}km away.`);
+        return;
+      }
+    }
+
     setPlacing(true);
     try {
       const { data } = await api.post('/orders/place/', {
@@ -148,12 +225,6 @@ export default function Checkout() {
     }
   };
 
-  // Geofence banner variant helper
-  const getGeofenceBannerClass = (distance, hasCoords) => {
-    if (!hasCoords) return 'info-banner info-banner--warning';
-    if (distance === null) return 'info-banner info-banner--neutral';
-    return distance <= 10 ? 'info-banner info-banner--success' : 'info-banner info-banner--error';
-  };
 
   return (
     <div className="container page-container">
@@ -196,10 +267,37 @@ export default function Checkout() {
               </div>
             )}
 
+            {/* Delivery area status alert for selected address */}
+            {selectedAddress && (() => {
+              const lat = parseFloat(selectedAddress.latitude);
+              const lon = parseFloat(selectedAddress.longitude);
+              const hasCoords = !isNaN(lat) && !isNaN(lon);
+              
+              if (hasCoords) {
+                const dist = calculateDistance(STORE_LAT, STORE_LON, lat, lon);
+                return (
+                  <div className={`info-banner info-banner--${dist <= 10 ? 'success' : 'error'} mt-16`}>
+                    {dist <= 10 
+                      ? `🟢 Deliverable: Located ${dist.toFixed(1)} km from Kalyan store (within 10km delivery area).`
+                      : `🔴 Undeliverable: Located ${dist.toFixed(1)} km from Kalyan store (exceeds 10km range).`
+                    }
+                  </div>
+                );
+              } else {
+                return (
+                  <div className="info-banner info-banner--success mt-16">
+                    🟢 Deliverable: Pincode area verified.
+                  </div>
+                );
+              }
+            })()}
+
             {/* Add new */}
-            <button className="btn btn-ghost btn-sm" onClick={() => { setShowNewForm(!showNewForm); setSelectedAddress(null); }}>
-              <Plus size={14} /> {showNewForm ? 'Cancel' : 'Add New Address'}
-            </button>
+            <div className="mt-16">
+              <button className="btn btn-ghost btn-sm" onClick={() => { setShowNewForm(!showNewForm); setSelectedAddress(null); }}>
+                <Plus size={14} style={{ marginRight: 6 }} /> {showNewForm ? 'Cancel' : 'Add New Address'}
+              </button>
+            </div>
 
             {showNewForm && (
               <div className="mt-20" style={{ animation: 'slideDown 0.2s ease' }}>
@@ -225,7 +323,34 @@ export default function Checkout() {
                     </select>
                   </div>
                 </div>
-                <button className="btn btn-outline btn-sm mt-16" onClick={handleAddAddress}>Save Address</button>
+
+                <div className="divider" style={{ margin: '20px 0' }} />
+
+                {/* Leaflet Interactive Map */}
+                <p className="fs-xs fw-600 mt-16 text-medium">📍 Pin your precise delivery location on the map (optional):</p>
+                <div ref={mapRef} style={{ height: '240px', width: '100%', borderRadius: '12px', border: '1px solid var(--color-border)', marginTop: '12px', zIndex: 1 }} />
+                
+                {newAddr.latitude !== null && (() => {
+                  const dist = calculateDistance(STORE_LAT, STORE_LON, parseFloat(newAddr.latitude), parseFloat(newAddr.longitude));
+                  return (
+                    <div className={`info-banner info-banner--${dist <= 10 ? 'success' : 'error'} mt-12`}>
+                      {dist <= 10 
+                        ? `🟢 Deliverable: Pinned location is ${dist.toFixed(1)} km from Kalyan store.`
+                        : `🔴 Undeliverable: Pinned location is ${dist.toFixed(1)} km from Kalyan store (exceeds 10km limit).`
+                      }
+                    </div>
+                  );
+                })()}
+
+                <button type="button" className="btn btn-outline btn-sm mt-12 w-full"
+                  style={{ justifyContent: 'center', display: 'flex', gap: 8, alignItems: 'center' }}
+                  onClick={handleFetchCurrentLocation} disabled={fetchingLocation}>
+                  {fetchingLocation ? '⏳ Pinning Location...' : '📍 Use My Current GPS Location'}
+                </button>
+
+                <div className="divider" style={{ margin: '20px 0' }} />
+
+                <button className="btn btn-primary btn-sm" onClick={handleAddAddress}>Save Address</button>
               </div>
             )}
           </div>

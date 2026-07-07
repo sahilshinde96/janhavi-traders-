@@ -166,6 +166,12 @@ STORE_LATITUDE = 19.213000
 STORE_LONGITUDE = 73.151000
 MAX_DELIVERY_RADIUS_KM = 10.0
 
+# Allowed delivery pincodes in Kalyan/Dombivli/Ulhasnagar region
+DELIVERY_PINCODES = [code.strip() for code in config(
+    'DELIVERY_PINCODES',
+    default='421301,421306,421308,421201,421202,421203,421204,421004'
+).split(',') if code.strip()]
+
 # Change this value to adjust the OTP validity duration (in minutes).
 EMAIL_OTP_EXPIRY_MINUTES = 10
 OTP_EXPIRY_MINUTES = 10

@@ -42,6 +42,37 @@ class PlaceOrderView(APIView):
             lat = None
             lon = None
 
+        # 1. Pincode Validation
+        pincode = address.get('pincode', '').strip()
+        allowed_pincodes = getattr(settings, 'DELIVERY_PINCODES', [])
+        if allowed_pincodes and pincode not in allowed_pincodes:
+            return Response({
+                'error': f'Sorry, we do not deliver to pincode {pincode}. '
+                         f'Delivery is only available in Kalyan/Dombivli areas.'
+            }, status=400)
+
+        # 2. GPS Geofencing Validation (only if coordinates are present)
+        if lat is not None and lon is not None:
+            import math
+            store_lat = getattr(settings, 'STORE_LATITUDE', 19.213000)
+            store_lon = getattr(settings, 'STORE_LONGITUDE', 73.151000)
+            max_radius = getattr(settings, 'MAX_DELIVERY_RADIUS_KM', 10.0)
+
+            # Convert latitude and longitude from degrees to radians
+            dlat = math.radians(lat - store_lat)
+            dlon = math.radians(lon - store_lon)
+            a = (math.sin(dlat / 2) ** 2 +
+                 math.cos(math.radians(store_lat)) * math.cos(math.radians(lat)) *
+                 math.sin(dlon / 2) ** 2)
+            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+            distance = 6371.0 * c  # Earth radius is ~6371km
+
+            if distance > max_radius:
+                return Response({
+                    'error': f'Delivery is only available within {max_radius:.0f}km of our store. '
+                             f'Your location is {distance:.1f}km away.'
+                }, status=400)
+
         # Compute totals
         subtotal = cart.total
         coupon_code = request.data.get('coupon_code', '').strip().upper()
