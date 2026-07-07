@@ -23,6 +23,7 @@ export default function Checkout() {
   });
 
   const [fetchingLocation, setFetchingLocation] = useState(false);
+  const [mapSearchQuery, setMapSearchQuery] = useState('');
   const [calculatedDistance, setCalculatedDistance] = useState(null);
 
   const STORE_LAT = 19.213000;
@@ -143,6 +144,32 @@ export default function Checkout() {
         mapInstance.current.setView([coords.latitude, coords.longitude], 14);
       }
     } catch (err) { console.error(err); } finally { setFetchingLocation(false); }
+  };
+
+  const handleMapSearch = async () => {
+    if (!mapSearchQuery.trim()) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(mapSearchQuery)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const first = data[0];
+        const lat = parseFloat(first.lat);
+        const lon = parseFloat(first.lon);
+        
+        setNewAddr(prev => ({ ...prev, latitude: lat, longitude: lon }));
+        toast.success(`Found: ${first.display_name.split(',').slice(0, 3).join(',')}`);
+
+        if (mapInstance.current && markerInstance.current) {
+          markerInstance.current.setLatLng([lat, lon]);
+          mapInstance.current.setView([lat, lon], 15);
+        }
+      } else {
+        toast.error('Location not found. Please try adding more details (e.g. city).');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Search failed. Please try manual pinning.');
+    }
   };
 
   useEffect(() => {
@@ -331,7 +358,33 @@ export default function Checkout() {
 
                 {/* Leaflet Interactive Map */}
                 <p className="fs-xs fw-600 mt-16 text-medium">📍 Pin your precise delivery location on the map (optional):</p>
-                <div ref={mapRef} style={{ height: '240px', width: '100%', borderRadius: '12px', border: '1px solid var(--color-border)', marginTop: '12px', zIndex: 1 }} />
+                
+                {/* Geocoding Search Bar */}
+                <div style={{ display: 'flex', gap: 8, marginTop: '8px', marginBottom: '8px' }}>
+                  <input 
+                    className="input" 
+                    style={{ fontSize: '0.875rem', height: '36px', padding: '0 12px', flex: 1 }}
+                    placeholder="Search address (e.g. Kalyan Station, Dombivli East)" 
+                    value={mapSearchQuery} 
+                    onChange={e => setMapSearchQuery(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleMapSearch();
+                      }
+                    }} 
+                  />
+                  <button 
+                    type="button" 
+                    className="btn btn-outline btn-sm" 
+                    style={{ height: '36px' }}
+                    onClick={handleMapSearch}
+                  >
+                    Search Map
+                  </button>
+                </div>
+
+                <div ref={mapRef} style={{ height: '240px', width: '100%', borderRadius: '12px', border: '1px solid var(--color-border)', marginTop: '8px', zIndex: 1 }} />
                 
                 {newAddr.latitude !== null && (() => {
                   const dist = calculateDistance(STORE_LAT, STORE_LON, parseFloat(newAddr.latitude), parseFloat(newAddr.longitude));
