@@ -118,6 +118,8 @@ else:
     CORS_ALLOWED_ORIGINS = [
         'https://janhavitraders.com',
         'https://www.janhavitraders.com',
+        'https://blushh.online',
+        'https://www.blushh.online',
     ]
 
 # Allow localhost for development environment (only if DEBUG is set to True in the environment/.env)

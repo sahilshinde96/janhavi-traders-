@@ -1580,7 +1580,35 @@ tr:hover td { background: var(--color-bg); }
 }
 @media (max-width: 768px) {
   .hero-container {
-    height: 400px;
+    height: 450px;
+  }
+  .hero-slide {
+    padding-top: 32px;
+    padding-bottom: 32px;
+  }
+  .hero-slide .container {
+    padding: 0 20px;
+  }
+  .hero-slide .hero-title {
+    font-size: clamp(1.6rem, 6vw, 2.2rem) !important;
+    margin-bottom: 12px;
+  }
+  .hero-slide p {
+    font-size: 0.95rem !important;
+    margin-bottom: 16px !important;
+    line-height: 1.5 !important;
+  }
+  .hero-slide .hero-pill {
+    margin-bottom: 16px;
+    padding: 4px 12px;
+    font-size: 0.7rem;
+  }
+  .hero-slide .btn-lg {
+    padding: 10px 20px;
+    font-size: 0.85rem;
+  }
+  .hero-slide .flex {
+    gap: 10px !important;
   }
 }
 .hero-slide {
