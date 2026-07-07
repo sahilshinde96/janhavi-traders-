@@ -17,7 +17,7 @@ export default function Cart() {
   const items = cart?.items || [];
   const subtotal = parseFloat(cart?.total || 0);
   const discount = appliedCoupon ? parseFloat(appliedCoupon.discount_amount) : 0;
-  const deliveryCharge = 0;
+  const deliveryCharge = subtotal >= 299 ? 0 : 20;
   const total = subtotal - discount + deliveryCharge;
 
   const handleApplyCoupon = async () => {
@@ -160,12 +160,22 @@ export default function Cart() {
                   )}
                   <div className="order-summary-row">
                     <span className="text-medium">Delivery</span>
-                    <span className="text-success">FREE</span>
+                    {deliveryCharge === 0 ? (
+                      <span className="text-success fw-700">FREE</span>
+                    ) : (
+                      <span className="fw-700" style={{ color: 'var(--color-text-dark)' }}>₹20</span>
+                    )}
                   </div>
-                  {subtotal < 150 && (
+                  {subtotal < 150 ? (
                     <p className="fs-xs fw-600 mt-4" style={{ color: '#dc2626' }}>
                       Minimum order value is ₹150. Add ₹{(150 - subtotal).toFixed(0)} more to checkout.
                     </p>
+                  ) : (
+                    subtotal < 299 && (
+                      <p className="fs-xs fw-600 mt-4" style={{ color: '#c2850a' }}>
+                        🎉 Add ₹{(299 - subtotal).toFixed(0)} more for FREE delivery!
+                      </p>
+                    )
                   )}
                 </div>
               );

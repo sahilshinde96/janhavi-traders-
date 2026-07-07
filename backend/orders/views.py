@@ -14,8 +14,8 @@ from .models import Order, OrderItem
 from .serializers import OrderSerializer
 
 # --- Delivery Charge Settings ---
-DELIVERY_CHARGE = Decimal('0.00')
-FREE_DELIVERY_ABOVE = Decimal('0.00')
+DELIVERY_CHARGE = Decimal('20.00')
+FREE_DELIVERY_ABOVE = Decimal('299.00')
 MINIMUM_ORDER_VALUE = Decimal('150.00')
 
 

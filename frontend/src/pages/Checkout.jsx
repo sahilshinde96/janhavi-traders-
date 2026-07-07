@@ -101,7 +101,7 @@ export default function Checkout() {
   const items = cart?.items || [];
   const subtotal = parseFloat(cart?.total || 0);
   const discount = appliedCoupon ? parseFloat(appliedCoupon.discount_amount) : 0;
-  const deliveryCharge = 0;
+  const deliveryCharge = subtotal >= 299 ? 0 : 20;
   const total = subtotal - discount + deliveryCharge;
 
   const handleAddAddress = async () => {
@@ -370,7 +370,11 @@ export default function Checkout() {
                   )}
                   <div className="order-summary-row">
                     <span className="text-medium">Delivery</span>
-                    <span className="text-success">FREE</span>
+                    {deliveryCharge === 0 ? (
+                      <span className="text-success fw-700">FREE</span>
+                    ) : (
+                      <span className="fw-700" style={{ color: 'var(--color-text-dark)' }}>₹20</span>
+                    )}
                   </div>
                 </div>
               );
