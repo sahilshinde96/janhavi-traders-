@@ -109,10 +109,6 @@ export default function Checkout() {
     for (const f of required) {
       if (!newAddr[f].trim()) { toast.error(`Please fill in ${f}`); return; }
     }
-    if (newAddr.latitude === null || newAddr.longitude === null) {
-      toast.error('Please fetch your GPS coordinates using "Use My Current Location" button before saving.');
-      return;
-    }
     try {
       const { data } = await api.post('/auth/addresses/', newAddr);
       setAddresses(prev => [...prev, data]);
@@ -123,7 +119,6 @@ export default function Checkout() {
   };
 
   const handlePlaceOrder = async () => {
-    if (subtotal < 150) { toast.error('Minimum order value is ₹150'); return; }
     if (!selectedAddress && !showNewForm) { toast.error('Please select a delivery address'); return; }
 
     let address = selectedAddress;
@@ -131,10 +126,6 @@ export default function Checkout() {
       const required = ['name', 'phone', 'line1', 'city', 'state', 'pincode'];
       for (const f of required) {
         if (!newAddr[f].trim()) { toast.error(`Please fill in ${f}`); return; }
-      }
-      if (newAddr.latitude === null || newAddr.longitude === null) {
-        toast.error('Please fetch your GPS coordinates using "Use My Current Location" button.');
-        return;
       }
       address = newAddr;
     }
@@ -205,34 +196,6 @@ export default function Checkout() {
               </div>
             )}
 
-            {/* Geofencing status banner for selected saved address */}
-            {selectedAddress && (() => {
-              const hasCoords = !isNaN(parseFloat(selectedAddress.latitude)) && !isNaN(parseFloat(selectedAddress.longitude));
-              return (
-                <div className={`${getGeofenceBannerClass(calculatedDistance, hasCoords)} mt-16 mb-16`}>
-                  {!hasCoords ? (
-                    <div className="flex-col gap-8">
-                      <span>⚠️ This address is missing GPS coordinates required for delivery radius verification. You can pin your current location to update it:</span>
-                      <button type="button" className="btn btn-outline btn-xs"
-                        onClick={() => handlePinCoordinatesToAddress(selectedAddress.id)}
-                        disabled={fetchingLocation}
-                        style={{ alignSelf: 'flex-start', marginTop: 4, display: 'flex', gap: 6, alignItems: 'center' }}>
-                        {fetchingLocation ? '⏳ Pining Coordinates...' : '📍 Pin Current GPS Coordinates to this Address'}
-                      </button>
-                    </div>
-                  ) : (
-                    calculatedDistance !== null ? (
-                      calculatedDistance <= 10
-                        ? `🟢 Deliverable: Located ${calculatedDistance.toFixed(1)} km from store (within 10km range)`
-                        : `🔴 Undeliverable: Located ${calculatedDistance.toFixed(1)} km from store (exceeds 10km range limit)`
-                    ) : (
-                      <span>⏳ Calculating distance...</span>
-                    )
-                  )}
-                </div>
-              );
-            })()}
-
             {/* Add new */}
             <button className="btn btn-ghost btn-sm" onClick={() => { setShowNewForm(!showNewForm); setSelectedAddress(null); }}>
               <Plus size={14} /> {showNewForm ? 'Cancel' : 'Add New Address'}
@@ -240,26 +203,6 @@ export default function Checkout() {
 
             {showNewForm && (
               <div className="mt-20" style={{ animation: 'slideDown 0.2s ease' }}>
-                {/* Geolocation Button */}
-                <div className="mb-16">
-                  <button type="button" className="btn btn-outline w-full"
-                    style={{ justifyContent: 'center', display: 'flex', gap: 8, alignItems: 'center' }}
-                    onClick={handleFetchCurrentLocation} disabled={fetchingLocation}>
-                    {fetchingLocation ? '⏳ Pining Coordinates...' : '📍 Pin My Current GPS Location *'}
-                  </button>
-                  <p className="fs-xxs text-light mt-4">* Required to verify you are within our 10km delivery radius.</p>
-                </div>
-
-                {/* GPS range status indicator */}
-                {newAddr.latitude !== null && calculatedDistance !== null && (
-                  <div className={`${calculatedDistance <= 10 ? 'info-banner info-banner--success' : 'info-banner info-banner--error'} mb-16`}>
-                    {calculatedDistance <= 10
-                      ? `🟢 Within Delivery Area! (Distance: ${calculatedDistance.toFixed(1)} km)`
-                      : `🔴 Out of Delivery Range! (Distance: ${calculatedDistance.toFixed(1)} km - limit is 10km)`
-                    }
-                  </div>
-                )}
-
                 <div className="grid-2 mb-16">
                   {[['name','Full Name'],['phone','Phone Number'],['line1','Address Line 1'],['line2','Address Line 2 (Optional)'],['city','City'],['pincode','PIN Code']].map(([key, label]) => (
                     <div key={key} className="form-group" style={{ marginBottom: 0 }}>
@@ -386,12 +329,7 @@ export default function Checkout() {
             </div>
 
             {(() => {
-              const hasCoords = selectedAddress
-                ? (!isNaN(parseFloat(selectedAddress.latitude)) && !isNaN(parseFloat(selectedAddress.longitude)))
-                : (showNewForm && !isNaN(parseFloat(newAddr.latitude)) && !isNaN(parseFloat(newAddr.longitude)));
-              const isCheckoutDisabled = selectedAddress
-                ? (!hasCoords || calculatedDistance === null || calculatedDistance > 10)
-                : (showNewForm ? (!hasCoords || calculatedDistance === null || calculatedDistance > 10) : true);
+              const isCheckoutDisabled = !selectedAddress && !showNewForm;
               return (
                 <button className="btn btn-primary btn-lg w-full" style={{ justifyContent: 'center' }}
                   onClick={handlePlaceOrder} disabled={placing || isCheckoutDisabled}>

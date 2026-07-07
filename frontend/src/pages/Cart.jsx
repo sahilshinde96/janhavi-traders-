@@ -166,16 +166,10 @@ export default function Cart() {
                       <span className="fw-700" style={{ color: 'var(--color-text-dark)' }}>₹20</span>
                     )}
                   </div>
-                  {subtotal < 150 ? (
-                    <p className="fs-xs fw-600 mt-4" style={{ color: '#dc2626' }}>
-                      Minimum order value is ₹150. Add ₹{(150 - subtotal).toFixed(0)} more to checkout.
+                  {subtotal < 299 && (
+                    <p className="fs-xs fw-600 mt-4" style={{ color: '#c2850a' }}>
+                      🎉 Add ₹{(299 - subtotal).toFixed(0)} more for FREE delivery!
                     </p>
-                  ) : (
-                    subtotal < 299 && (
-                      <p className="fs-xs fw-600 mt-4" style={{ color: '#c2850a' }}>
-                        🎉 Add ₹{(299 - subtotal).toFixed(0)} more for FREE delivery!
-                      </p>
-                    )
                   )}
                 </div>
               );
@@ -190,8 +184,7 @@ export default function Cart() {
 
             <button
               className="btn btn-primary btn-lg w-full"
-              style={{ justifyContent: 'center', opacity: subtotal < 150 ? 0.6 : 1, cursor: subtotal < 150 ? 'not-allowed' : 'pointer' }}
-              disabled={subtotal < 150}
+              style={{ justifyContent: 'center' }}
               onClick={() => navigate('/checkout', { state: { appliedCoupon } })}
             >
               Proceed to Checkout

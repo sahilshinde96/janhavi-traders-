@@ -16,7 +16,6 @@ from .serializers import OrderSerializer
 # --- Delivery Charge Settings ---
 DELIVERY_CHARGE = Decimal('20.00')
 FREE_DELIVERY_ABOVE = Decimal('299.00')
-MINIMUM_ORDER_VALUE = Decimal('150.00')
 
 
 class PlaceOrderView(APIView):
@@ -25,9 +24,6 @@ class PlaceOrderView(APIView):
         cart = Cart.objects.filter(user=request.user).first()
         if not cart or not cart.items.exists():
             return Response({'error': 'Your cart is empty'}, status=400)
-
-        if cart.total < MINIMUM_ORDER_VALUE:
-            return Response({'error': f'Minimum order value is ₹{MINIMUM_ORDER_VALUE:.0f}'}, status=400)
 
         address = request.data.get('address')
         if not address:
@@ -38,42 +34,13 @@ class PlaceOrderView(APIView):
             if not address.get(field, '').strip():
                 return Response({'error': f'Address field "{field}" is required'}, status=400)
 
-        # Geofencing validation: check if delivery address is within the max radius (BUG-14)
-        lat = address.get('latitude')
-        lon = address.get('longitude')
-        
-        if lat in (None, '', 'null', 'None') or lon in (None, '', 'null', 'None'):
-            return Response({
-                'error': 'Location coordinates (GPS) are required for delivery address verification. '
-                         'Please select or pin your location on the address form.'
-            }, status=400)
-
+        # Get optional coordinates if provided
         try:
-            lat = float(lat)
-            lon = float(lon)
+            lat = float(address.get('latitude')) if address.get('latitude') not in (None, '', 'null', 'None') else None
+            lon = float(address.get('longitude')) if address.get('longitude') not in (None, '', 'null', 'None') else None
         except (ValueError, TypeError):
-            return Response({'error': 'Invalid location coordinates'}, status=400)
-
-        # Calculate distance using Haversine formula
-        import math
-        store_lat = getattr(settings, 'STORE_LATITUDE', 19.213000)
-        store_lon = getattr(settings, 'STORE_LONGITUDE', 73.151000)
-        max_radius = getattr(settings, 'MAX_DELIVERY_RADIUS_KM', 10.0)
-
-        # Convert latitude and longitude from degrees to radians
-        dlat = math.radians(lat - store_lat)
-        dlon = math.radians(lon - store_lon)
-        a = (math.sin(dlat / 2) ** 2 +
-             math.cos(math.radians(store_lat)) * math.cos(math.radians(lat)) *
-             math.sin(dlon / 2) ** 2)
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-        distance = 6371.0 * c  # Earth radius is ~6371km
-
-        if distance > max_radius:
-            return Response({
-                'error': f'Delivery is only available within {max_radius:.0f}km of our store. '
-                         f'Your location is {distance:.1f}km away.'
-            }, status=400)
+            lat = None
+            lon = None
 
         # Compute totals
         subtotal = cart.total
