@@ -4,7 +4,7 @@ import { Mail, Phone, ArrowRight, RefreshCw } from 'lucide-react';
 import api from '../api/axios';
 import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
-import logo from '../assets/logo.jpg';
+import logo from '../assets/logo.png';
 
 export default function Login() {
   const navigate = useNavigate();

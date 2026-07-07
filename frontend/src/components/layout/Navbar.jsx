@@ -8,7 +8,7 @@ import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
 import api from '../../api/axios';
-import logo from '../../assets/logo.jpg';
+import logo from '../../assets/logo.png';
 
 const FALLBACK_CATEGORIES = [
   { name: 'Makeup', slug: 'makeup' },

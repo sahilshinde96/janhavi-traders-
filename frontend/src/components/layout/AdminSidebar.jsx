@@ -4,7 +4,7 @@ import {
   Warehouse, LogOut, ChevronRight, Globe,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
-import logo from '../../assets/logo.jpg';
+import logo from '../../assets/logo.png';
 
 const NAV = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Instagram, Facebook, Twitter, Youtube, Mail, Phone, MapPin } from 'lucide-react';
-import logo from '../../assets/logo.jpg';
+import logo from '../../assets/logo.png';
 
 export default function Footer() {
   const navigate = useNavigate();
