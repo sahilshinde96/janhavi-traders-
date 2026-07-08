@@ -17,10 +17,13 @@ export default function AdminAddProduct() {
     image_urls: [], net_quantity: '',
   });
   
-  // Variants list for create mode
+  // Variants list for create mode, each variant now has its own image_urls list
   const [variants, setVariants] = useState([
-    { net_quantity: '', mrp: '', offer_price: '', stock_qty: '0' }
+    { net_quantity: '', mrp: '', offer_price: '', stock_qty: '0', image_urls: [] }
   ]);
+  
+  // Temporary input state dictionary for variant image text inputs
+  const [variantInputs, setVariantInputs] = useState({});
   
   const [newImageUrl, setNewImageUrl] = useState('');
 
@@ -51,6 +54,16 @@ export default function AdminAddProduct() {
 
   const handleRemoveImage = (idx) => {
     set('image_urls', form.image_urls.filter((_, i) => i !== idx));
+  };
+
+  // Add image to a specific variant row
+  const handleAddVariantImage = (vIdx, url) => {
+    if (!url || !url.trim()) return;
+    const newV = [...variants];
+    if (!newV[vIdx].image_urls) newV[vIdx].image_urls = [];
+    newV[vIdx].image_urls.push(url.trim());
+    setVariants(newV);
+    setVariantInputs(prev => ({ ...prev, [vIdx]: '' }));
   };
 
   const handleSubmit = async () => {
@@ -95,7 +108,6 @@ export default function AdminAddProduct() {
           how_to_use: form.how_to_use,
           is_active: form.is_active,
           is_featured: form.is_featured,
-          image_urls: form.image_urls
         };
         
         // Loop through all variants and send post requests
@@ -105,7 +117,9 @@ export default function AdminAddProduct() {
             net_quantity: v.net_quantity,
             mrp: parseFloat(v.mrp),
             offer_price: parseFloat(v.offer_price),
-            stock_qty: parseInt(v.stock_qty || 0)
+            stock_qty: parseInt(v.stock_qty || 0),
+            // Use specific variant images if added, else fallback to global images
+            image_urls: v.image_urls && v.image_urls.length > 0 ? v.image_urls : form.image_urls
           };
           return api.post('/products/', payload);
         });
@@ -185,72 +199,134 @@ export default function AdminAddProduct() {
                 <div>
                   <h3 style={{ fontWeight: 700, fontSize: '1rem', margin: 0 }}>Size Variants &amp; Pricing</h3>
                   <p style={{ fontSize: '0.78rem', color: 'var(--color-text-medium)', marginTop: 4 }}>
-                    Add one or more variants (e.g. 50ml, 100ml) with their respective prices and stocks.
+                    Add one or more variants (e.g. 50ml, 100ml) with their respective prices, stocks, and specific photos.
                   </p>
                 </div>
                 <button 
                   type="button" 
                   className="btn btn-outline btn-sm" 
-                  onClick={() => setVariants(prev => [...prev, { net_quantity: '', mrp: '', offer_price: '', stock_qty: '0' }])}
+                  onClick={() => setVariants(prev => [...prev, { net_quantity: '', mrp: '', offer_price: '', stock_qty: '0', image_urls: [] }])}
                 >
                   ➕ Add Size Variant
                 </button>
               </div>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {variants.map((v, idx) => (
-                  <div key={idx} style={{ display: 'flex', gap: 12, alignItems: 'flex-end', background: 'var(--color-bg)', padding: 16, borderRadius: 12, border: '1px solid var(--color-border)', flexWrap: 'wrap' }}>
-                    <div style={{ flex: '1 1 120px' }}>
-                      <label style={{ fontSize: '0.75rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>Net Qty / Size *</label>
-                      <input className="input" placeholder="e.g. 100ml" value={v.net_quantity} onChange={e => {
-                        const newV = [...variants];
-                        newV[idx].net_quantity = e.target.value;
-                        setVariants(newV);
-                      }} />
+                  <div key={idx} style={{ background: 'var(--color-bg)', padding: 16, borderRadius: 12, border: '1px solid var(--color-border)' }}>
+                    {/* Basic pricing fields */}
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                      <div style={{ flex: '1 1 120px' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>Net Qty / Size *</label>
+                        <input className="input" placeholder="e.g. 100ml" value={v.net_quantity} onChange={e => {
+                          const newV = [...variants];
+                          newV[idx].net_quantity = e.target.value;
+                          setVariants(newV);
+                        }} />
+                      </div>
+                      <div style={{ flex: '1 1 100px' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>MRP (₹) *</label>
+                        <input className="input" type="number" placeholder="0" value={v.mrp} onChange={e => {
+                          const newV = [...variants];
+                          newV[idx].mrp = e.target.value;
+                          setVariants(newV);
+                        }} />
+                      </div>
+                      <div style={{ flex: '1 1 100px' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>Offer Price *</label>
+                        <input className="input" type="number" placeholder="0" value={v.offer_price} onChange={e => {
+                          const newV = [...variants];
+                          newV[idx].offer_price = e.target.value;
+                          setVariants(newV);
+                        }} />
+                      </div>
+                      <div style={{ flex: '1 1 80px' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>Stock</label>
+                        <input className="input" type="number" placeholder="0" value={v.stock_qty} onChange={e => {
+                          const newV = [...variants];
+                          newV[idx].stock_qty = e.target.value;
+                          setVariants(newV);
+                        }} />
+                      </div>
+                      {variants.length > 1 && (
+                        <button 
+                          type="button"
+                          className="btn btn-sm"
+                          style={{ color: 'var(--color-error)', border: '1px solid var(--color-error)', background: 'transparent', height: 38 }}
+                          onClick={() => setVariants(prev => prev.filter((_, i) => i !== idx))}
+                        >
+                          Remove Size
+                        </button>
+                      )}
                     </div>
-                    <div style={{ flex: '1 1 100px' }}>
-                      <label style={{ fontSize: '0.75rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>MRP (₹) *</label>
-                      <input className="input" type="number" placeholder="0" value={v.mrp} onChange={e => {
-                        const newV = [...variants];
-                        newV[idx].mrp = e.target.value;
-                        setVariants(newV);
-                      }} />
+
+                    {/* Specific Variant Images */}
+                    <div style={{ marginTop: 12, borderTop: '1px dashed var(--color-border)', paddingTop: 12 }}>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 700, display: 'block', marginBottom: 6, color: 'var(--color-text-medium)' }}>
+                        Variant-Specific Images (Optional — falls back to global images below if empty)
+                      </label>
+                      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                        <input 
+                          className="input" 
+                          style={{ flex: 1, padding: '6px 12px', fontSize: '0.85rem' }} 
+                          placeholder="Paste image URL specifically for this size..." 
+                          value={variantInputs[idx] || ''} 
+                          onChange={e => setVariantInputs(prev => ({ ...prev, [idx]: e.target.value }))}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddVariantImage(idx, variantInputs[idx]);
+                            }
+                          }}
+                        />
+                        <button 
+                          type="button" 
+                          className="btn btn-outline btn-sm"
+                          style={{ height: 36 }}
+                          onClick={() => handleAddVariantImage(idx, variantInputs[idx])}
+                        >
+                          Add Size Image
+                        </button>
+                      </div>
+
+                      {/* Variant specific image thumbnails */}
+                      {v.image_urls && v.image_urls.length > 0 && (
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+                          {v.image_urls.map((imgUrl, imgIdx) => (
+                            <div key={imgIdx} style={{ position: 'relative', width: 44, height: 44, borderRadius: 6, overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+                              <img src={imgUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <button 
+                                type="button"
+                                onClick={() => {
+                                  const newV = [...variants];
+                                  newV[idx].image_urls = newV[idx].image_urls.filter((_, i) => i !== imgIdx);
+                                  setVariants(newV);
+                                }} 
+                                style={{
+                                  position: 'absolute', top: 1, right: 1, width: 14, height: 14,
+                                  background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%',
+                                  cursor: 'pointer', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  fontSize: '8px', padding: 0
+                                }}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div style={{ flex: '1 1 100px' }}>
-                      <label style={{ fontSize: '0.75rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>Offer Price *</label>
-                      <input className="input" type="number" placeholder="0" value={v.offer_price} onChange={e => {
-                        const newV = [...variants];
-                        newV[idx].offer_price = e.target.value;
-                        setVariants(newV);
-                      }} />
-                    </div>
-                    <div style={{ flex: '1 1 80px' }}>
-                      <label style={{ fontSize: '0.75rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>Stock</label>
-                      <input className="input" type="number" placeholder="0" value={v.stock_qty} onChange={e => {
-                        const newV = [...variants];
-                        newV[idx].stock_qty = e.target.value;
-                        setVariants(newV);
-                      }} />
-                    </div>
-                    {variants.length > 1 && (
-                      <button 
-                        type="button"
-                        className="btn btn-sm"
-                        style={{ color: 'var(--color-error)', border: '1px solid var(--color-error)', background: 'transparent', height: 38 }}
-                        onClick={() => setVariants(prev => prev.filter((_, i) => i !== idx))}
-                      >
-                        Remove
-                      </button>
-                    )}
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Images */}
+          {/* Global Images (Used as fallback for variants, or main images for editing) */}
           <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--color-border)' }}>
-            <h3 style={{ fontWeight: 700, marginBottom: 20, fontSize: '1rem' }}>Product Images</h3>
+            <h3 style={{ fontWeight: 700, marginBottom: 20, fontSize: '1rem' }}>
+              {isEdit ? 'Product Images' : 'Global / Shared Product Images'}
+            </h3>
             <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
               <input className="input" style={{ flex: 1 }} placeholder="Paste image URL (Cloudinary, ImgBB, etc.)"
                 value={newImageUrl} onChange={e => setNewImageUrl(e.target.value)}
@@ -274,7 +350,9 @@ export default function AdminAddProduct() {
                 ))}
               </div>
             )}
-            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-light)', marginTop: 8 }}>First image will be used as the primary display image.</p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-light)', marginTop: 8 }}>
+              {isEdit ? 'First image will be used as the primary display image.' : 'These photos will be used for any size variants that do not have their own specific images.'}
+            </p>
           </div>
         </div>
 
