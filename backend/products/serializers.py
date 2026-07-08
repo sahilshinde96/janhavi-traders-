@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Product, ProductImage
+from .models import Category, Product, ProductImage, BrandBanner
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -79,3 +79,10 @@ class ProductDetailSerializer(serializers.ModelSerializer):
                     product=instance, image_url=url, is_primary=(i == 0), sort_order=i
                 )
         return instance
+
+
+class BrandBannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BrandBanner
+        fields = ['id', 'name', 'image_url', 'link_url', 'sort_order', 'created_at']
+        read_only_fields = ['created_at']

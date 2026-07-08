@@ -96,3 +96,17 @@ class ProductImage(models.Model):
 
     class Meta:
         ordering = ['sort_order', '-is_primary']
+
+
+class BrandBanner(models.Model):
+    name = models.CharField(max_length=100)
+    image_url = models.URLField(max_length=500)
+    link_url = models.CharField(max_length=200, blank=True)
+    sort_order = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['sort_order', 'id']
+
+    def __str__(self):
+        return self.name

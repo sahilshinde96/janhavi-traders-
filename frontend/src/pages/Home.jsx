@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Edit2, ExternalLink } from 'lucide-react';
 import api from '../api/axios';
 import ProductGrid from '../components/product/ProductGrid';
+import { useAuthStore } from '../store/authStore';
+import toast from 'react-hot-toast';
 import hero1 from '../assets/hero1.jpg';
-
 
 const WHY_US = [
   { icon: '✅', title: '100% Authentic', desc: 'All products are sourced directly from brands' },
@@ -12,20 +14,63 @@ const WHY_US = [
   { icon: '↩️', title: 'Easy Returns', desc: '7-day hassle-free return policy' },
 ];
 
+const FALLBACK_BANNERS = [
+  { id: 1, name: "Good Vibes", image_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600", link_url: "/products?search=Good+Vibes", sort_order: 1 },
+  { id: 2, name: "Nivea", image_url: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600", link_url: "/products?search=Nivea", sort_order: 2 },
+  { id: 3, name: "NY Bae", image_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600", link_url: "/products?search=NY+Bae", sort_order: 3 },
+  { id: 4, name: "The Derma Co", image_url: "https://images.unsplash.com/photo-1608248597481-496100c80836?w=600", link_url: "/products?search=Derma", sort_order: 4 },
+  { id: 5, name: "DermDoc", image_url: "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=600", link_url: "/products?search=DermDoc", sort_order: 5 },
+  { id: 6, name: "Lakme", image_url: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=600", link_url: "/products?search=Lakme", sort_order: 6 },
+  { id: 7, name: "Alps Goodness", image_url: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600", link_url: "/products?search=Alps", sort_order: 7 },
+  { id: 8, name: "Swiss Beauty", image_url: "https://images.unsplash.com/photo-1619451334792-150fd785ee74?w=600", link_url: "/products?search=Swiss", sort_order: 8 },
+];
+
 export default function Home() {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const isAdmin = user?.is_staff;
+
   const [featured, setFeatured] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
+  const [brandBanners, setBrandBanners] = useState([]);
+  
   const [loadingFeatured, setLoadingFeatured] = useState(true);
   const [loadingNew, setLoadingNew] = useState(true);
+  const [loadingBanners, setLoadingBanners] = useState(true);
+  
   const [activeSlide, setActiveSlide] = useState(0);
   const [bestDiscountProduct, setBestDiscountProduct] = useState(null);
   const [maxDiscountPercent, setMaxDiscountPercent] = useState(0);
 
+  // Modal Editor state
+  const [showModal, setShowModal] = useState(false);
+  const [selectedBanner, setSelectedBanner] = useState(null);
+  const [savingBanner, setSavingBanner] = useState(false);
+  const [bannerForm, setBannerForm] = useState({
+    name: '',
+    image_url: '',
+    link_url: '',
+    sort_order: 1
+  });
+
+  const fetchBanners = () => {
+    setLoadingBanners(true);
+    api.get('/products/brand-banners/')
+      .then(r => {
+        const data = r.data.results || r.data;
+        setBrandBanners(data || []);
+        setLoadingBanners(false);
+      })
+      .catch(() => {
+        setLoadingBanners(false);
+      });
+  };
+
   useEffect(() => {
     api.get('/products/featured/').then(r => { setFeatured(r.data.results || r.data); setLoadingFeatured(false); }).catch(() => setLoadingFeatured(false));
     api.get('/products/new-arrivals/').then(r => { setNewArrivals(r.data.results || r.data); setLoadingNew(false); }).catch(() => setLoadingNew(false));
-    
+    fetchBanners();
+
     // Fetch all products to find the most discounted one
     api.get('/products/')
       .then(r => {
@@ -59,6 +104,46 @@ export default function Home() {
     }, 6000);
     return () => clearInterval(interval);
   }, []);
+
+  // Modal handlers
+  const handleOpenEdit = (banner) => {
+    setSelectedBanner(banner);
+    setBannerForm({
+      name: banner.name || '',
+      image_url: banner.image_url || '',
+      link_url: banner.link_url || '',
+      sort_order: banner.sort_order || 1
+    });
+    setShowModal(true);
+  };
+
+  const handleSaveBanner = async () => {
+    if (!bannerForm.name.trim() || !bannerForm.image_url.trim()) {
+      toast.error("Name and Image URL are required");
+      return;
+    }
+    setSavingBanner(true);
+    try {
+      if (selectedBanner && selectedBanner.id) {
+        // Edit existing
+        await api.patch(`/products/brand-banners/${selectedBanner.id}/`, bannerForm);
+        toast.success("Brand banner updated successfully!");
+      } else {
+        // Create new (if somehow needed)
+        await api.post('/products/brand-banners/', bannerForm);
+        toast.success("Brand banner created successfully!");
+      }
+      fetchBanners();
+      setShowModal(false);
+    } catch (err) {
+      toast.error("Failed to save brand banner. Verify credentials.");
+    } finally {
+      setSavingBanner(false);
+    }
+  };
+
+  // Determine grid rendering data (use seeded/fetched DB banners, falling back to static layout)
+  const displayBanners = brandBanners.length > 0 ? brandBanners : FALLBACK_BANNERS;
 
   return (
     <div>
@@ -167,8 +252,6 @@ export default function Home() {
                     <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#FFD369' }}>₹{bestDiscountProduct.offer_price}</span>
                     <span style={{ fontSize: '1.3rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>₹{bestDiscountProduct.mrp}</span>
                   </div>
-                  {/* Route page redirection uses product slug (e.g. '/products/my-face-wash') instead of database id */}
-                  {/* to match the routing definitions and prevent a 404 error page (BUG-01/BUG-03 fix). */}
                   <button className="btn btn-primary btn-lg" onClick={() => navigate(`/products/${bestDiscountProduct.slug}`)}>
                     Grab this Offer
                   </button>
@@ -269,8 +352,104 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── Brand Promotional Banners Grid (Admin Uploadable) ────────────── */}
+      <section className="section" style={{ background: 'var(--color-secondary)', borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)' }}>
+        <div className="container">
+          <div className="text-center mb-40">
+            <h2 className="section-title">Shop by Brand Deals</h2>
+            <p className="section-subtitle" style={{ color: 'var(--color-text-medium)', fontSize: '0.95rem', marginTop: 8 }}>
+              Click on your favorite brands to view exclusive discounts and offers!
+            </p>
+          </div>
+          
+          <div className="grid-4" style={{ gap: 20 }}>
+            {displayBanners.map((banner) => (
+              <div 
+                key={banner.id} 
+                className="brand-banner-card"
+                style={{
+                  background: 'white',
+                  borderRadius: 'var(--radius-lg)',
+                  overflow: 'hidden',
+                  border: '1px solid var(--color-border)',
+                  boxShadow: 'var(--shadow-sm)',
+                  position: 'relative',
+                  aspectRatio: '1.1',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  transition: 'all 0.3s ease',
+                  cursor: banner.link_url ? 'pointer' : 'default'
+                }}
+                onClick={() => {
+                  if (banner.link_url) navigate(banner.link_url);
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                }}
+              >
+                {/* Banner Image */}
+                <div style={{ flex: 1, overflow: 'hidden', background: '#f5f5f5', position: 'relative' }}>
+                  <img 
+                    src={banner.image_url} 
+                    alt={banner.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                  
+                  {/* Admin Controls overlay */}
+                  {isAdmin && (
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation(); // Stop navigation redirect
+                        handleOpenEdit(banner);
+                      }}
+                      style={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        backgroundColor: 'var(--color-primary)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: 34,
+                        height: 34,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                        zIndex: 10,
+                        transition: 'transform 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1.0)'}
+                      title="Edit Brand Banner"
+                    >
+                      <Edit2 size={15} />
+                    </button>
+                  )}
+                </div>
+
+                {/* Footer Label */}
+                <div style={{ padding: '12px 16px', background: 'white', borderTop: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h4 style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--color-text-dark)', marginBottom: 2 }}>{banner.name}</h4>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--color-primary)', fontWeight: 700 }}>Exclusive Deal</span>
+                  </div>
+                  {banner.link_url && <ExternalLink size={14} style={{ color: 'var(--color-text-light)' }} />}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── Why Choose Us ────────────────────────────────────────────────── */}
-      <section className="section" style={{ background: 'var(--color-secondary)' }}>
+      <section className="section" style={{ background: 'white' }}>
         <div className="container">
           <div className="text-center mb-48">
             <h2 className="section-title">Why <span style={{ color: 'var(--color-primary)' }}>BLUSHH</span>?</h2>
@@ -278,7 +457,7 @@ export default function Home() {
           </div>
           <div className="grid-4">
             {WHY_US.map((item, i) => (
-              <div key={i} className="feature-card">
+              <div key={i} className="feature-card" style={{ border: '1px solid var(--color-border)', background: 'var(--color-secondary)' }}>
                 <div className="feature-icon">{item.icon}</div>
                 <h4 className="feature-title">{item.title}</h4>
                 <p className="feature-desc">{item.desc}</p>
@@ -304,55 +483,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── Community Gallery / Photo Placeholders ─────────────────────── */}
-      <section className="section" style={{ background: 'var(--color-secondary)', paddingTop: 40, paddingBottom: 40 }}>
-        <div className="container">
-          <div className="text-center mb-40">
-            <h2 className="section-title">Share Your Glow</h2>
-            <p className="section-subtitle" style={{ color: 'var(--color-text-medium)', fontSize: '0.95rem', marginTop: 8 }}>
-              Upload your photos and showcase your beauty style in our community gallery!
-            </p>
-          </div>
-          <div className="grid-4" style={{ gap: 20 }}>
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div 
-                key={i} 
-                className="photo-placeholder"
-                style={{
-                  aspectRatio: '1',
-                  background: 'white',
-                  border: '2px dashed var(--color-border)',
-                  borderRadius: 'var(--radius-lg)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  transition: 'all 0.3s ease',
-                  boxShadow: 'var(--shadow-sm)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--color-primary)';
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--color-border)';
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                }}
-              >
-                <div style={{ fontSize: '2rem', color: 'var(--color-primary-light)', marginBottom: 8 }}>📸</div>
-                <div style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-text-dark)' }}>Add Photo</div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--color-text-light)', marginTop: 4 }}>Slot {i + 1}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ─── Newsletter ───────────────────────────────────────────────────── */}
       <section className="section-dark">
         <div className="container">
@@ -373,6 +503,95 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ─── Admin Edit Brand Banner Modal ───────────────────────────────── */}
+      {showModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: 20
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: 16,
+            maxWidth: 480,
+            width: '100%',
+            padding: 24,
+            boxShadow: 'var(--shadow-xl)',
+            border: '1px solid var(--color-border)',
+            animation: 'slideUp 0.3s ease'
+          }}>
+            <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.25rem', marginBottom: 20, color: 'var(--color-text-dark)' }}>
+              Edit Brand Banner ({selectedBanner?.name || 'New'})
+            </h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Brand Name *</label>
+                <input 
+                  className="input" 
+                  value={bannerForm.name} 
+                  onChange={e => setBannerForm(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="e.g. Nivea"
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Image URL *</label>
+                <input 
+                  className="input" 
+                  value={bannerForm.image_url} 
+                  onChange={e => setBannerForm(prev => ({ ...prev, image_url: e.target.value }))}
+                  placeholder="Paste Cloudinary/Image link..."
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Redirect Redirect URL (optional)</label>
+                <input 
+                  className="input" 
+                  value={bannerForm.link_url} 
+                  onChange={e => setBannerForm(prev => ({ ...prev, link_url: e.target.value }))}
+                  placeholder="e.g. /products?search=nivea"
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Sort Order</label>
+                <input 
+                  className="input" 
+                  type="number"
+                  value={bannerForm.sort_order} 
+                  onChange={e => setBannerForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 1 }))}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button 
+                className="btn btn-ghost" 
+                onClick={() => setShowModal(false)}
+                disabled={savingBanner}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn btn-primary" 
+                onClick={handleSaveBanner}
+                disabled={savingBanner}
+              >
+                {savingBanner ? '⏳ Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

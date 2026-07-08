@@ -3,8 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Category, Product
-from .serializers import CategorySerializer, ProductListSerializer, ProductDetailSerializer
+from .models import Category, Product, BrandBanner
+from .serializers import CategorySerializer, ProductListSerializer, ProductDetailSerializer, BrandBannerSerializer
 
 
 class CategoryListView(generics.ListCreateAPIView):
@@ -114,3 +114,23 @@ class LowStockView(generics.ListAPIView):
 
     def get_queryset(self):
         return Product.objects.filter(stock_qty__lte=10).prefetch_related('images')
+
+
+class BrandBannerListView(generics.ListCreateAPIView):
+    queryset = BrandBanner.objects.all()
+    serializer_class = BrandBannerSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [permissions.IsAdminUser()]
+        return [permissions.AllowAny()]
+
+
+class BrandBannerDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = BrandBanner.objects.all()
+    serializer_class = BrandBannerSerializer
+
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            return [permissions.IsAdminUser()]
+        return [permissions.AllowAny()]
