@@ -7,6 +7,8 @@ import toast from 'react-hot-toast';
 export default function AdminProducts() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -16,6 +18,7 @@ export default function AdminProducts() {
     setLoading(true);
     const params = new URLSearchParams({ page });
     if (search) params.set('search', search);
+    if (selectedCategory) params.set('category', selectedCategory);
     api.get(`/products/?${params}`).then(r => {
       setProducts(r.data.results || r.data);
       setTotal(r.data.count || 0);
@@ -23,7 +26,13 @@ export default function AdminProducts() {
     }).catch(() => setLoading(false));
   };
 
-  useEffect(() => { fetchProducts(); }, [search, page]);
+  useEffect(() => {
+    api.get('/products/categories/')
+      .then(r => setCategories(r.data.results || r.data))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => { fetchProducts(); }, [search, page, selectedCategory]);
 
   const handleDelete = async (slug, name) => {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
@@ -54,11 +63,27 @@ export default function AdminProducts() {
         </button>
       </div>
 
-      {/* Search */}
-      <div style={{ position: 'relative', marginBottom: 20, maxWidth: 320 }}>
-        <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-light)' }} />
-        <input className="input" style={{ paddingLeft: 36, background: 'white' }} placeholder="Search products..."
-          value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
+      {/* Controls (Search & Category Filter) */}
+      <div style={{ display: 'flex', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
+        {/* Search */}
+        <div style={{ position: 'relative', width: '100%', maxWidth: 320 }}>
+          <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-light)' }} />
+          <input className="input" style={{ paddingLeft: 36, background: 'white' }} placeholder="Search products..."
+            value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
+        </div>
+
+        {/* Category Filter */}
+        <select 
+          className="select" 
+          style={{ width: '100%', maxWidth: 200, background: 'white' }}
+          value={selectedCategory}
+          onChange={e => { setSelectedCategory(e.target.value); setPage(1); }}
+        >
+          <option value="">All Categories</option>
+          {categories.map(c => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
       </div>
 
       {/* Table */}
