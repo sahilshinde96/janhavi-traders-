@@ -304,6 +304,55 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── Community Gallery / Photo Placeholders ─────────────────────── */}
+      <section className="section" style={{ background: 'var(--color-secondary)', paddingTop: 40, paddingBottom: 40 }}>
+        <div className="container">
+          <div className="text-center mb-40">
+            <h2 className="section-title">Share Your Glow</h2>
+            <p className="section-subtitle" style={{ color: 'var(--color-text-medium)', fontSize: '0.95rem', marginTop: 8 }}>
+              Upload your photos and showcase your beauty style in our community gallery!
+            </p>
+          </div>
+          <div className="grid-4" style={{ gap: 20 }}>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div 
+                key={i} 
+                className="photo-placeholder"
+                style={{
+                  aspectRatio: '1',
+                  background: 'white',
+                  border: '2px dashed var(--color-border)',
+                  borderRadius: 'var(--radius-lg)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  transition: 'all 0.3s ease',
+                  boxShadow: 'var(--shadow-sm)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-primary)';
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-border)';
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                }}
+              >
+                <div style={{ fontSize: '2rem', color: 'var(--color-primary-light)', marginBottom: 8 }}>📸</div>
+                <div style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-text-dark)' }}>Add Photo</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--color-text-light)', marginTop: 4 }}>Slot {i + 1}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── Newsletter ───────────────────────────────────────────────────── */}
       <section className="section-dark">
         <div className="container">
