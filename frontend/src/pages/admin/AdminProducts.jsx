@@ -115,7 +115,10 @@ export default function AdminProducts() {
                       {p.primary_image ? <img src={p.primary_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>🧴</div>}
                     </div>
                     <div>
-                      <p style={{ fontWeight: 600, fontSize: '0.875rem' }}>{p.name}</p>
+                      <p style={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                        {p.name}
+                        {p.net_quantity && <span style={{ color: 'var(--color-text-medium)', fontWeight: 500, fontSize: '0.75rem', marginLeft: 6 }}>({p.net_quantity})</span>}
+                      </p>
                       <p style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>{p.sku}</p>
                     </div>
                   </div>

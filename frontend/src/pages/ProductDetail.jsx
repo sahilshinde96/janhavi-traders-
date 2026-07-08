@@ -110,6 +110,11 @@ export default function ProductDetail() {
             )}
             <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', fontWeight: 700, marginBottom: 8, lineHeight: 1.2 }}>
               {product.name}
+              {product.net_quantity && (
+                <span style={{ fontSize: '1.25rem', color: 'var(--color-text-medium)', fontWeight: 500, marginLeft: 10 }}>
+                  ({product.net_quantity})
+                </span>
+              )}
             </h1>
             <p className="fs-xs text-light mb-24">SKU: {product.sku}</p>
 

@@ -14,7 +14,7 @@ export default function AdminAddProduct() {
   const [form, setForm] = useState({
     name: '', category: '', description: '', ingredients: '', how_to_use: '',
     mrp: '', offer_price: '', stock_qty: '', is_active: true, is_featured: false,
-    image_urls: [],
+    image_urls: [], net_quantity: '',
   });
   const [newImageUrl, setNewImageUrl] = useState('');
 
@@ -29,6 +29,7 @@ export default function AdminAddProduct() {
           mrp: p.mrp, offer_price: p.offer_price, stock_qty: p.stock_qty,
           is_active: p.is_active, is_featured: p.is_featured,
           image_urls: (p.images || []).map(i => i.image_url),
+          net_quantity: p.net_quantity || '',
         });
       }).catch(() => { toast.error('Product not found'); navigate('/admin/products'); });
     }
@@ -93,6 +94,10 @@ export default function AdminAddProduct() {
             <div className="form-group">
               <label className="form-label">Product Name *</label>
               <input className="input" value={form.name} onChange={e => set('name', e.target.value)} placeholder="e.g. Matte Lipstick Rose Red" />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Net Quantity / Size (Optional)</label>
+              <input className="input" value={form.net_quantity} onChange={e => set('net_quantity', e.target.value)} placeholder="e.g. 100ml, 50g, Pack of 2" />
             </div>
             <div className="form-group">
               <label className="form-label">Category *</label>

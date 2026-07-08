@@ -107,7 +107,14 @@ export default function ProductCard({ product }) {
 
       {/* Body */}
       <div className="product-card-body">
-        <p className="product-card-name">{product.name}</p>
+        <p className="product-card-name">
+          {product.name}
+          {product.net_quantity && (
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-medium)', fontWeight: 500, marginLeft: 6 }}>
+              ({product.net_quantity})
+            </span>
+          )}
+        </p>
         <div className="product-card-price">
           <span className="price-offer">₹{parseFloat(product.offer_price).toFixed(0)}</span>
           {discountPct > 0 && (

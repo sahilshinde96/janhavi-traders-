@@ -43,6 +43,7 @@ class Product(models.Model):
     offer_price = models.DecimalField(max_digits=10, decimal_places=2)
     stock_qty = models.IntegerField(default=0)
     sku = models.CharField(max_length=100, unique=True, blank=True)
+    net_quantity = models.CharField(max_length=50, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -55,7 +56,10 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         # Auto-generate URL slug from product name if it does not exist (and make sure it is unique)
         if not self.slug:
-            base = slugify(self.name)
+            name_str = self.name
+            if self.net_quantity:
+                name_str = f"{self.name} {self.net_quantity}"
+            base = slugify(name_str)
             slug, n = base, 1
             while Product.objects.filter(slug=slug).exclude(pk=self.pk).exists():
                 slug = f'{base}-{n}'
