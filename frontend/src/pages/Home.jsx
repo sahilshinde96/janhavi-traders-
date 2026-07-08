@@ -361,8 +361,8 @@ export default function Home() {
           </div>
           <div className="grid-4">
             {WHY_US.map((item, i) => (
-              <div key={i} className="feature-card" style={{ border: '1px solid var(--color-border)', background: 'var(--color-secondary)' }}>
-                <div className="feature-icon">{item.icon}</div>
+              <div key={i} className="feature-card">
+                <div className="feature-icon" style={{ background: 'var(--color-secondary)', boxShadow: 'none' }}>{item.icon}</div>
                 <h4 className="feature-title">{item.title}</h4>
                 <p className="feature-desc">{item.desc}</p>
               </div>
