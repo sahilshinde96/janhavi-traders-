@@ -153,7 +153,7 @@ class MyOrdersView(generics.ListAPIView):
             Order.objects
             .filter(user=self.request.user)
             .prefetch_related('items')
-            .select_related('user')
+            .select_related('user', 'shipment')
         )
 
 
@@ -162,11 +162,12 @@ class OrderDetailView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         if self.request.user.is_staff:
-            return Order.objects.all().prefetch_related('items')
+            return Order.objects.all().prefetch_related('items').select_related('user', 'shipment')
         return (
             Order.objects
             .filter(user=self.request.user)
             .prefetch_related('items')
+            .select_related('user', 'shipment')
         )
 
 
@@ -175,7 +176,7 @@ class AdminOrderListView(generics.ListAPIView):
     permission_classes = [permissions.IsAdminUser]
 
     def get_queryset(self):
-        qs = Order.objects.all().prefetch_related('items').select_related('user')
+        qs = Order.objects.all().prefetch_related('items').select_related('user', 'shipment')
         status_filter = self.request.query_params.get('status')
         if status_filter:
             qs = qs.filter(status=status_filter)
@@ -227,7 +228,7 @@ class AdminDashboardView(APIView):
         low_stock_count = Product.objects.filter(stock_qty__lte=10, is_active=True).count()
 
         recent_orders = (
-            Order.objects.prefetch_related('items').select_related('user')
+            Order.objects.prefetch_related('items').select_related('user', 'shipment')
             .order_by('-created_at')[:10]
         )
         status_counts = list(

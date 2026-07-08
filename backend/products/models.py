@@ -64,7 +64,11 @@ class Product(models.Model):
             
         # Auto-generate a randomized unique Stock Keeping Unit (SKU) code starting with 'JT-' (Janhavi Traders)
         if not self.sku:
-            self.sku = f'JT-{random.randint(10000, 99999)}'
+            while True:
+                sku = f'JT-{random.randint(10000, 99999)}'
+                if not Product.objects.filter(sku=sku).exists():
+                    self.sku = sku
+                    break
         super().save(*args, **kwargs)
 
     # Calculates discount percentage shown on the frontend badges.

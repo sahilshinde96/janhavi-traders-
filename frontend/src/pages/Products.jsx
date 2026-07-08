@@ -16,6 +16,7 @@ export default function Products() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
@@ -32,7 +33,11 @@ export default function Products() {
   }, []);
 
   useEffect(() => {
-    setLoading(true);
+    if (page === 1) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
     const params = new URLSearchParams();
     if (search) params.set('search', search);
     if (categorySlug) params.set('category_slug', categorySlug);
@@ -43,11 +48,35 @@ export default function Products() {
     params.set('page', page);
 
     api.get(`/products/?${params}`).then(r => {
-      setProducts(r.data.results || r.data);
+      const newProducts = r.data.results || r.data;
+      if (page === 1) {
+        setProducts(newProducts);
+      } else {
+        setProducts(prev => [...prev, ...newProducts]);
+      }
       setTotalCount(r.data.count || (r.data.results || r.data).length);
       setLoading(false);
-    }).catch(() => setLoading(false));
+      setLoadingMore(false);
+    }).catch(() => {
+      setLoading(false);
+      setLoadingMore(false);
+    });
   }, [search, categorySlug, ordering, isFeatured, minPrice, maxPrice, page]);
+
+  // Infinite Scroll Event Listener
+  useEffect(() => {
+    const handleScroll = () => {
+      if (loading || loadingMore || products.length >= totalCount) return;
+      
+      // Load more when scrolled close to the bottom (within 300px)
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 300) {
+        setPage(prev => prev + 1);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loading, loadingMore, products.length, totalCount]);
 
   const updateParam = (key, value) => {
     const p = new URLSearchParams(searchParams);
@@ -59,7 +88,12 @@ export default function Products() {
 
   const clearAll = () => { setSearchParams({}); setPage(1); };
 
-  const activeFilters = [categorySlug && `Category`, minPrice && `Min ₹${minPrice}`, maxPrice && `Max ₹${maxPrice}`, isFeatured && 'Featured'].filter(Boolean);
+  const activeFilters = [
+    categorySlug && `Category`, 
+    minPrice && `Min ₹${minPrice}`, 
+    maxPrice && `Max ₹${maxPrice}`, 
+    isFeatured && 'Featured'
+  ].filter(Boolean);
 
   return (
     <div className="container page-container-sm">
@@ -137,14 +171,26 @@ export default function Products() {
       {/* Grid */}
       <ProductGrid products={products} loading={loading} />
 
-      {/* Pagination */}
-      {totalCount > 20 && !loading && (
-        <div className="pagination-row">
-          <button className="btn btn-ghost btn-sm" disabled={page === 1} onClick={() => setPage(p => p - 1)}>← Previous</button>
-          <span className="fs-sm text-medium" style={{ padding: '8px 16px' }}>
-            Page {page} of {Math.ceil(totalCount / 20)}
-          </span>
-          <button className="btn btn-ghost btn-sm" disabled={page >= Math.ceil(totalCount / 20)} onClick={() => setPage(p => p + 1)}>Next →</button>
+      {/* Load More Skeleton row at the bottom */}
+      {loadingMore && (
+        <div className="grid-products" style={{ marginTop: 24 }}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+              <div className="skeleton" style={{ aspectRatio: '1', width: '100%' }} />
+              <div style={{ padding: 16 }}>
+                <div className="skeleton" style={{ height: 16, borderRadius: 4, marginBottom: 8 }} />
+                <div className="skeleton" style={{ height: 14, borderRadius: 4, width: '60%', marginBottom: 12 }} />
+                <div className="skeleton" style={{ height: 36, borderRadius: 20 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* End of results message */}
+      {!loading && !loadingMore && products.length >= totalCount && products.length > 0 && (
+        <div style={{ textAlign: 'center', margin: '40px 0', color: 'var(--color-text-light)', fontSize: '0.85rem', fontWeight: 600 }}>
+          ✨ You've viewed all {totalCount} products
         </div>
       )}
     </div>

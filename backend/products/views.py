@@ -13,9 +13,13 @@ class CategoryListView(generics.ListCreateAPIView):
     search_fields = ['name']
 
     def get_queryset(self):
-        if self.request.user.is_authenticated and self.request.user.is_staff:
-            return Category.objects.all()
-        return Category.objects.filter(is_active=True)
+        from django.db.models import Count, Q
+        queryset = Category.objects.all()
+        if not (self.request.user.is_authenticated and self.request.user.is_staff):
+            queryset = queryset.filter(is_active=True)
+        return queryset.annotate(
+            product_count=Count('products', filter=Q(products__is_active=True))
+        )
 
     def get_permissions(self):
         if self.request.method == 'POST':

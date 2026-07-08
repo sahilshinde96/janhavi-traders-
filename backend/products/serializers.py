@@ -12,6 +12,8 @@ class CategorySerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at']
 
     def get_product_count(self, obj):
+        if hasattr(obj, 'product_count'):
+            return obj.product_count
         return obj.products.filter(is_active=True).count()
 
 
