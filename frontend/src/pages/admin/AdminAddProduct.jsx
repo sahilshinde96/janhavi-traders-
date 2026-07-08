@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, Plus, X, Star } from 'lucide-react';
+import { ChevronLeft, Plus, X } from 'lucide-react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
@@ -16,6 +16,12 @@ export default function AdminAddProduct() {
     mrp: '', offer_price: '', stock_qty: '', is_active: true, is_featured: false,
     image_urls: [], net_quantity: '',
   });
+  
+  // Variants list for create mode
+  const [variants, setVariants] = useState([
+    { net_quantity: '', mrp: '', offer_price: '', stock_qty: '0' }
+  ]);
+  
   const [newImageUrl, setNewImageUrl] = useState('');
 
   useEffect(() => {
@@ -48,18 +54,64 @@ export default function AdminAddProduct() {
   };
 
   const handleSubmit = async () => {
-    if (!form.name || !form.category || !form.mrp || !form.offer_price) {
+    if (!form.name || !form.category) {
       toast.error('Please fill in all required fields'); return;
     }
+    
+    // Validation for create vs edit flow
+    if (isEdit) {
+      if (!form.mrp || !form.offer_price) {
+        toast.error('Please fill in MRP and Offer Price'); return;
+      }
+    } else {
+      // Create mode variants validation
+      for (let i = 0; i < variants.length; i++) {
+        const v = variants[i];
+        if (!v.net_quantity.trim() || !v.mrp || !v.offer_price) {
+          toast.error(`Please fill in Net Qty, MRP, and Offer Price for Variant #${i + 1}`);
+          return;
+        }
+      }
+    }
+
     setSaving(true);
     try {
-      const payload = { ...form, mrp: parseFloat(form.mrp), offer_price: parseFloat(form.offer_price), stock_qty: parseInt(form.stock_qty || 0) };
       if (isEdit) {
+        const payload = { 
+          ...form, 
+          mrp: parseFloat(form.mrp), 
+          offer_price: parseFloat(form.offer_price), 
+          stock_qty: parseInt(form.stock_qty || 0) 
+        };
         await api.patch(`/products/${slug}/`, payload);
         toast.success('Product updated!');
       } else {
-        await api.post('/products/', payload);
-        toast.success('Product created!');
+        // Multi-variant creation!
+        const basePayload = {
+          name: form.name,
+          category: form.category,
+          description: form.description,
+          ingredients: form.ingredients,
+          how_to_use: form.how_to_use,
+          is_active: form.is_active,
+          is_featured: form.is_featured,
+          image_urls: form.image_urls
+        };
+        
+        // Loop through all variants and send post requests
+        const requests = variants.map(v => {
+          const payload = {
+            ...basePayload,
+            net_quantity: v.net_quantity,
+            mrp: parseFloat(v.mrp),
+            offer_price: parseFloat(v.offer_price),
+            stock_qty: parseInt(v.stock_qty || 0)
+          };
+          return api.post('/products/', payload);
+        });
+        
+        await Promise.all(requests);
+        toast.success(`Successfully created ${variants.length} product variants!`);
       }
       navigate('/admin/products');
     } catch (err) {
@@ -89,16 +141,22 @@ export default function AdminAddProduct() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24 }}>
         {/* Main form */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Basic info */}
           <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--color-border)' }}>
             <h3 style={{ fontWeight: 700, marginBottom: 20, fontSize: '1rem' }}>Basic Information</h3>
             <div className="form-group">
               <label className="form-label">Product Name *</label>
               <input className="input" value={form.name} onChange={e => set('name', e.target.value)} placeholder="e.g. Matte Lipstick Rose Red" />
             </div>
-            <div className="form-group">
-              <label className="form-label">Net Quantity / Size (Optional)</label>
-              <input className="input" value={form.net_quantity} onChange={e => set('net_quantity', e.target.value)} placeholder="e.g. 100ml, 50g, Pack of 2" />
-            </div>
+            
+            {/* Show Net Quantity field in main form ONLY in Edit mode */}
+            {isEdit && (
+              <div className="form-group">
+                <label className="form-label">Net Quantity / Size (Optional)</label>
+                <input className="input" value={form.net_quantity} onChange={e => set('net_quantity', e.target.value)} placeholder="e.g. 100ml, 50g, Pack of 2" />
+              </div>
+            )}
+
             <div className="form-group">
               <label className="form-label">Category *</label>
               <select className="select" value={form.category} onChange={e => set('category', e.target.value)}>
@@ -119,6 +177,76 @@ export default function AdminAddProduct() {
               <textarea className="input" rows={3} value={form.how_to_use} onChange={e => set('how_to_use', e.target.value)} placeholder="Usage instructions..." style={{ resize: 'vertical' }} />
             </div>
           </div>
+
+          {/* Product Variants (Multiple size variants creation) */}
+          {!isEdit && (
+            <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--color-border)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <div>
+                  <h3 style={{ fontWeight: 700, fontSize: '1rem', margin: 0 }}>Size Variants &amp; Pricing</h3>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--color-text-medium)', marginTop: 4 }}>
+                    Add one or more variants (e.g. 50ml, 100ml) with their respective prices and stocks.
+                  </p>
+                </div>
+                <button 
+                  type="button" 
+                  className="btn btn-outline btn-sm" 
+                  onClick={() => setVariants(prev => [...prev, { net_quantity: '', mrp: '', offer_price: '', stock_qty: '0' }])}
+                >
+                  ➕ Add Size Variant
+                </button>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {variants.map((v, idx) => (
+                  <div key={idx} style={{ display: 'flex', gap: 12, alignItems: 'flex-end', background: 'var(--color-bg)', padding: 16, borderRadius: 12, border: '1px solid var(--color-border)', flexWrap: 'wrap' }}>
+                    <div style={{ flex: '1 1 120px' }}>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>Net Qty / Size *</label>
+                      <input className="input" placeholder="e.g. 100ml" value={v.net_quantity} onChange={e => {
+                        const newV = [...variants];
+                        newV[idx].net_quantity = e.target.value;
+                        setVariants(newV);
+                      }} />
+                    </div>
+                    <div style={{ flex: '1 1 100px' }}>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>MRP (₹) *</label>
+                      <input className="input" type="number" placeholder="0" value={v.mrp} onChange={e => {
+                        const newV = [...variants];
+                        newV[idx].mrp = e.target.value;
+                        setVariants(newV);
+                      }} />
+                    </div>
+                    <div style={{ flex: '1 1 100px' }}>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>Offer Price *</label>
+                      <input className="input" type="number" placeholder="0" value={v.offer_price} onChange={e => {
+                        const newV = [...variants];
+                        newV[idx].offer_price = e.target.value;
+                        setVariants(newV);
+                      }} />
+                    </div>
+                    <div style={{ flex: '1 1 80px' }}>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>Stock</label>
+                      <input className="input" type="number" placeholder="0" value={v.stock_qty} onChange={e => {
+                        const newV = [...variants];
+                        newV[idx].stock_qty = e.target.value;
+                        setVariants(newV);
+                      }} />
+                    </div>
+                    {variants.length > 1 && (
+                      <button 
+                        type="button"
+                        className="btn btn-sm"
+                        style={{ color: 'var(--color-error)', border: '1px solid var(--color-error)', background: 'transparent', height: 38 }}
+                        onClick={() => setVariants(prev => prev.filter((_, i) => i !== idx))}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Images */}
           <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--color-border)' }}>
@@ -152,27 +280,29 @@ export default function AdminAddProduct() {
 
         {/* Right sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {/* Pricing */}
-          <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--color-border)' }}>
-            <h3 style={{ fontWeight: 700, marginBottom: 20, fontSize: '1rem' }}>Pricing</h3>
-            <div className="form-group">
-              <label className="form-label">MRP (₹) *</label>
-              <input className="input" type="number" step="0.01" min="0" value={form.mrp} onChange={e => set('mrp', e.target.value)} placeholder="0.00" />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Offer Price (₹) *</label>
-              <input className="input" type="number" step="0.01" min="0" value={form.offer_price} onChange={e => set('offer_price', e.target.value)} placeholder="0.00" />
-            </div>
-            {discountPct > 0 && (
-              <div style={{ background: 'var(--color-secondary)', borderRadius: 8, padding: '10px 14px', fontSize: '0.875rem', color: 'var(--color-primary)', fontWeight: 700 }}>
-                🏷️ {discountPct}% discount applied
+          {/* Pricing (Single variant edit view) */}
+          {isEdit && (
+            <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--color-border)' }}>
+              <h3 style={{ fontWeight: 700, marginBottom: 20, fontSize: '1rem' }}>Pricing</h3>
+              <div className="form-group">
+                <label className="form-label">MRP (₹) *</label>
+                <input className="input" type="number" step="0.01" min="0" value={form.mrp} onChange={e => set('mrp', e.target.value)} placeholder="0.00" />
               </div>
-            )}
-            <div className="form-group" style={{ marginTop: 16, marginBottom: 0 }}>
-              <label className="form-label">Stock Quantity</label>
-              <input className="input" type="number" min="0" value={form.stock_qty} onChange={e => set('stock_qty', e.target.value)} placeholder="0" />
+              <div className="form-group">
+                <label className="form-label">Offer Price (₹) *</label>
+                <input className="input" type="number" step="0.01" min="0" value={form.offer_price} onChange={e => set('offer_price', e.target.value)} placeholder="0.00" />
+              </div>
+              {discountPct > 0 && (
+                <div style={{ background: 'var(--color-secondary)', borderRadius: 8, padding: '10px 14px', fontSize: '0.875rem', color: 'var(--color-primary)', fontWeight: 700 }}>
+                  🏷️ {discountPct}% discount applied
+                </div>
+              )}
+              <div className="form-group" style={{ marginTop: 16, marginBottom: 0 }}>
+                <label className="form-label">Stock Quantity</label>
+                <input className="input" type="number" min="0" value={form.stock_qty} onChange={e => set('stock_qty', e.target.value)} placeholder="0" />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Settings */}
           <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--color-border)' }}>
