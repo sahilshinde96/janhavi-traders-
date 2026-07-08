@@ -8,10 +8,16 @@ export default function AdminProducts() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(
+    sessionStorage.getItem('admin_products_category') || ''
+  );
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState(
+    sessionStorage.getItem('admin_products_search') || ''
+  );
+  const [page, setPage] = useState(
+    parseInt(sessionStorage.getItem('admin_products_page') || '1')
+  );
   const [total, setTotal] = useState(0);
 
   // Checkbox selections state
@@ -23,9 +29,17 @@ export default function AdminProducts() {
     if (search) params.set('search', search);
     if (selectedCategory) params.set('category', selectedCategory);
     api.get(`/products/?${params}`).then(r => {
-      setProducts(r.data.results || r.data);
-      setTotal(r.data.count || 0);
+      const results = r.data.results || r.data;
+      const count = r.data.count || 0;
+      setProducts(results);
+      setTotal(count);
       setLoading(false);
+
+      // Auto-correct page if deletions emptied the current page
+      const maxPage = Math.max(1, Math.ceil(count / 20));
+      if (page > maxPage) {
+        setPage(maxPage);
+      }
     }).catch(() => setLoading(false));
   };
 
@@ -36,6 +50,9 @@ export default function AdminProducts() {
   }, []);
 
   useEffect(() => {
+    sessionStorage.setItem('admin_products_search', search);
+    sessionStorage.setItem('admin_products_category', selectedCategory);
+    sessionStorage.setItem('admin_products_page', page.toString());
     fetchProducts();
     setSelectedIds(new Set()); // Reset selections on filters search change
   }, [search, page, selectedCategory]);
