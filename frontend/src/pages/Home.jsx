@@ -352,6 +352,25 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── Why Choose Us ────────────────────────────────────────────────── */}
+      <section className="section" style={{ background: 'white' }}>
+        <div className="container">
+          <div className="text-center mb-48">
+            <h2 className="section-title">Why <span style={{ color: 'var(--color-primary)' }}>BLUSHH</span>?</h2>
+            <p className="section-subtitle">We take pride in what we deliver</p>
+          </div>
+          <div className="grid-4">
+            {WHY_US.map((item, i) => (
+              <div key={i} className="feature-card" style={{ border: '1px solid var(--color-border)', background: 'var(--color-secondary)' }}>
+                <div className="feature-icon">{item.icon}</div>
+                <h4 className="feature-title">{item.title}</h4>
+                <p className="feature-desc">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── Brand Promotional Banners Grid (Admin Uploadable) ────────────── */}
       <section className="section" style={{ background: 'var(--color-secondary)', borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)' }}>
         <div className="container">
@@ -368,32 +387,30 @@ export default function Home() {
                 key={banner.id} 
                 className="brand-banner-card"
                 style={{
-                  background: 'white',
+                  background: 'transparent',
                   borderRadius: 'var(--radius-lg)',
                   overflow: 'hidden',
-                  border: '1px solid var(--color-border)',
-                  boxShadow: 'var(--shadow-sm)',
+                  border: 'none',
+                  boxShadow: 'none',
                   position: 'relative',
                   aspectRatio: '1.1',
                   display: 'flex',
                   flexDirection: 'column',
-                  transition: 'all 0.3s ease',
-                  cursor: banner.link_url ? 'pointer' : 'default'
+                  cursor: banner.link_url ? 'pointer' : 'default',
+                  transition: 'all 0.3s ease'
                 }}
                 onClick={() => {
                   if (banner.link_url) navigate(banner.link_url);
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
                 }}
               >
                 {/* Banner Image */}
-                <div style={{ flex: 1, overflow: 'hidden', background: '#f5f5f5', position: 'relative' }}>
+                <div style={{ flex: 1, overflow: 'hidden', background: 'transparent', position: 'relative', borderRadius: 'var(--radius-lg)' }}>
                   <img 
                     src={banner.image_url} 
                     alt={banner.name}
@@ -435,7 +452,7 @@ export default function Home() {
                 </div>
 
                 {/* Footer Label */}
-                <div style={{ padding: '12px 16px', background: 'white', borderTop: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ padding: '12px 0 0 0', background: 'transparent', borderTop: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <h4 style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--color-text-dark)', marginBottom: 2 }}>{banner.name}</h4>
                     <span style={{ fontSize: '0.72rem', color: 'var(--color-primary)', fontWeight: 700 }}>Exclusive Deal</span>
@@ -448,27 +465,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── Why Choose Us ────────────────────────────────────────────────── */}
-      <section className="section" style={{ background: 'white' }}>
-        <div className="container">
-          <div className="text-center mb-48">
-            <h2 className="section-title">Why <span style={{ color: 'var(--color-primary)' }}>BLUSHH</span>?</h2>
-            <p className="section-subtitle">We take pride in what we deliver</p>
-          </div>
-          <div className="grid-4">
-            {WHY_US.map((item, i) => (
-              <div key={i} className="feature-card" style={{ border: '1px solid var(--color-border)', background: 'var(--color-secondary)' }}>
-                <div className="feature-icon">{item.icon}</div>
-                <h4 className="feature-title">{item.title}</h4>
-                <p className="feature-desc">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ─── New Arrivals ─────────────────────────────────────────────────── */}
-      <section className="section" style={{ background: 'var(--color-secondary)' }}>
+      <section className="section" style={{ background: 'white' }}>
         <div className="container">
           <div className="flex-between mb-40">
             <div>
@@ -479,7 +477,7 @@ export default function Home() {
               Shop All →
             </Link>
           </div>
-          <ProductGrid products={newArrivals} loading={loadingNew} isMerged={true} />
+          <ProductGrid products={newArrivals} loading={loadingNew} />
         </div>
       </section>
 
