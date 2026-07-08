@@ -30,6 +30,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminOrderDetail from './pages/admin/AdminOrderDetail';
 import AdminDiscounts from './pages/admin/AdminDiscounts';
 import AdminInventory from './pages/admin/AdminInventory';
+import AdminFeatured from './pages/admin/AdminFeatured';
 
 // Error Boundary to prevent white screen crashes (BUG-13 fix).
 // This React Class Component catches JavaScript errors anywhere in their child component tree,
@@ -132,6 +133,7 @@ export default function App() {
           <Route path="orders/:id" element={<AdminOrderDetail />} />
           <Route path="discounts" element={<AdminDiscounts />} />
           <Route path="inventory" element={<AdminInventory />} />
+          <Route path="featured" element={<AdminFeatured />} />
         </Route>
 
         {/* Customer */}

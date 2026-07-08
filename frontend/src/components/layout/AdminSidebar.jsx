@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Package, Tag, ShoppingBag, Percent,
-  Warehouse, LogOut, ChevronRight, Globe,
+  Warehouse, LogOut, ChevronRight, Globe, Star
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import logo from '../../assets/logo.png';
@@ -13,6 +13,7 @@ const NAV = [
   { to: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
   { to: '/admin/discounts', icon: Percent, label: 'Discounts' },
   { to: '/admin/inventory', icon: Warehouse, label: 'Inventory' },
+  { to: '/admin/featured', icon: Star, label: 'Featured Products' },
 ];
 
 export default function AdminSidebar() {
