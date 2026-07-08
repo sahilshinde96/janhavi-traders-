@@ -1,13 +1,13 @@
 import ProductCard from './ProductCard';
 
-export default function ProductGrid({ products, loading, columns = 4 }) {
+export default function ProductGrid({ products, loading, columns = 4, isMerged = false }) {
   if (loading) {
     return (
       <div className="grid-products">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+          <div key={i} style={{ borderRadius: 16, overflow: 'hidden', border: isMerged ? 'none' : '1px solid var(--color-border)', background: isMerged ? 'transparent' : 'white' }}>
             <div className="skeleton" style={{ aspectRatio: '1', width: '100%' }} />
-            <div style={{ padding: 16 }}>
+            <div style={{ padding: isMerged ? '16px 0 0 0' : '16px' }}>
               <div className="skeleton" style={{ height: 16, borderRadius: 4, marginBottom: 8 }} />
               <div className="skeleton" style={{ height: 14, borderRadius: 4, width: '60%', marginBottom: 12 }} />
               <div className="skeleton" style={{ height: 36, borderRadius: 20 }} />
@@ -31,7 +31,7 @@ export default function ProductGrid({ products, loading, columns = 4 }) {
   return (
     <div className="grid-products">
       {products.map(product => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard key={product.id} product={product} isMerged={isMerged} />
       ))}
     </div>
   );

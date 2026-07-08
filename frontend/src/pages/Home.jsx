@@ -468,7 +468,7 @@ export default function Home() {
       </section>
 
       {/* ─── New Arrivals ─────────────────────────────────────────────────── */}
-      <section className="section" style={{ background: 'white' }}>
+      <section className="section" style={{ background: 'var(--color-secondary)' }}>
         <div className="container">
           <div className="flex-between mb-40">
             <div>
@@ -479,7 +479,7 @@ export default function Home() {
               Shop All →
             </Link>
           </div>
-          <ProductGrid products={newArrivals} loading={loadingNew} />
+          <ProductGrid products={newArrivals} loading={loadingNew} isMerged={true} />
         </div>
       </section>
 

@@ -4,7 +4,7 @@ import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, isMerged = false }) {
   const navigate = useNavigate();
   const { addToCart, loading } = useCartStore();
   const { isAuthenticated } = useAuthStore();
@@ -32,10 +32,20 @@ export default function ProductCard({ product }) {
     <div
       className="product-card"
       onClick={() => navigate(`/products/${product.slug}`)}
-      style={{ cursor: 'pointer' }}
+      style={{ 
+        cursor: 'pointer',
+        ...(isMerged ? {
+          background: 'transparent',
+          border: 'none',
+          boxShadow: 'none',
+        } : {})
+      }}
     >
       {/* Image */}
-      <div className="product-card-image">
+      <div 
+        className="product-card-image"
+        style={isMerged ? { background: 'transparent' } : {}}
+      >
         {image ? (
           <img src={image} alt={product.name} loading="lazy" />
         ) : (
@@ -106,7 +116,10 @@ export default function ProductCard({ product }) {
       </div>
 
       {/* Body */}
-      <div className="product-card-body">
+      <div 
+        className="product-card-body"
+        style={isMerged ? { padding: '14px 0 0 0' } : {}}
+      >
         <p className="product-card-name">
           {product.name}
           {product.net_quantity && (
