@@ -79,7 +79,7 @@ export default function Footer() {
               <div className="footer-section-title">Contact Us</div>
               <div className="flex-col gap-12">
                 {[
-                  { Icon: Mail,    text: 'janhavitraderss@gmail.com' },
+                  { Icon: Mail,    text: 'blushh1019@gmail.com' },
                   { Icon: Phone,   text: '+91 8928762528' },
                   { Icon: MapPin,  text: 'Kalyan, Maharashtra, India' },
                 ].map(({ Icon, text }) => (

@@ -83,7 +83,7 @@ export default function ContactUs() {
                 </div>
                 <div className="info-row">
                   <span className="info-label">Official Support Email</span>
-                  <a href="mailto:janhavitraderss@gmail.com" className="info-value-link">janhavitraderss@gmail.com</a>
+                  <a href="mailto:blushh1019@gmail.com" className="info-value-link">blushh1019@gmail.com</a>
                 </div>
                 <div className="info-row">
                   <span className="info-label">Operating Hours</span>
@@ -107,7 +107,7 @@ export default function ContactUs() {
                 </p>
                 <div className="info-row">
                   <span className="info-label">Email Quality Support</span>
-                  <a href="mailto:janhavitraderss@gmail.com" className="info-value-link">janhavitraderss@gmail.com</a>
+                  <a href="mailto:blushh1019@gmail.com" className="info-value-link">blushh1019@gmail.com</a>
                 </div>
                 <div className="instruction-box">
                   <strong>💡 Attach Unboxing Evidence</strong>
@@ -148,7 +148,7 @@ export default function ContactUs() {
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: '0.85rem' }}>
                   <div><strong>Grievance Officer:</strong> Rohit Jaiswar</div>
-                  <div><strong>Escalation Email:</strong> <a href="mailto:janhavitraderss@gmail.com" className="info-value-link">janhavitraderss@gmail.com</a></div>
+                  <div><strong>Escalation Email:</strong> <a href="mailto:blushh1019@gmail.com" className="info-value-link">blushh1019@gmail.com</a></div>
                 </div>
               </div>
             </div>

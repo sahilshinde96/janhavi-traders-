@@ -128,7 +128,7 @@ export default function ReturnPolicy() {
               <h2 className="section-heading">Overview</h2>
               <div className="section-body">
                 <p>
-                  This Return & Cancellation Policy (<strong>"Policy"</strong>) governs all purchase transactions made through the website <a href="https://www.janhavitraders.com" target="_blank" rel="noopener noreferrer" className="inline-link">www.janhavitraders.com</a> (the <strong>"Platform"</strong>) operated by <strong>BLUSHH</strong>, a partnership firm registered under the Indian Partnership Act, 1932, based in Maharashtra, India.
+                  This Return & Cancellation Policy (<strong>"Policy"</strong>) governs all purchase transactions made through the website <a href="https://blushh.online" target="_blank" rel="noopener noreferrer" className="inline-link">blushh.online</a> (the <strong>"Platform"</strong>) operated by <strong>BLUSHH</strong>, a partnership firm registered under the Indian Partnership Act, 1932, based in Maharashtra, India.
                 </p>
                 <p>
                   To protect our consumers and maintain strict hygiene standards for cosmetic and personal care products, BLUSHH operates on an <strong>Exclusive Cash on Delivery (COD) model</strong> backed by a mandatory <strong>Open Box Delivery framework</strong>. This Policy applies to both retail customers and wholesale / B2B buyers. By completing a purchase on the Platform, you agree to be bound by the terms of this Policy.
@@ -143,7 +143,7 @@ export default function ReturnPolicy() {
               <h2 className="section-heading">1. Mandatory Open Box Delivery Policy</h2>
               <div className="section-body">
                 <p>
-                  To ensure absolute transparency, all orders shipped via <a href="https://www.janhavitraders.com" className="inline-link">www.janhavitraders.com</a> are fulfilled via Open Box Delivery.
+                  To ensure absolute transparency, all orders shipped via <a href="https://blushh.online" className="inline-link">blushh.online</a> are fulfilled via Open Box Delivery.
                 </p>
                 
                 <ul className="custom-list checkmarks">
@@ -177,7 +177,7 @@ export default function ReturnPolicy() {
                   <div className="sub-section-card">
                     <span className="sub-section-num">2.1</span>
                     <h4>Cancellation Before Dispatch</h4>
-                    <p>You can cancel your order at any time before it leaves our warehouse facility. To cancel, navigate to the 'My Orders' section on your user dashboard and click 'Cancel Order', or email us directly at <a href="mailto:janhavitraderss@gmail.com" className="inline-link">janhavitraderss@gmail.com</a> with your Order ID.</p>
+                    <p>You can cancel your order at any time before it leaves our warehouse facility. To cancel, navigate to the 'My Orders' section on your user dashboard and click 'Cancel Order', or email us directly at <a href="mailto:blushh1019@gmail.com" className="inline-link">blushh1019@gmail.com</a> with your Order ID.</p>
                   </div>
 
                   <div className="sub-section-card">
@@ -215,7 +215,7 @@ export default function ReturnPolicy() {
               <h2 className="section-heading">3. Post-Delivery Return Eligibility (Hidden Defects Only)</h2>
               <div className="section-body">
                 <p>
-                  Because open box checks solve issues with visible damage, post-delivery return requests are strictly limited to <strong>hidden anomalies</strong> that could not be caught at the doorstep. To report these issues, the customer must reach out to our official support email (<a href="mailto:janhavitraderss@gmail.com" className="inline-link">janhavitraderss@gmail.com</a>) within 24 hours of delivery.
+                  Because open box checks solve issues with visible damage, post-delivery return requests are strictly limited to <strong>hidden anomalies</strong> that could not be caught at the doorstep. To report these issues, the customer must reach out to our official support email (<a href="mailto:blushh1019@gmail.com" className="inline-link">blushh1019@gmail.com</a>) within 24 hours of delivery.
                 </p>
 
                 {/* Eligibility Table */}
@@ -281,7 +281,7 @@ export default function ReturnPolicy() {
                   <div className="refund-method-card">
                     <span className="refund-icon">🏦</span>
                     <h4>Online / Bank Refunds</h4>
-                    <p>Customers seeking an online digital refund must email their exact Bank Account Name, Number, IFSC Code, and Bank Name to <a href="mailto:janhavitraderss@gmail.com" className="inline-link">janhavitraderss@gmail.com</a>. Online refunds will be directly executed via online bank transfer (NEFT/IMPS) into the customer's account within 5–7 business days of inspection clearance.</p>
+                    <p>Customers seeking an online digital refund must email their exact Bank Account Name, Number, IFSC Code, and Bank Name to <a href="mailto:blushh1019@gmail.com" className="inline-link">blushh1019@gmail.com</a>. Online refunds will be directly executed via online bank transfer (NEFT/IMPS) into the customer's account within 5–7 business days of inspection clearance.</p>
                   </div>
                 </div>
               </div>
@@ -294,7 +294,7 @@ export default function ReturnPolicy() {
               <h2 className="section-heading">5. Wholesale / B2B Dynamic Policies</h2>
               <div className="section-body">
                 <p>
-                  For commercial bulk or wholesale transactions handled through <a href="https://www.janhavitraders.com" className="inline-link">www.janhavitraders.com</a>, Open Box checks remain fully mandatory.
+                  For commercial bulk or wholesale transactions handled through <a href="https://blushh.online" className="inline-link">blushh.online</a>, Open Box checks remain fully mandatory.
                 </p>
                 <div className="alert-card info">
                   <div className="alert-title">📦 Commercial Dispatch Protocol</div>
@@ -329,7 +329,7 @@ export default function ReturnPolicy() {
                       <Mail size={16} className="contact-icon" />
                       <div>
                         <span className="contact-label">Primary Support Email</span>
-                        <a href="mailto:janhavitraderss@gmail.com" className="contact-value-link">janhavitraderss@gmail.com</a>
+                        <a href="mailto:blushh1019@gmail.com" className="contact-value-link">blushh1019@gmail.com</a>
                       </div>
                     </div>
                     <div className="contact-item-row">

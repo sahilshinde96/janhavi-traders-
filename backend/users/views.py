@@ -143,14 +143,14 @@ class SendOTPView(APIView):
             brevo_key = getattr(settings, 'BREVO_API_KEY', '')
             has_credentials = (email_user and email_password) or resend_key or brevo_key
             
-            subject = 'Your Janhavi Traders OTP'
+            subject = 'Your BLUSHH OTP'
             message = (
                 f'Hello,\n\n'
-                f'Your one-time password for Janhavi Traders is:\n\n'
+                f'Your one-time password for BLUSHH is:\n\n'
                 f'  {code}\n\n'
                 f'This OTP is valid for {settings.OTP_EXPIRY_MINUTES} minutes.\n'
                 f'Do not share this with anyone.\n\n'
-                f'— Team Janhavi Traders'
+                f'— Team BLUSHH'
             )
             from_email = settings.DEFAULT_FROM_EMAIL
             recipient_list = [identifier]

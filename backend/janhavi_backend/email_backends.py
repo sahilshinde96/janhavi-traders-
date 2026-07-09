@@ -68,7 +68,7 @@ class HTTPSEmailBackend(BaseEmailBackend):
                     headers={
                         "Authorization": f"Bearer {resend_api_key}",
                         "Content-Type": "application/json",
-                        "User-Agent": "JanhaviTraders/1.0"
+                        "User-Agent": "BLUSHH/1.0"
                     },
                     payload={
                         "from": from_email,
@@ -87,8 +87,8 @@ class HTTPSEmailBackend(BaseEmailBackend):
             # 2. Brevo implementation
             elif brevo_api_key:
                 # Extract sender name and email from "Name <email@domain.com>"
-                sender_name = "Janhavi Traders"
-                sender_email = "noreply@janhavitraders.com"
+                sender_name = "BLUSHH"
+                sender_email = "noreply@blushh.online"
                 if "<" in from_email and ">" in from_email:
                     parts = from_email.split("<")
                     sender_name = parts[0].strip()

@@ -116,8 +116,6 @@ if cors_origins_env:
     CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins_env.split(',') if origin.strip()]
 else:
     CORS_ALLOWED_ORIGINS = [
-        'https://janhavitraders.com',
-        'https://www.janhavitraders.com',
         'https://blushh.online',
         'https://www.blushh.online',
     ]
@@ -177,7 +175,7 @@ EMAIL_OTP_EXPIRY_MINUTES = 10
 OTP_EXPIRY_MINUTES = 10
 
 # Default email sender name and address shown in transactional emails.
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Janhavi Traders <noreply@janhavitraders.com>')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='BLUSHH <noreply@blushh.online>')
 
 # Third-party service API keys loaded from environment variables
 RESEND_API_KEY = config('RESEND_API_KEY', default='')

@@ -136,7 +136,7 @@ export default function PrivacyPolicy() {
               <h2 className="section-heading">Overview</h2>
               <div className="section-body">
                 <p>
-                  The website <a href="https://www.janhavitraders.com" target="_blank" rel="noopener noreferrer" className="inline-link">www.janhavitraders.com</a> (hereinafter referred to as the <strong>"Platform"</strong>) is owned and operated by <strong>BLUSHH</strong>, a partnership firm registered under the Indian Partnership Act, 1932, engaged in the wholesale and retail supply of genuine cosmetic and personal care products, including brands such as Dermalogica, Mamaearth, Nivea, and other premium beauty labels.
+                  The website <a href="https://blushh.online" target="_blank" rel="noopener noreferrer" className="inline-link">blushh.online</a> (hereinafter referred to as the <strong>"Platform"</strong>) is owned and operated by <strong>BLUSHH</strong>, a partnership firm registered under the Indian Partnership Act, 1932, engaged in the wholesale and retail supply of genuine cosmetic and personal care products, including brands such as Dermalogica, Mamaearth, Nivea, and other premium beauty labels.
                 </p>
                 <p>
                   Our principal place of business is located at:
@@ -261,7 +261,7 @@ export default function PrivacyPolicy() {
                   We may disclose personal information if required to do so by law or in the good faith belief that such disclosure is reasonably necessary to respond to subpoenas, court orders, or other legal processes. We may disclose personal information to law enforcement offices or third-party rights owners in the good faith belief that such disclosure is necessary to enforce our Terms or Privacy Policy.
                 </p>
                 <p>
-                  We disclose personal data to Third Party service providers with whom We have executed appropriate data-sharing contracts, preventing them from utilizing your information outside the specified scope. The reasons for disclosing data with integrated third-party frameworks on <a href="https://www.janhavitraders.com" className="inline-link">www.janhavitraders.com</a> include:
+                  We disclose personal data to Third Party service providers with whom We have executed appropriate data-sharing contracts, preventing them from utilizing your information outside the specified scope. The reasons for disclosing data with integrated third-party frameworks on <a href="https://blushh.online" className="inline-link">blushh.online</a> include:
                 </p>
                 <ul className="custom-list bullets">
                   <li><strong>Analytics Engines:</strong> To track application stability, route responses, and user flows.</li>
@@ -362,7 +362,7 @@ export default function PrivacyPolicy() {
                   We shall take reasonable steps to delete or permanently de-identify Personal Data that is no longer needed, and stop sharing data to our Third Party systems when you request its deletion, withdraw consent, or close your account.
                 </p>
                 <p>
-                  Even if We clear Your active profile data blocks, information may persist on secure archival backups strictly for sales audits, tax compliance, or regulatory legal purposes. To request a review, correction, portability, or updates to your data, please contact <a href="mailto:janhavitraderss@gmail.com" className="inline-link">janhavitraderss@gmail.com</a>.
+                  Even if We clear Your active profile data blocks, information may persist on secure archival backups strictly for sales audits, tax compliance, or regulatory legal purposes. To request a review, correction, portability, or updates to your data, please contact <a href="mailto:blushh1019@gmail.com" className="inline-link">blushh1019@gmail.com</a>.
                 </p>
               </div>
             </section>
@@ -391,7 +391,7 @@ export default function PrivacyPolicy() {
                       <Mail size={16} className="contact-icon" />
                       <div>
                         <span className="contact-label">Email</span>
-                        <a href="mailto:janhavitraderss@gmail.com" className="contact-value-link">janhavitraderss@gmail.com</a>
+                        <a href="mailto:blushh1019@gmail.com" className="contact-value-link">blushh1019@gmail.com</a>
                       </div>
                     </div>
                     <div className="contact-item-row">

@@ -18,7 +18,9 @@ export default function ProductGrid({ products, loading, columns = 4, isMerged =
     );
   }
 
-  if (!products || products.length === 0) {
+  const filteredProducts = products ? products.filter(product => product.stock_qty > 0) : [];
+
+  if (filteredProducts.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--color-text-medium)' }}>
         <div style={{ fontSize: '3rem', marginBottom: 16 }}>🔍</div>
@@ -30,7 +32,7 @@ export default function ProductGrid({ products, loading, columns = 4, isMerged =
 
   return (
     <div className="grid-products">
-      {products.map(product => (
+      {filteredProducts.map(product => (
         <ProductCard key={product.id} product={product} isMerged={isMerged} />
       ))}
     </div>

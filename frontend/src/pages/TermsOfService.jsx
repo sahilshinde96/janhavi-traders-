@@ -131,7 +131,7 @@ export default function TermsOfService() {
               <h2 className="section-heading">Overview & Acceptance of Terms</h2>
               <div className="section-body">
                 <p>
-                  This website, <a href="https://www.janhavitraders.com" target="_blank" rel="noopener noreferrer" className="inline-link">www.janhavitraders.com</a> (hereinafter referred to as the <strong>"Platform"</strong> or <strong>"Website"</strong>), is owned and operated by <strong>BLUSHH</strong>, a partnership firm registered under the Indian Partnership Act, 1932, with its principal place of business at Shop no 2, Anjanabai Appartment, Malangad Rd, near dinkar bhane nagar, Pisavli Village, Kalyan East, Kalyan, Maharashtra 421306 (hereinafter referred to as the <strong>"Company"</strong>, <strong>"We"</strong>, <strong>"Us"</strong>, or <strong>"Our"</strong>).
+                  This website, <a href="https://blushh.online" target="_blank" rel="noopener noreferrer" className="inline-link">blushh.online</a> (hereinafter referred to as the <strong>"Platform"</strong> or <strong>"Website"</strong>), is owned and operated by <strong>BLUSHH</strong>, a partnership firm registered under the Indian Partnership Act, 1932, with its principal place of business at Shop no 2, Anjanabai Appartment, Malangad Rd, near dinkar bhane nagar, Pisavli Village, Kalyan East, Kalyan, Maharashtra 421306 (hereinafter referred to as the <strong>"Company"</strong>, <strong>"We"</strong>, <strong>"Us"</strong>, or <strong>"Our"</strong>).
                 </p>
                 <p>
                   Throughout the Platform, the terms <strong>"You"</strong>, <strong>"Your"</strong>, <strong>"Yourself"</strong>, and <strong>"User"</strong> refer to any natural or legal person who accesses, browses, or transacts on the Website to purchase cosmetic, skincare, haircare, and personal care products.
@@ -232,7 +232,7 @@ export default function TermsOfService() {
               <div className="section-body">
                 <ul className="custom-list checkmarks">
                   <li>
-                    <strong>5.1 Limited 24-Hour Reporting Window:</strong> For internal flaws that could not be seen during the doorstep open box check (such as a broken inner applicator pump or a post-delivery discovery of an expired batch date), you must report the issue within 24 hours of delivery by contacting our support desk exclusively at <a href="mailto:janhavitraderss@gmail.com" className="inline-link">janhavitraderss@gmail.com</a>.
+                    <strong>5.1 Limited 24-Hour Reporting Window:</strong> For internal flaws that could not be seen during the doorstep open box check (such as a broken inner applicator pump or a post-delivery discovery of an expired batch date), you must report the issue within 24 hours of delivery by contacting our support desk exclusively at <a href="mailto:blushh1019@gmail.com" className="inline-link">blushh1019@gmail.com</a>.
                   </li>
                   <li>
                     <strong>5.2 Verification Evidence:</strong> All claims must be accompanied by high-resolution photographs or a short video showcasing the manufacturing fault or clear expiry stamp. Unverified or altered goods will be rejected at our inspection warehouse.
@@ -275,7 +275,7 @@ export default function TermsOfService() {
                 </p>
                 <ul className="custom-list checkmarks">
                   <li>
-                    <strong>7.1 Trademark Protection:</strong> All content displayed on <a href="https://www.janhavitraders.com" className="inline-link">www.janhavitraders.com</a>—including our brand logos, text layouts, graphical design interfaces, custom database filtering scripts, and photographic media assets—is the exclusive intellectual property of BLUSHH. Any unauthorized copying or commercial distribution is strictly prohibited.
+                    <strong>7.1 Trademark Protection:</strong> All content displayed on <a href="https://blushh.online" className="inline-link">blushh.online</a>—including our brand logos, text layouts, graphical design interfaces, custom database filtering scripts, and photographic media assets—is the exclusive intellectual property of BLUSHH. Any unauthorized copying or commercial distribution is strictly prohibited.
                   </li>
                   <li>
                     <strong>7.2 Authenticity Guarantee:</strong> We guarantee that all cosmetics (including items from labels like Dermalogica, Mamaearth, and Nivea) are 100% genuine and sourced directly from verified manufacturing and distribution streams.
@@ -346,7 +346,7 @@ export default function TermsOfService() {
                       <Mail size={16} className="contact-icon" />
                       <div>
                         <span className="contact-label">Official Contact Email</span>
-                        <a href="mailto:janhavitraderss@gmail.com" className="contact-value-link">janhavitraderss@gmail.com</a>
+                        <a href="mailto:blushh1019@gmail.com" className="contact-value-link">blushh1019@gmail.com</a>
                       </div>
                     </div>
                     <div className="contact-item-row">
