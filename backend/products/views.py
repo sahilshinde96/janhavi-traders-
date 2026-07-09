@@ -48,7 +48,7 @@ class ProductListView(generics.ListCreateAPIView):
     def get_queryset(self):
         qs = Product.objects.select_related('category').prefetch_related('images')
         if not (self.request.user.is_authenticated and self.request.user.is_staff):
-            qs = qs.filter(is_active=True)
+            qs = qs.filter(is_active=True, stock_qty__gt=0)
 
         cat_slug = self.request.query_params.get('category_slug')
         if cat_slug:
@@ -90,7 +90,7 @@ class FeaturedProductsView(generics.ListAPIView):
     def get_queryset(self):
         return (
             Product.objects
-            .filter(is_featured=True, is_active=True)
+            .filter(is_featured=True, is_active=True, stock_qty__gt=0)
             .prefetch_related('images')[:8]
         )
 
@@ -102,7 +102,7 @@ class NewArrivalsView(generics.ListAPIView):
     def get_queryset(self):
         return (
             Product.objects
-            .filter(is_active=True)
+            .filter(is_active=True, stock_qty__gt=0)
             .prefetch_related('images')
             .order_by('-created_at')[:8]
         )
