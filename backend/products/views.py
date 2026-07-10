@@ -3,8 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Category, Product, BrandBanner
-from .serializers import CategorySerializer, ProductListSerializer, ProductDetailSerializer, BrandBannerSerializer
+from .models import Category, Product, BrandBanner, HeroBanner
+from .serializers import CategorySerializer, ProductListSerializer, ProductDetailSerializer, BrandBannerSerializer, HeroBannerSerializer
 
 
 class CategoryListView(generics.ListCreateAPIView):
@@ -129,6 +129,26 @@ class BrandBannerListView(generics.ListCreateAPIView):
 class BrandBannerDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = BrandBanner.objects.all()
     serializer_class = BrandBannerSerializer
+
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            return [permissions.IsAdminUser()]
+        return [permissions.AllowAny()]
+
+
+class HeroBannerListView(generics.ListCreateAPIView):
+    queryset = HeroBanner.objects.all()
+    serializer_class = HeroBannerSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [permissions.IsAdminUser()]
+        return [permissions.AllowAny()]
+
+
+class HeroBannerDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = HeroBanner.objects.all()
+    serializer_class = HeroBannerSerializer
 
     def get_permissions(self):
         if self.request.method in ['PUT', 'PATCH', 'DELETE']:

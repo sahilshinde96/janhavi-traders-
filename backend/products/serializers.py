@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Category, Product, ProductImage, BrandBanner
+from .models import Category, Product, ProductImage, BrandBanner, HeroBanner
+
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -85,4 +86,11 @@ class BrandBannerSerializer(serializers.ModelSerializer):
     class Meta:
         model = BrandBanner
         fields = ['id', 'name', 'image_url', 'link_url', 'sort_order', 'created_at']
+        read_only_fields = ['created_at']
+
+
+class HeroBannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HeroBanner
+        fields = ['id', 'title', 'subtitle', 'image_url', 'link_url', 'button_text', 'sort_order', 'created_at']
         read_only_fields = ['created_at']

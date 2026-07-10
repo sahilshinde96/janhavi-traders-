@@ -114,3 +114,19 @@ class BrandBanner(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class HeroBanner(models.Model):
+    title = models.CharField(max_length=255)
+    subtitle = models.TextField(blank=True)
+    image_url = models.URLField(max_length=500, blank=True)
+    link_url = models.CharField(max_length=200, blank=True)
+    button_text = models.CharField(max_length=100, default='Shop Now')
+    sort_order = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['sort_order', 'id']
+
+    def __str__(self):
+        return self.title

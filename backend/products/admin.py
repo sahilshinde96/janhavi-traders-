@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, ProductImage
+from .models import Category, Product, ProductImage, BrandBanner, HeroBanner
 
 
 class ProductImageInline(admin.TabularInline):
@@ -25,3 +25,17 @@ class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     inlines = [ProductImageInline]
     readonly_fields = ['sku', 'created_at', 'updated_at']
+
+
+@admin.register(BrandBanner)
+class BrandBannerAdmin(admin.ModelAdmin):
+    list_display = ['name', 'sort_order', 'created_at']
+    list_editable = ['sort_order']
+    search_fields = ['name']
+
+
+@admin.register(HeroBanner)
+class HeroBannerAdmin(admin.ModelAdmin):
+    list_display = ['title', 'sort_order', 'created_at']
+    list_editable = ['sort_order']
+    search_fields = ['title', 'subtitle']

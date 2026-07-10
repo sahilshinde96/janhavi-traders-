@@ -10,5 +10,7 @@ urlpatterns = [
     path('categories/<slug:slug>/', views.CategoryDetailView.as_view(), name='category-detail'),
     path('brand-banners/', views.BrandBannerListView.as_view(), name='brand-banners'),
     path('brand-banners/<int:pk>/', views.BrandBannerDetailView.as_view(), name='brand-banner-detail'),
+    path('hero-banners/', views.HeroBannerListView.as_view(), name='hero-banners'),
+    path('hero-banners/<int:pk>/', views.HeroBannerDetailView.as_view(), name='hero-banner-detail'),
     path('<slug:slug>/', views.ProductDetailView.as_view(), name='product-detail'),
 ]
