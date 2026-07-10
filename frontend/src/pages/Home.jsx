@@ -127,7 +127,34 @@ export default function Home() {
       .catch(err => console.error("Error loading products for slider:", err));
   }, []);
 
-  const totalSlides = heroBanners.length > 0 ? heroBanners.length : 3;
+  // Build slide array dynamically to include the database-loaded custom slides AND the dynamic Deal of the Day slide
+  const displaySlides = [...heroBanners];
+  
+  if (bestDiscountProduct) {
+    displaySlides.push({
+      id: 'dynamic-deal-of-the-day',
+      isDynamicDeal: true,
+      title: bestDiscountProduct.name,
+      subtitle: "Get this bestseller now at an unbeatable price! Only COD and free shipping above ₹299.",
+      image_url: bestDiscountProduct.primary_image || bestDiscountProduct.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500',
+      link_url: `/products/${bestDiscountProduct.slug}`,
+      button_text: "Grab this Offer",
+      mrp: bestDiscountProduct.mrp,
+      offer_price: bestDiscountProduct.offer_price,
+      discount_percent: maxDiscountPercent
+    });
+  } else {
+    displaySlides.push({
+      id: 'dynamic-deal-fallback',
+      isDynamicDealFallback: true,
+      title: "Mega Beauty Discounts",
+      subtitle: "Don't miss our highest discount items. Quality makeup and skincare at unbeatable prices!",
+      link_url: "/products?is_featured=true",
+      button_text: "View Bestsellers"
+    });
+  }
+
+  const totalSlides = displaySlides.length;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -244,8 +271,102 @@ export default function Home() {
       <div className="container mt-24 mb-32">
         <section className="hero-container">
         
-        {heroBanners.length > 0 ? (
-          heroBanners.map((banner, idx) => (
+        {displaySlides.map((banner, idx) => {
+          if (banner.isDynamicDeal) {
+            return (
+              <div
+                key={banner.id}
+                className={`hero-slide ${activeSlide === idx ? 'hero-slide--visible' : 'hero-slide--hidden'}`}
+                style={{ background: 'linear-gradient(135deg, #1C1C2E 0%, #29153B 50%, #15253A 100%)' }}
+              >
+                <div className="container" style={{ position: 'relative', zIndex: 2, width: '100%' }}>
+                  <div className="flex-between flex-wrap gap-40" style={{ animation: activeSlide === idx ? 'slideUp 0.7s ease' : 'none' }}>
+                    <div style={{ maxWidth: 550 }}>
+                      <div className="hero-pill hero-pill--gold">
+                        🔥 Deal of the Day: {banner.discount_percent.toFixed(0)}% OFF
+                      </div>
+                      <h1 className="hero-title" style={{ 
+                        color: 'white', 
+                        fontSize: 'clamp(1.5rem, 3.5vw, 2.4rem)', 
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        lineHeight: 1.2,
+                        marginBottom: 16
+                      }}>
+                        {banner.title}
+                      </h1>
+                      <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', marginBottom: 16, lineHeight: 1.5 }}>
+                        {banner.subtitle}
+                      </p>
+                      <div className="flex align-center gap-16 mb-20">
+                        <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#FFD369' }}>₹{banner.offer_price}</span>
+                        <span style={{ fontSize: '1.3rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>₹{banner.mrp}</span>
+                      </div>
+                      <button className="btn btn-primary btn-lg" onClick={() => navigate(banner.link_url)}>
+                        {banner.button_text}
+                      </button>
+                    </div>
+                    {/* Floating Product Image on the Right */}
+                    <div className="hidden-mobile" style={{
+                      background: 'rgba(255,255,255,0.03)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: 24,
+                      padding: 20,
+                      maxWidth: 340,
+                      width: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
+                      backdropFilter: 'blur(10px)',
+                    }}>
+                      <img 
+                        src={banner.image_url} 
+                        alt={banner.title} 
+                        style={{ height: 200, objectFit: 'contain', borderRadius: 16, marginBottom: 12 }}
+                      />
+                      <div style={{ color: 'white', fontWeight: 700, fontSize: '1.1rem', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {banner.title}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          if (banner.isDynamicDealFallback) {
+            return (
+              <div
+                key={banner.id}
+                className={`hero-slide ${activeSlide === idx ? 'hero-slide--visible' : 'hero-slide--hidden'}`}
+                style={{ background: 'linear-gradient(135deg, #1C1C2E 0%, #29153B 50%, #15253A 100%)' }}
+              >
+                <div className="container" style={{ position: 'relative', zIndex: 2 }}>
+                  <div style={{ maxWidth: 580, animation: activeSlide === idx ? 'slideUp 0.7s ease' : 'none' }}>
+                    <div className="hero-pill hero-pill--gold">
+                      🔥 Exclusive Offers
+                    </div>
+                    <h1 className="hero-title" style={{ color: 'white' }}>
+                      Mega Beauty<br />
+                      <span style={{ color: '#FFD369' }}>Discounts</span>
+                    </h1>
+                    <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: 20 }}>
+                      {banner.subtitle}
+                    </p>
+                    <button className="btn btn-primary btn-lg" onClick={() => navigate(banner.link_url)}>
+                      {banner.button_text}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          return (
             <div
               key={banner.id}
               className={`hero-slide ${activeSlide === idx ? 'hero-slide--visible' : 'hero-slide--hidden'}`}
@@ -330,159 +451,8 @@ export default function Home() {
                 </div>
               )}
             </div>
-          ))
-        ) : (
-          <>
-            {/* Slide 1: Custom Image Uploaded */}
-            <div
-              className={`hero-slide ${activeSlide === 0 ? 'hero-slide--visible' : 'hero-slide--hidden'}`}
-              style={{ backgroundImage: `url(${hero1})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-            >
-              {/* Dark overlay for readability */}
-              <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1 }} />
-              <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-                <div style={{ maxWidth: 580, animation: activeSlide === 0 ? 'slideUp 0.7s ease' : 'none' }}>
-                  <div className="hero-pill hero-pill--primary-bright">
-                    ✨ Premium Cosmetics &amp; Skincare
-                  </div>
-                  <h1 className="hero-title" style={{ color: 'white' }}>
-                    Your Glow Journey<br />
-                    <span style={{ color: 'var(--color-primary-light)' }}>Begins Here</span>
-                  </h1>
-                  <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.1rem', marginBottom: 20, lineHeight: 1.7 }}>
-                    Explore dermatologist-tested cosmetics and skincare products curated to match your skin's unique needs.
-                  </p>
-                  <div className="flex gap-16 flex-wrap">
-                    <button className="btn btn-primary btn-lg" onClick={() => navigate('/products?category=skincare')}>
-                      Explore Skincare
-                    </button>
-                    <button className="btn btn-outline btn-lg" onClick={() => navigate('/products')}
-                      style={{ borderColor: 'rgba(255,255,255,0.6)', color: 'white' }}>
-                      All Products
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Slide 2: Original Landing Page Template */}
-            <div
-              className={`hero-slide ${activeSlide === 1 ? 'hero-slide--visible' : 'hero-slide--hidden'}`}
-              style={{ background: 'linear-gradient(135deg, #1C1C2E 0%, #2D1B3D 50%, #4A1942 100%)' }}
-            >
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: 'radial-gradient(circle at 70% 50%, rgba(244,137,147,0.25) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(201,168,76,0.15) 0%, transparent 50%)',
-              }} />
-              <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-                <div style={{ maxWidth: 580, animation: activeSlide === 1 ? 'slideUp 0.7s ease' : 'none' }}>
-                  <div className="hero-pill hero-pill--primary">
-                    ✨ Premium Cosmetics
-                  </div>
-                  <h1 className="hero-title" style={{ color: 'white' }}>
-                    Beauty That<br />
-                    <span style={{ color: 'var(--color-primary-light)' }}>Defines You</span>
-                  </h1>
-                  <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: 20, lineHeight: 1.7 }}>
-                    Discover authentic cosmetics from top brands.<br />
-                    Makeup, Skincare &amp; Haircare — all in one place.
-                  </p>
-                  <div className="flex gap-16 flex-wrap">
-                    <button className="btn btn-primary btn-lg" onClick={() => navigate('/products')}>
-                      Shop Now
-                    </button>
-                    <button className="btn btn-outline btn-lg" onClick={() => navigate('/products?is_featured=true')}
-                      style={{ borderColor: 'rgba(255,255,255,0.4)', color: 'white' }}>
-                      View Offers
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div style={{ position: 'absolute', right: '5%', top: '10%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(244,137,147,0.08)', border: '1px solid rgba(244,137,147,0.15)' }} />
-              <div style={{ position: 'absolute', right: '12%', top: '20%', width: 280, height: 280, borderRadius: '50%', background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.12)' }} />
-            </div>
-
-            {/* Slide 3: Most Discounted Item Banner */}
-            <div
-              className={`hero-slide ${activeSlide === 2 ? 'hero-slide--visible' : 'hero-slide--hidden'}`}
-              style={{ background: 'linear-gradient(135deg, #1C1C2E 0%, #29153B 50%, #15253A 100%)' }}
-            >
-              <div className="container" style={{ position: 'relative', zIndex: 2, width: '100%' }}>
-                {bestDiscountProduct ? (
-                  <div className="flex-between flex-wrap gap-40" style={{ animation: activeSlide === 2 ? 'slideUp 0.7s ease' : 'none' }}>
-                    <div style={{ maxWidth: 550 }}>
-                      <div className="hero-pill hero-pill--gold">
-                        🔥 Deal of the Day: {maxDiscountPercent.toFixed(0)}% OFF
-                      </div>
-                      <h1 className="hero-title" style={{ 
-                        color: 'white', 
-                        fontSize: 'clamp(1.5rem, 3.5vw, 2.4rem)', 
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        lineHeight: 1.2,
-                        marginBottom: 16
-                      }}>
-                        {bestDiscountProduct.name}
-                      </h1>
-                      <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', marginBottom: 16, lineHeight: 1.5 }}>
-                        Get this bestseller now at an unbeatable price! Only COD and free shipping above ₹299.
-                      </p>
-                      <div className="flex align-center gap-16 mb-20">
-                        <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#FFD369' }}>₹{bestDiscountProduct.offer_price}</span>
-                        <span style={{ fontSize: '1.3rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>₹{bestDiscountProduct.mrp}</span>
-                      </div>
-                      <button className="btn btn-primary btn-lg" onClick={() => navigate(`/products/${bestDiscountProduct.slug}`)}>
-                        Grab this Offer
-                      </button>
-                    </div>
-                    {/* Floating Product Image on the Right */}
-                    <div className="hidden-mobile" style={{
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      borderRadius: 24,
-                      padding: 20,
-                      maxWidth: 340,
-                      width: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
-                      backdropFilter: 'blur(10px)',
-                    }}>
-                      <img 
-                        src={bestDiscountProduct.primary_image || bestDiscountProduct.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500'} 
-                        alt={bestDiscountProduct.name} 
-                        style={{ height: 200, objectFit: 'contain', borderRadius: 16, marginBottom: 12 }}
-                      />
-                      <div style={{ color: 'white', fontWeight: 700, fontSize: '1.1rem', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {bestDiscountProduct.name}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div style={{ maxWidth: 580 }}>
-                    <div className="hero-pill hero-pill--gold">
-                      🔥 Exclusive Offers
-                    </div>
-                    <h1 className="hero-title" style={{ color: 'white' }}>
-                      Mega Beauty<br />
-                      <span style={{ color: '#FFD369' }}>Discounts</span>
-                    </h1>
-                    <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: 20 }}>
-                      Don't miss our highest discount items. Quality makeup and skincare at unbeatable prices!
-                    </p>
-                    <button className="btn btn-primary btn-lg" onClick={() => navigate('/products?is_featured=true')}>
-                      View Bestsellers
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </>
-        )}
+          );
+        })}
 
         </section>
 

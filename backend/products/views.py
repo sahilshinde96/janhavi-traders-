@@ -137,8 +137,27 @@ class BrandBannerDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class HeroBannerListView(generics.ListCreateAPIView):
-    queryset = HeroBanner.objects.all()
     serializer_class = HeroBannerSerializer
+
+    def get_queryset(self):
+        if not HeroBanner.objects.exists():
+            HeroBanner.objects.create(
+                title="Your Glow Journey Begins Here",
+                subtitle="Explore dermatologist-tested cosmetics and skincare products curated to match your skin's unique needs.",
+                image_url="https://images.unsplash.com/photo-1612817288484-6f916006741a?w=1600",
+                link_url="/products?category=skincare",
+                button_text="Explore Skincare",
+                sort_order=1
+            )
+            HeroBanner.objects.create(
+                title="Beauty That Defines You",
+                subtitle="Discover authentic cosmetics from top brands. Makeup, Skincare & Haircare — all in one place.",
+                image_url="",
+                link_url="/products",
+                button_text="Shop Now",
+                sort_order=2
+            )
+        return HeroBanner.objects.all()
 
     def get_permissions(self):
         if self.request.method == 'POST':
