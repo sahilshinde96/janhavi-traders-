@@ -127,30 +127,38 @@ export default function Home() {
       .catch(err => console.error("Error loading products for slider:", err));
   }, []);
 
+  // Get the special configuration banner for Deal of the Day from the DB
+  const dealConfig = heroBanners.find(b => b.is_deal_of_the_day);
+
+  // General custom hero banners
+  const generalBanners = heroBanners.filter(b => !b.is_deal_of_the_day);
+
   // Build slide array dynamically to include the database-loaded custom slides AND the dynamic Deal of the Day slide
-  const displaySlides = [...heroBanners];
+  const displaySlides = [...generalBanners];
   
   if (bestDiscountProduct) {
     displaySlides.push({
-      id: 'dynamic-deal-of-the-day',
+      id: dealConfig?.id || 'dynamic-deal-of-the-day',
       isDynamicDeal: true,
       title: bestDiscountProduct.name,
-      subtitle: "Get this bestseller now at an unbeatable price! Only COD and free shipping above ₹299.",
       image_url: bestDiscountProduct.primary_image || bestDiscountProduct.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500',
       link_url: `/products/${bestDiscountProduct.slug}`,
-      button_text: "Grab this Offer",
       mrp: bestDiscountProduct.mrp,
       offer_price: bestDiscountProduct.offer_price,
-      discount_percent: maxDiscountPercent
+      discount_percent: maxDiscountPercent,
+      subtitle: dealConfig?.subtitle || "Get this bestseller now at an unbeatable price! Only COD and free shipping above ₹299.",
+      button_text: dealConfig?.button_text || "Grab this Offer",
+      configRecord: dealConfig
     });
   } else {
     displaySlides.push({
-      id: 'dynamic-deal-fallback',
+      id: dealConfig?.id || 'dynamic-deal-fallback',
       isDynamicDealFallback: true,
-      title: "Mega Beauty Discounts",
-      subtitle: "Don't miss our highest discount items. Quality makeup and skincare at unbeatable prices!",
-      link_url: "/products?is_featured=true",
-      button_text: "View Bestsellers"
+      title: dealConfig?.title || "Mega Beauty Discounts",
+      subtitle: dealConfig?.subtitle || "Don't miss our highest discount items. Quality makeup and skincare at unbeatable prices!",
+      link_url: dealConfig?.link_url || "/products?is_featured=true",
+      button_text: dealConfig?.button_text || "View Bestsellers",
+      configRecord: dealConfig
     });
   }
 
@@ -334,6 +342,31 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
+
+                {/* Admin controls for dynamic deal slide */}
+                {isAdmin && banner.configRecord && (
+                  <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 10, display: 'flex', gap: 10 }}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleOpenEditHero(banner.configRecord); }}
+                      style={{
+                        backgroundColor: 'var(--color-primary)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: 40,
+                        height: 40,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                      }}
+                      title="Edit Deal of the Day Slide Copy"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                  </div>
+                )}
               </div>
             );
           }
@@ -362,6 +395,31 @@ export default function Home() {
                     </button>
                   </div>
                 </div>
+
+                {/* Admin controls for fallback deal slide */}
+                {isAdmin && banner.configRecord && (
+                  <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 10, display: 'flex', gap: 10 }}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleOpenEditHero(banner.configRecord); }}
+                      style={{
+                        backgroundColor: 'var(--color-primary)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: 40,
+                        height: 40,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                      }}
+                      title="Edit Deal Fallback Slide Copy"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                  </div>
+                )}
               </div>
             );
           }
@@ -379,10 +437,18 @@ export default function Home() {
               }}
             >
               {!banner.image_url && (
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  background: 'linear-gradient(135deg, #1C1C2E 0%, #2D1B3D 50%, #4A1942 100%)',
-                }} />
+                <>
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    background: 'linear-gradient(135deg, #1C1C2E 0%, #2D1B3D 50%, #4A1942 100%)',
+                  }} />
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    background: 'radial-gradient(circle at 70% 50%, rgba(244,137,147,0.25) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(201,168,76,0.15) 0%, transparent 50%)',
+                  }} />
+                  <div style={{ position: 'absolute', right: '5%', top: '10%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(244,137,147,0.08)', border: '1px solid rgba(244,137,147,0.15)' }} />
+                  <div style={{ position: 'absolute', right: '12%', top: '20%', width: 280, height: 280, borderRadius: '50%', background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.12)' }} />
+                </>
               )}
               {/* Dark overlay for readability */}
               <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1 }} />

@@ -157,6 +157,15 @@ class HeroBannerListView(generics.ListCreateAPIView):
                 button_text="Shop Now",
                 sort_order=2
             )
+            HeroBanner.objects.create(
+                title="Mega Beauty Discounts",
+                subtitle="Get this bestseller now at an unbeatable price! Only COD and free shipping above ₹299.",
+                image_url="",
+                link_url="/products?is_featured=true",
+                button_text="Grab this Offer",
+                sort_order=3,
+                is_deal_of_the_day=True
+            )
         return HeroBanner.objects.all()
 
     def get_permissions(self):
