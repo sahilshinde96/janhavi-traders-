@@ -65,7 +65,8 @@ export default function Home() {
     image_url: '',
     link_url: '',
     button_text: 'Shop Now',
-    sort_order: 1
+    sort_order: 1,
+    is_deal_of_the_day: false
   });
 
   const fetchBanners = () => {
@@ -219,20 +220,24 @@ export default function Home() {
       image_url: '',
       link_url: '',
       button_text: 'Shop Now',
-      sort_order: heroBanners.length + 1
+      sort_order: heroBanners.length + 1,
+      is_deal_of_the_day: false
     });
     setShowHeroModal(true);
   };
 
   const handleOpenEditHero = (banner) => {
-    setSelectedHero(banner);
+    // Always use the real DB record (configRecord is set for deal-of-the-day dynamic slides)
+    const record = banner.configRecord || banner;
+    setSelectedHero(record);
     setHeroForm({
-      title: banner.title || '',
-      subtitle: banner.subtitle || '',
-      image_url: banner.image_url || '',
-      link_url: banner.link_url || '',
-      button_text: banner.button_text || 'Shop Now',
-      sort_order: banner.sort_order || 1
+      title: record.title || '',
+      subtitle: record.subtitle || '',
+      image_url: record.image_url || '',
+      link_url: record.link_url || '',
+      button_text: record.button_text || 'Shop Now',
+      sort_order: record.sort_order || 1,
+      is_deal_of_the_day: record.is_deal_of_the_day || false
     });
     setShowHeroModal(true);
   };
@@ -256,17 +261,26 @@ export default function Home() {
     }
     setSavingHero(true);
     try {
+      const payload = {
+        title: heroForm.title,
+        subtitle: heroForm.subtitle,
+        image_url: heroForm.image_url,
+        link_url: heroForm.link_url,
+        button_text: heroForm.button_text,
+        sort_order: heroForm.sort_order,
+        is_deal_of_the_day: heroForm.is_deal_of_the_day
+      };
       if (selectedHero && selectedHero.id) {
-        await api.patch(`/products/hero-banners/${selectedHero.id}/`, heroForm);
-        toast.success("Hero banner updated successfully!");
+        await api.patch(`/products/hero-banners/${selectedHero.id}/`, payload);
+        toast.success("Hero slide updated!");
       } else {
-        await api.post('/products/hero-banners/', heroForm);
-        toast.success("Hero banner created successfully!");
+        await api.post('/products/hero-banners/', payload);
+        toast.success("New hero slide added!");
       }
       fetchHeroBanners();
       setShowHeroModal(false);
     } catch (err) {
-      toast.error("Failed to save hero banner. Verify details.");
+      toast.error("Failed to save hero slide. Please verify details.");
     } finally {
       setSavingHero(false);
     }
@@ -337,49 +351,30 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Admin Slide Editing controls */}
-              {isAdmin && (
-                <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 10, display: 'flex', gap: 10 }}>
+              {/* Admin quick-edit badge on active slide only */}
+              {isAdmin && activeSlide === idx && (
+                <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 10 }}>
                   <button
-                    onClick={(e) => { e.stopPropagation(); handleOpenEditHero(banner.configRecord || banner); }}
+                    onClick={(e) => { e.stopPropagation(); handleOpenEditHero(banner); }}
                     style={{
                       backgroundColor: 'var(--color-primary)',
                       color: 'white',
                       border: 'none',
-                      borderRadius: '50%',
-                      width: 40,
-                      height: 40,
+                      borderRadius: 20,
+                      padding: '6px 14px',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
+                      gap: 6,
                       cursor: 'pointer',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                      boxShadow: '0 2px 12px rgba(0,0,0,0.35)',
+                      backdropFilter: 'blur(4px)',
                     }}
-                    title="Edit Hero Banner"
+                    title="Edit this slide"
                   >
-                    <Edit2 size={16} />
+                    <Edit2 size={13} /> Edit Slide
                   </button>
-                  {(!banner.isDynamicDeal && !banner.isDynamicDealFallback) && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleDeleteHeroBanner(banner.id); }}
-                      style={{
-                        backgroundColor: 'var(--color-error)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: 40,
-                        height: 40,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-                      }}
-                      title="Delete Hero Banner"
-                    >
-                      🗑️
-                    </button>
-                  )}
                 </div>
               )}
             </div>
@@ -409,27 +404,161 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Admin Create Hero Slide button */}
+        {/* ── Admin Hero Slide Manager Panel ─────────────────────── */}
         {isAdmin && (
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
-            <button
-              className="btn btn-sm"
-              onClick={handleOpenCreateHero}
-              style={{
-                background: 'rgba(244,137,147,0.15)',
-                color: 'var(--color-primary)',
-                border: '1px solid var(--color-primary-light)',
-                borderRadius: 20,
-                padding: '6px 16px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8
-              }}
-            >
-              ➕ Add New Hero Slide
-            </button>
+          <div style={{
+            marginTop: 20,
+            background: 'rgba(244,137,147,0.07)',
+            border: '1.5px dashed var(--color-primary-light)',
+            borderRadius: 16,
+            padding: '16px 20px',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <span style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-primary)', letterSpacing: 0.5 }}>
+                🎛️ Admin — Hero Slide Manager
+              </span>
+              <button
+                onClick={handleOpenCreateHero}
+                style={{
+                  background: 'var(--color-primary)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 20,
+                  padding: '6px 14px',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6
+                }}
+              >
+                ➕ Add Slide
+              </button>
+            </div>
+
+            {/* Slide thumbnail row */}
+            <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 4 }}>
+              {heroBanners.map((slide, idx) => (
+                <div
+                  key={slide.id}
+                  style={{
+                    flexShrink: 0,
+                    width: 180,
+                    borderRadius: 12,
+                    overflow: 'hidden',
+                    border: `2px solid ${activeSlide === heroBanners.indexOf(slide) ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                    background: slide.image_url ? `url(${slide.image_url}) center/cover` : 'linear-gradient(135deg,#1C1C2E,#2D1B3D)',
+                    position: 'relative',
+                    aspectRatio: '16/9',
+                    cursor: 'pointer',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onClick={() => setActiveSlide(heroBanners.indexOf(slide))}
+                >
+                  {/* Overlay */}
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)' }} />
+
+                  {/* Title */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 36,
+                    left: 8,
+                    right: 8,
+                    color: 'white',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    lineHeight: 1.3,
+                    zIndex: 2,
+                    overflow: 'hidden',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical'
+                  }}>
+                    {slide.title}
+                  </div>
+
+                  {/* Deal badge */}
+                  {slide.is_deal_of_the_day && (
+                    <div style={{
+                      position: 'absolute',
+                      top: 6,
+                      left: 6,
+                      background: '#FFD369',
+                      color: '#1C1C2E',
+                      fontSize: '0.6rem',
+                      fontWeight: 800,
+                      borderRadius: 99,
+                      padding: '2px 7px',
+                      zIndex: 2
+                    }}>🔥 DEAL</div>
+                  )}
+
+                  {/* Slide number */}
+                  <div style={{
+                    position: 'absolute',
+                    top: 6,
+                    right: 6,
+                    background: 'rgba(255,255,255,0.15)',
+                    backdropFilter: 'blur(4px)',
+                    color: 'white',
+                    fontSize: '0.65rem',
+                    fontWeight: 700,
+                    borderRadius: 99,
+                    padding: '2px 7px',
+                    zIndex: 2
+                  }}>Slide {slide.sort_order}</div>
+
+                  {/* Action buttons */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 6,
+                    left: 6,
+                    right: 6,
+                    display: 'flex',
+                    gap: 6,
+                    zIndex: 2
+                  }}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleOpenEditHero(slide); }}
+                      style={{
+                        flex: 1,
+                        background: 'var(--color-primary)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 8,
+                        padding: '4px 0',
+                        fontSize: '0.68rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 4
+                      }}
+                      title="Edit slide"
+                    >
+                      <Edit2 size={11} /> Edit
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDeleteHeroBanner(slide.id); }}
+                      style={{
+                        background: 'rgba(220,38,38,0.85)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 8,
+                        padding: '4px 8px',
+                        fontSize: '0.68rem',
+                        cursor: 'pointer',
+                      }}
+                      title="Delete slide"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -724,70 +853,119 @@ export default function Home() {
             border: '1px solid var(--color-border)',
             animation: 'slideUp 0.3s ease'
           }}>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.25rem', marginBottom: 20, color: 'var(--color-text-dark)' }}>
-              {selectedHero ? 'Edit Hero Slide' : 'Add Hero Slide'}
-            </h3>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
+            {/* Modal header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.2rem', color: 'var(--color-text-dark)', margin: 0 }}>
+                {selectedHero ? `✏️ Edit Slide` : '➕ New Hero Slide'}
+              </h3>
+              <button onClick={() => setShowHeroModal(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: 'var(--color-text-light)', lineHeight: 1 }}>✕</button>
+            </div>
+
+            {/* Live image preview */}
+            {heroForm.image_url && (
+              <div style={{
+                width: '100%',
+                height: 140,
+                borderRadius: 12,
+                overflow: 'hidden',
+                marginBottom: 16,
+                background: `url(${heroForm.image_url}) center/cover`,
+                border: '1px solid var(--color-border)',
+                position: 'relative'
+              }}>
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} />
+                <div style={{ position: 'absolute', bottom: 10, left: 12, color: 'white', fontWeight: 700, fontSize: '0.9rem' }}>
+                  {heroForm.title || 'Slide Preview'}
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 20 }}>
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Slide Title *</label>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Slide Title *</label>
                 <input 
                   className="input" 
                   value={heroForm.title} 
                   onChange={e => setHeroForm(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="e.g. Mega Clearance Sale"
+                  placeholder="e.g. Your Glow Journey Begins Here"
                 />
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Subtitle</label>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Subtitle</label>
                 <textarea 
                   className="textarea" 
-                  rows="3"
+                  rows="2"
                   value={heroForm.subtitle} 
                   onChange={e => setHeroForm(prev => ({ ...prev, subtitle: e.target.value }))}
-                  placeholder="e.g. Up to 50% off on all organic items..."
+                  placeholder="e.g. Explore dermatologist-tested cosmetics..."
                 />
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Image URL</label>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Background Image URL</label>
                 <input 
                   className="input" 
                   value={heroForm.image_url} 
                   onChange={e => setHeroForm(prev => ({ ...prev, image_url: e.target.value }))}
-                  placeholder="Leave blank for color gradient background..."
+                  placeholder="Paste Unsplash or Cloudinary URL..."
                 />
               </div>
 
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Button Text</label>
-                <input 
-                  className="input" 
-                  value={heroForm.button_text} 
-                  onChange={e => setHeroForm(prev => ({ ...prev, button_text: e.target.value }))}
-                  placeholder="e.g. Shop Now"
-                />
+              <div style={{ display: 'flex', gap: 12 }}>
+                <div className="form-group flex-1" style={{ marginBottom: 0 }}>
+                  <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Button Text</label>
+                  <input 
+                    className="input" 
+                    value={heroForm.button_text} 
+                    onChange={e => setHeroForm(prev => ({ ...prev, button_text: e.target.value }))}
+                    placeholder="Shop Now"
+                  />
+                </div>
+                <div className="form-group" style={{ marginBottom: 0, width: 90 }}>
+                  <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Order</label>
+                  <input 
+                    className="input" 
+                    type="number"
+                    value={heroForm.sort_order} 
+                    onChange={e => setHeroForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 1 }))}
+                  />
+                </div>
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Redirect URL</label>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Redirect URL (on button click)</label>
                 <input 
                   className="input" 
                   value={heroForm.link_url} 
                   onChange={e => setHeroForm(prev => ({ ...prev, link_url: e.target.value }))}
-                  placeholder="e.g. /products?is_featured=true"
+                  placeholder="e.g. /products?category=skincare"
                 />
               </div>
 
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Sort Order</label>
-                <input 
-                  className="input" 
-                  type="number"
-                  value={heroForm.sort_order} 
-                  onChange={e => setHeroForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 1 }))}
-                />
+              {/* Deal of the Day toggle */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: heroForm.is_deal_of_the_day ? 'rgba(255,211,105,0.12)' : 'var(--color-bg)',
+                border: `1.5px solid ${heroForm.is_deal_of_the_day ? '#FFD369' : 'var(--color-border)'}`,
+                borderRadius: 10,
+                padding: '10px 14px',
+                transition: 'all 0.2s'
+              }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-text-dark)' }}>🔥 Deal of the Day Slide</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--color-text-medium)', marginTop: 2 }}>Shows the product with highest discount automatically</div>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={heroForm.is_deal_of_the_day}
+                    onChange={e => setHeroForm(prev => ({ ...prev, is_deal_of_the_day: e.target.checked }))}
+                  />
+                  <span className="toggle-slider" />
+                </label>
               </div>
             </div>
 
@@ -804,7 +982,7 @@ export default function Home() {
                 onClick={handleSaveHeroBanner}
                 disabled={savingHero}
               >
-                {savingHero ? '⏳ Saving...' : 'Save Changes'}
+                {savingHero ? '⏳ Saving...' : '💾 Save Slide'}
               </button>
             </div>
           </div>
