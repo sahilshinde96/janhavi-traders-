@@ -90,6 +90,8 @@ class BrandBannerSerializer(serializers.ModelSerializer):
 
 
 class HeroBannerSerializer(serializers.ModelSerializer):
+    image_url = serializers.URLField(allow_blank=True, required=False)
+
     class Meta:
         model = HeroBanner
         fields = ['id', 'title', 'subtitle', 'image_url', 'link_url', 'button_text', 'sort_order', 'is_deal_of_the_day', 'created_at']
