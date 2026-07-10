@@ -171,7 +171,7 @@ export default function Home() {
       setActiveSlide(current => (current + 1) % totalSlides);
     }, 6000);
     return () => clearInterval(interval);
-  }, [totalSlides]);
+  }, [totalSlides, activeSlide]);
 
   // Modal handlers for Brand Banners
   const handleOpenEdit = (banner) => {
@@ -293,7 +293,8 @@ export default function Home() {
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundColor: '#1C1C2E',
-                position: 'relative'
+                position: 'absolute',
+                inset: 0
               }}
             >
               {/* Dark overlay for contrast */}

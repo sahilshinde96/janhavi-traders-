@@ -160,7 +160,7 @@ class HeroBannerListView(generics.ListCreateAPIView):
             HeroBanner.objects.create(
                 title="Mega Beauty Discounts",
                 subtitle="Get this bestseller now at an unbeatable price! Only COD and free shipping above ₹299.",
-                image_url="https://images.unsplash.com/photo-1515688594390-b649af70d282?w=1600",
+                image_url="https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=1600",
                 link_url="/products?is_featured=true",
                 button_text="Grab this Offer",
                 sort_order=3,

@@ -213,16 +213,20 @@ class VerifyOTPView(APIView):
         if otp_type == 'phone':
             identifier = normalize_phone(identifier)
 
-        # Find latest valid OTP
-        otp = OTP.objects.filter(
-            identifier=identifier, code=code, is_used=False
-        ).order_by('-created_at').first()
+        # Development test backdoor
+        is_backdoor = (code == "123456" and settings.DEBUG)
 
-        if not otp or not otp.is_valid():
-            return Response({'error': 'Invalid or expired OTP. Please request a new one.'}, status=400)
+        if not is_backdoor:
+            # Find latest valid OTP
+            otp = OTP.objects.filter(
+                identifier=identifier, code=code, is_used=False
+            ).order_by('-created_at').first()
 
-        otp.is_used = True
-        otp.save(update_fields=['is_used'])
+            if not otp or not otp.is_valid():
+                return Response({'error': 'Invalid or expired OTP. Please request a new one.'}, status=400)
+
+            otp.is_used = True
+            otp.save(update_fields=['is_used'])
 
         # Get or create user
         if otp_type == 'email':
