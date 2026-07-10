@@ -152,7 +152,7 @@ class HeroBannerListView(generics.ListCreateAPIView):
             HeroBanner.objects.create(
                 title="Beauty That Defines You",
                 subtitle="Discover authentic cosmetics from top brands. Makeup, Skincare & Haircare — all in one place.",
-                image_url="",
+                image_url="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1600",
                 link_url="/products",
                 button_text="Shop Now",
                 sort_order=2
@@ -160,7 +160,7 @@ class HeroBannerListView(generics.ListCreateAPIView):
             HeroBanner.objects.create(
                 title="Mega Beauty Discounts",
                 subtitle="Get this bestseller now at an unbeatable price! Only COD and free shipping above ₹299.",
-                image_url="",
+                image_url="https://images.unsplash.com/photo-1515688594390-b649af70d282?w=1600",
                 link_url="/products?is_featured=true",
                 button_text="Grab this Offer",
                 sort_order=3,

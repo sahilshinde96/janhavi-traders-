@@ -141,7 +141,8 @@ export default function Home() {
       id: dealConfig?.id || 'dynamic-deal-of-the-day',
       isDynamicDeal: true,
       title: bestDiscountProduct.name,
-      image_url: bestDiscountProduct.primary_image || bestDiscountProduct.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500',
+      // Use the background image from the database slide config, or fall back to a beautiful beauty deal unsplash image if none
+      image_url: dealConfig?.image_url || 'https://images.unsplash.com/photo-1515688594390-b649af70d282?w=1600',
       link_url: `/products/${bestDiscountProduct.slug}`,
       mrp: bestDiscountProduct.mrp,
       offer_price: bestDiscountProduct.offer_price,
@@ -156,6 +157,7 @@ export default function Home() {
       isDynamicDealFallback: true,
       title: dealConfig?.title || "Mega Beauty Discounts",
       subtitle: dealConfig?.subtitle || "Don't miss our highest discount items. Quality makeup and skincare at unbeatable prices!",
+      image_url: dealConfig?.image_url || 'https://images.unsplash.com/photo-1515688594390-b649af70d282?w=1600',
       link_url: dealConfig?.link_url || "/products?is_featured=true",
       button_text: dealConfig?.button_text || "View Bestsellers",
       configRecord: dealConfig
@@ -280,150 +282,8 @@ export default function Home() {
         <section className="hero-container">
         
         {displaySlides.map((banner, idx) => {
-          if (banner.isDynamicDeal) {
-            return (
-              <div
-                key={banner.id}
-                className={`hero-slide ${activeSlide === idx ? 'hero-slide--visible' : 'hero-slide--hidden'}`}
-                style={{ background: 'linear-gradient(135deg, #1C1C2E 0%, #29153B 50%, #15253A 100%)' }}
-              >
-                <div className="container" style={{ position: 'relative', zIndex: 2, width: '100%' }}>
-                  <div className="flex-between flex-wrap gap-40" style={{ animation: activeSlide === idx ? 'slideUp 0.7s ease' : 'none' }}>
-                    <div style={{ maxWidth: 550 }}>
-                      <div className="hero-pill hero-pill--gold">
-                        🔥 Deal of the Day: {banner.discount_percent.toFixed(0)}% OFF
-                      </div>
-                      <h1 className="hero-title" style={{ 
-                        color: 'white', 
-                        fontSize: 'clamp(1.5rem, 3.5vw, 2.4rem)', 
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        lineHeight: 1.2,
-                        marginBottom: 16
-                      }}>
-                        {banner.title}
-                      </h1>
-                      <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', marginBottom: 16, lineHeight: 1.5 }}>
-                        {banner.subtitle}
-                      </p>
-                      <div className="flex align-center gap-16 mb-20">
-                        <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#FFD369' }}>₹{banner.offer_price}</span>
-                        <span style={{ fontSize: '1.3rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>₹{banner.mrp}</span>
-                      </div>
-                      <button className="btn btn-primary btn-lg" onClick={() => navigate(banner.link_url)}>
-                        {banner.button_text}
-                      </button>
-                    </div>
-                    {/* Floating Product Image on the Right */}
-                    <div className="hidden-mobile" style={{
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      borderRadius: 24,
-                      padding: 20,
-                      maxWidth: 340,
-                      width: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
-                      backdropFilter: 'blur(10px)',
-                    }}>
-                      <img 
-                        src={banner.image_url} 
-                        alt={banner.title} 
-                        style={{ height: 200, objectFit: 'contain', borderRadius: 16, marginBottom: 12 }}
-                      />
-                      <div style={{ color: 'white', fontWeight: 700, fontSize: '1.1rem', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {banner.title}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Admin controls for dynamic deal slide */}
-                {isAdmin && banner.configRecord && (
-                  <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 10, display: 'flex', gap: 10 }}>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleOpenEditHero(banner.configRecord); }}
-                      style={{
-                        backgroundColor: 'var(--color-primary)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: 40,
-                        height: 40,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-                      }}
-                      title="Edit Deal of the Day Slide Copy"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          }
-
-          if (banner.isDynamicDealFallback) {
-            return (
-              <div
-                key={banner.id}
-                className={`hero-slide ${activeSlide === idx ? 'hero-slide--visible' : 'hero-slide--hidden'}`}
-                style={{ background: 'linear-gradient(135deg, #1C1C2E 0%, #29153B 50%, #15253A 100%)' }}
-              >
-                <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-                  <div style={{ maxWidth: 580, animation: activeSlide === idx ? 'slideUp 0.7s ease' : 'none' }}>
-                    <div className="hero-pill hero-pill--gold">
-                      🔥 Exclusive Offers
-                    </div>
-                    <h1 className="hero-title" style={{ color: 'white' }}>
-                      Mega Beauty<br />
-                      <span style={{ color: '#FFD369' }}>Discounts</span>
-                    </h1>
-                    <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: 20 }}>
-                      {banner.subtitle}
-                    </p>
-                    <button className="btn btn-primary btn-lg" onClick={() => navigate(banner.link_url)}>
-                      {banner.button_text}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Admin controls for fallback deal slide */}
-                {isAdmin && banner.configRecord && (
-                  <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 10, display: 'flex', gap: 10 }}>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleOpenEditHero(banner.configRecord); }}
-                      style={{
-                        backgroundColor: 'var(--color-primary)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: 40,
-                        height: 40,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-                      }}
-                      title="Edit Deal Fallback Slide Copy"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          }
-
+          const isDeal = banner.isDynamicDeal;
+          
           return (
             <div
               key={banner.id}
@@ -436,35 +296,38 @@ export default function Home() {
                 position: 'relative'
               }}
             >
-              {!banner.image_url && (
-                <>
-                  <div style={{
-                    position: 'absolute', inset: 0,
-                    background: 'linear-gradient(135deg, #1C1C2E 0%, #2D1B3D 50%, #4A1942 100%)',
-                  }} />
-                  <div style={{
-                    position: 'absolute', inset: 0,
-                    background: 'radial-gradient(circle at 70% 50%, rgba(244,137,147,0.25) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(201,168,76,0.15) 0%, transparent 50%)',
-                  }} />
-                  <div style={{ position: 'absolute', right: '5%', top: '10%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(244,137,147,0.08)', border: '1px solid rgba(244,137,147,0.15)' }} />
-                  <div style={{ position: 'absolute', right: '12%', top: '20%', width: 280, height: 280, borderRadius: '50%', background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.12)' }} />
-                </>
-              )}
-              {/* Dark overlay for readability */}
-              <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1 }} />
+              {/* Dark overlay for contrast */}
+              <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.55)', zIndex: 1 }} />
+              
               <div className="container" style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', height: '100%' }}>
-                <div style={{ maxWidth: 580, animation: activeSlide === idx ? 'slideUp 0.7s ease' : 'none' }}>
-                  <div className="hero-pill hero-pill--primary-bright">
-                    ✨ Featured Deal
+                <div style={{ maxWidth: 620, animation: activeSlide === idx ? 'slideUp 0.7s ease' : 'none' }}>
+                  
+                  {/* category/deal pill */}
+                  <div className={`hero-pill ${isDeal ? 'hero-pill--gold' : 'hero-pill--primary-bright'}`}>
+                    {isDeal ? `🔥 Deal of the Day: ${banner.discount_percent?.toFixed(0)}% OFF` : '✨ Featured Deal'}
                   </div>
-                  <h1 className="hero-title" style={{ color: 'white' }}>
+
+                  {/* title */}
+                  <h1 className="hero-title" style={{ color: 'white', lineHeight: 1.25, marginBottom: 16 }}>
                     {banner.title}
                   </h1>
+
+                  {/* subtitle */}
                   {banner.subtitle && (
-                    <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.1rem', marginBottom: 20, lineHeight: 1.7 }}>
+                    <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.05rem', marginBottom: 20, lineHeight: 1.65 }}>
                       {banner.subtitle}
                     </p>
                   )}
+
+                  {/* Price info for dynamic deals */}
+                  {isDeal && (
+                    <div className="flex align-center gap-16 mb-24">
+                      <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#FFD369' }}>₹{banner.offer_price}</span>
+                      <span style={{ fontSize: '1.4rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>₹{banner.mrp}</span>
+                    </div>
+                  )}
+
+                  {/* CTA button */}
                   {banner.link_url && (
                     <button className="btn btn-primary btn-lg" onClick={() => navigate(banner.link_url)}>
                       {banner.button_text || 'Shop Now'}
@@ -477,7 +340,7 @@ export default function Home() {
               {isAdmin && (
                 <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 10, display: 'flex', gap: 10 }}>
                   <button
-                    onClick={(e) => { e.stopPropagation(); handleOpenEditHero(banner); }}
+                    onClick={(e) => { e.stopPropagation(); handleOpenEditHero(banner.configRecord || banner); }}
                     style={{
                       backgroundColor: 'var(--color-primary)',
                       color: 'white',
@@ -495,25 +358,27 @@ export default function Home() {
                   >
                     <Edit2 size={16} />
                   </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleDeleteHeroBanner(banner.id); }}
-                    style={{
-                      backgroundColor: 'var(--color-error)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '50%',
-                      width: 40,
-                      height: 40,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-                    }}
-                    title="Delete Hero Banner"
-                  >
-                    🗑️
-                  </button>
+                  {(!banner.isDynamicDeal && !banner.isDynamicDealFallback) && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDeleteHeroBanner(banner.id); }}
+                      style={{
+                        backgroundColor: 'var(--color-error)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: 40,
+                        height: 40,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                      }}
+                      title="Delete Hero Banner"
+                    >
+                      🗑️
+                    </button>
+                  )}
                 </div>
               )}
             </div>
