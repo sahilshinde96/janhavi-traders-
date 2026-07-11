@@ -205,7 +205,13 @@ export default function Home() {
       fetchBanners();
       setShowModal(false);
     } catch (err) {
-      toast.error("Failed to save brand banner. Verify credentials.");
+      const status = err?.response?.status;
+      const detail = err?.response?.data?.detail || err?.response?.data?.image_url?.[0] || err?.response?.data?.name?.[0];
+      if (status === 403) toast.error('Permission denied — log out and log back in as admin.');
+      else if (status === 401) toast.error('Session expired — please log out and log in again.');
+      else if (status === 400 && detail) toast.error(`Validation error: ${detail}`);
+      else toast.error(detail || 'Failed to save brand banner. Please try again.');
+      console.error('Banner save error:', err?.response?.status, err?.response?.data);
     } finally {
       setSavingBanner(false);
     }
@@ -280,7 +286,13 @@ export default function Home() {
       fetchHeroBanners();
       setShowHeroModal(false);
     } catch (err) {
-      toast.error("Failed to save hero slide. Please verify details.");
+      const status = err?.response?.status;
+      const detail = err?.response?.data?.detail || err?.response?.data?.title?.[0];
+      if (status === 403) toast.error('Permission denied — log out and log back in as admin.');
+      else if (status === 401) toast.error('Session expired — please log out and log in again.');
+      else if (status === 400 && detail) toast.error(`Validation error: ${detail}`);
+      else toast.error(detail || 'Failed to save hero slide. Please try again.');
+      console.error('Hero banner save error:', err?.response?.status, err?.response?.data);
     } finally {
       setSavingHero(false);
     }
