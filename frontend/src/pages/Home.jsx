@@ -347,9 +347,10 @@ export default function Home() {
               className={`hero-slide ${activeSlide === idx ? 'hero-slide--visible' : 'hero-slide--hidden'}`}
               style={{
                 backgroundImage: banner.image_url ? `url(${banner.image_url})` : 'none',
-                backgroundSize: 'cover',
+                backgroundSize: isGraphicOnly ? 'contain' : 'cover',
+                backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
-                backgroundColor: '#1C1C2E',
+                backgroundColor: isGraphicOnly ? '#1e2630' : '#1C1C2E',
                 position: 'absolute',
                 inset: 0,
                 cursor: (isGraphicOnly && banner.link_url) ? 'pointer' : 'default'
