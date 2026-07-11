@@ -128,8 +128,42 @@ export default function Home() {
       .catch(err => console.error("Error loading products for slider:", err));
   }, []);
 
-  // Render the database hero banners directly exactly as configured by the admin
-  const displaySlides = heroBanners;
+  // Get the special configuration banner for Deal of the Day from the DB
+  const dealConfig = heroBanners.find(b => b.is_deal_of_the_day);
+
+  // General custom hero banners
+  const generalBanners = heroBanners.filter(b => !b.is_deal_of_the_day);
+
+  // Build slide array dynamically to include the database-loaded custom slides AND the dynamic Deal of the Day slide
+  const displaySlides = [...generalBanners];
+  
+  if (bestDiscountProduct) {
+    displaySlides.push({
+      id: dealConfig?.id || 'dynamic-deal-of-the-day',
+      isDynamicDeal: true,
+      title: bestDiscountProduct.name,
+      // Use the background image from the database slide config, or fall back to a beautiful beauty deal unsplash image if none
+      image_url: dealConfig?.image_url || 'https://images.unsplash.com/photo-1515688594390-b649af70d282?w=1600',
+      link_url: `/products/${bestDiscountProduct.slug}`,
+      mrp: bestDiscountProduct.mrp,
+      offer_price: bestDiscountProduct.offer_price,
+      discount_percent: maxDiscountPercent,
+      subtitle: dealConfig?.subtitle || "Get this bestseller now at an unbeatable price! Only COD and free shipping above ₹299.",
+      button_text: dealConfig?.button_text || "Grab this Offer",
+      configRecord: dealConfig
+    });
+  } else {
+    displaySlides.push({
+      id: dealConfig?.id || 'dynamic-deal-fallback',
+      isDynamicDealFallback: true,
+      title: dealConfig?.title || "Mega Beauty Discounts",
+      subtitle: dealConfig?.subtitle || "Don't miss our highest discount items. Quality makeup and skincare at unbeatable prices!",
+      image_url: dealConfig?.image_url || 'https://images.unsplash.com/photo-1515688594390-b649af70d282?w=1600',
+      link_url: dealConfig?.link_url || "/products?is_featured=true",
+      button_text: dealConfig?.button_text || "View Bestsellers",
+      configRecord: dealConfig
+    });
+  }
 
   const totalSlides = displaySlides.length;
 
@@ -171,13 +205,7 @@ export default function Home() {
       fetchBanners();
       setShowModal(false);
     } catch (err) {
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.response?.data?.image_url?.[0] || err?.response?.data?.name?.[0];
-      if (status === 403) toast.error("Permission denied. Make sure you are logged in as admin.");
-      else if (status === 401) toast.error("Session expired. Please log out and log in again.");
-      else if (status === 400 && detail) toast.error(`Validation error: ${detail}`);
-      else toast.error(detail || "Failed to save brand banner. Please try again.");
-      console.error('Banner save error:', err?.response?.status, err?.response?.data);
+      toast.error("Failed to save brand banner. Verify credentials.");
     } finally {
       setSavingBanner(false);
     }
@@ -252,13 +280,7 @@ export default function Home() {
       fetchHeroBanners();
       setShowHeroModal(false);
     } catch (err) {
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.response?.data?.title?.[0];
-      if (status === 403) toast.error("Permission denied. Make sure you are logged in as admin.");
-      else if (status === 401) toast.error("Session expired. Please log out and log in again.");
-      else if (status === 400 && detail) toast.error(`Validation error: ${detail}`);
-      else toast.error(detail || "Failed to save hero slide. Please try again.");
-      console.error('Hero banner save error:', err?.response?.status, err?.response?.data);
+      toast.error("Failed to save hero slide. Please verify details.");
     } finally {
       setSavingHero(false);
     }
@@ -274,51 +296,58 @@ export default function Home() {
         <section className="hero-container">
         
         {displaySlides.map((banner, idx) => {
-          const isDeal = banner.is_deal_of_the_day;
+          const isDeal = banner.isDynamicDeal;
           
           return (
             <div
               key={banner.id}
               className={`hero-slide ${activeSlide === idx ? 'hero-slide--visible' : 'hero-slide--hidden'}`}
+              style={{
+                backgroundImage: banner.image_url ? `url(${banner.image_url})` : 'none',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundColor: '#1C1C2E',
+                position: 'absolute',
+                inset: 0
+              }}
             >
-              {/* Radial gradient glow overlay */}
-              <div className="hero-slide-bg-gradient" />
+              {/* Dark overlay for contrast */}
+              <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.55)', zIndex: 1 }} />
               
-              <div className="hero-slide-grid">
-                {/* Left side: Content */}
-                <div className="hero-slide-content">
+              <div className="container" style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', height: '100%' }}>
+                <div style={{ maxWidth: 620, animation: activeSlide === idx ? 'slideUp 0.7s ease' : 'none' }}>
+                  
+                  {/* category/deal pill */}
                   <div className={`hero-pill ${isDeal ? 'hero-pill--gold' : 'hero-pill--primary-bright'}`}>
-                    {isDeal ? '🔥 Deal of the Day' : '✨ Featured Offer'}
+                    {isDeal ? `🔥 Deal of the Day: ${banner.discount_percent?.toFixed(0)}% OFF` : '✨ Featured Deal'}
                   </div>
 
-                  <h1 className="hero-title">
+                  {/* title */}
+                  <h1 className="hero-title" style={{ color: 'white', lineHeight: 1.25, marginBottom: 16 }}>
                     {banner.title}
                   </h1>
 
+                  {/* subtitle */}
                   {banner.subtitle && (
-                    <p className="hero-desc">
+                    <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.05rem', marginBottom: 20, lineHeight: 1.65 }}>
                       {banner.subtitle}
                     </p>
                   )}
 
+                  {/* Price info for dynamic deals */}
+                  {isDeal && (
+                    <div className="flex align-center gap-16 mb-24">
+                      <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#FFD369' }}>₹{banner.offer_price}</span>
+                      <span style={{ fontSize: '1.4rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>₹{banner.mrp}</span>
+                    </div>
+                  )}
+
+                  {/* CTA button */}
                   {banner.link_url && (
-                    <button className="btn btn-primary btn-lg hero-cta" onClick={() => navigate(banner.link_url)}>
+                    <button className="btn btn-primary btn-lg" onClick={() => navigate(banner.link_url)}>
                       {banner.button_text || 'Shop Now'}
                     </button>
                   )}
-                </div>
-
-                {/* Right side: Modern Image Card Frame */}
-                <div className="hero-slide-image-container">
-                  <div className="hero-image-wrapper">
-                    {banner.image_url ? (
-                      <img src={banner.image_url} alt={banner.title} className="hero-image" />
-                    ) : (
-                      <div className="hero-image-placeholder">
-                        <span>BLUSHH</span>
-                      </div>
-                    )}
-                  </div>
                 </div>
               </div>
 
@@ -418,14 +447,14 @@ export default function Home() {
                     width: 180,
                     borderRadius: 12,
                     overflow: 'hidden',
-                    border: `2px solid ${activeSlide === idx ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                    border: `2px solid ${activeSlide === heroBanners.indexOf(slide) ? 'var(--color-primary)' : 'var(--color-border)'}`,
                     background: slide.image_url ? `url(${slide.image_url}) center/cover` : 'linear-gradient(135deg,#1C1C2E,#2D1B3D)',
                     position: 'relative',
                     aspectRatio: '16/9',
                     cursor: 'pointer',
                     transition: 'border-color 0.2s'
                   }}
-                  onClick={() => setActiveSlide(idx)}
+                  onClick={() => setActiveSlide(heroBanners.indexOf(slide))}
                 >
                   {/* Overlay */}
                   <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)' }} />
@@ -761,7 +790,7 @@ export default function Home() {
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Redirect URL (optional)</label>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Redirect Redirect URL (optional)</label>
                 <input 
                   className="input" 
                   value={bannerForm.link_url} 

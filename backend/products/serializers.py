@@ -83,8 +83,6 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 
 class BrandBannerSerializer(serializers.ModelSerializer):
-    image_url = serializers.URLField(max_length=500)
-
     class Meta:
         model = BrandBanner
         fields = ['id', 'name', 'image_url', 'link_url', 'sort_order', 'created_at']
