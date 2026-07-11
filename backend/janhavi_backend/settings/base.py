@@ -100,7 +100,7 @@ REST_FRAMEWORK = {
 # --- JSON Web Token Authentication Configurations ---
 # Modify ACCESS_TOKEN_LIFETIME and REFRESH_TOKEN_LIFETIME to set session/token expiry.
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': False,
