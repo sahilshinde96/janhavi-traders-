@@ -220,6 +220,28 @@ export default function Home() {
     }
   };
 
+  const handleDeleteBanner = async () => {
+    if (!selectedBanner || !selectedBanner.id) return;
+    if (!window.confirm(`Are you sure you want to delete the brand banner "${selectedBanner.name}"?`)) return;
+    
+    setSavingBanner(true);
+    try {
+      await api.delete(`/products/brand-banners/${selectedBanner.id}/`);
+      toast.success("Brand banner deleted successfully!");
+      fetchBanners();
+      setShowModal(false);
+    } catch (err) {
+      const status = err?.response?.status;
+      const detail = err?.response?.data?.detail;
+      if (status === 403) toast.error('Permission denied — log out and log back in as admin.');
+      else if (status === 401) toast.error('Session expired — please log out and log in again.');
+      else toast.error(detail || 'Failed to delete brand banner. Please try again.');
+      console.error('Banner delete error:', err?.response?.status, err?.response?.data);
+    } finally {
+      setSavingBanner(false);
+    }
+  };
+
   // Modal handlers for Hero Banners
   const handleOpenCreateHero = () => {
     setSelectedHero(null);
@@ -825,21 +847,46 @@ export default function Home() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-              <button 
-                className="btn btn-ghost" 
-                onClick={() => setShowModal(false)}
-                disabled={savingBanner}
-              >
-                Cancel
-              </button>
-              <button 
-                className="btn btn-primary" 
-                onClick={handleSaveBanner}
-                disabled={savingBanner}
-              >
-                {savingBanner ? '⏳ Saving...' : (selectedBanner ? 'Save Changes' : 'Create Banner')}
-              </button>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'space-between', alignItems: 'center' }}>
+              {selectedBanner && selectedBanner.id ? (
+                <button
+                  className="btn"
+                  onClick={handleDeleteBanner}
+                  disabled={savingBanner}
+                  style={{
+                    backgroundColor: '#DC2626',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '8px 16px',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#B91C1C'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#DC2626'}
+                >
+                  Delete Banner
+                </button>
+              ) : <div />}
+              
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button 
+                  className="btn btn-ghost" 
+                  onClick={() => setShowModal(false)}
+                  disabled={savingBanner}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="btn btn-primary" 
+                  onClick={handleSaveBanner}
+                  disabled={savingBanner}
+                >
+                  {savingBanner ? '⏳ Saving...' : (selectedBanner ? 'Save Changes' : 'Create Banner')}
+                </button>
+              </div>
             </div>
           </div>
         </div>
