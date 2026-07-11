@@ -59,6 +59,7 @@ export default function Home() {
   const [showHeroModal, setShowHeroModal] = useState(false);
   const [selectedHero, setSelectedHero] = useState(null);
   const [savingHero, setSavingHero] = useState(false);
+  const [isGraphicOnly, setIsGraphicOnly] = useState(false);
   const [heroForm, setHeroForm] = useState({
     title: '',
     subtitle: '',
@@ -254,15 +255,16 @@ export default function Home() {
       sort_order: heroBanners.length + 1,
       is_deal_of_the_day: false
     });
+    setIsGraphicOnly(false);
     setShowHeroModal(true);
   };
 
   const handleOpenEditHero = (banner) => {
-    // Always use the real DB record (configRecord is set for deal-of-the-day dynamic slides)
     const record = banner.configRecord || banner;
     setSelectedHero(record);
+    const graphicMode = record.title ? record.title.startsWith('[GRAPHIC]') : false;
     setHeroForm({
-      title: record.title || '',
+      title: graphicMode ? record.title.replace('[GRAPHIC]', '').trim() : (record.title || ''),
       subtitle: record.subtitle || '',
       image_url: record.image_url || '',
       link_url: record.link_url || '',
@@ -270,6 +272,7 @@ export default function Home() {
       sort_order: record.sort_order || 1,
       is_deal_of_the_day: record.is_deal_of_the_day || false
     });
+    setIsGraphicOnly(graphicMode);
     setShowHeroModal(true);
   };
 
@@ -286,18 +289,19 @@ export default function Home() {
   };
 
   const handleSaveHeroBanner = async () => {
-    if (!heroForm.title.trim()) {
+    if (!heroForm.title.trim() && !isGraphicOnly) {
       toast.error("Title is required");
       return;
     }
     setSavingHero(true);
     try {
+      const savedTitle = isGraphicOnly ? `[GRAPHIC] ${heroForm.title.trim()}`.trim() : heroForm.title.trim();
       const payload = {
-        title: heroForm.title,
-        subtitle: heroForm.subtitle,
+        title: savedTitle || '[GRAPHIC]',
+        subtitle: isGraphicOnly ? '' : heroForm.subtitle,
         image_url: heroForm.image_url,
         link_url: heroForm.link_url,
-        button_text: heroForm.button_text,
+        button_text: isGraphicOnly ? '' : heroForm.button_text,
         sort_order: heroForm.sort_order,
         is_deal_of_the_day: heroForm.is_deal_of_the_day
       };
@@ -334,6 +338,8 @@ export default function Home() {
         
         {displaySlides.map((banner, idx) => {
           const isDeal = banner.isDynamicDeal;
+          const isGraphicOnly = banner.title && banner.title.startsWith('[GRAPHIC]');
+          const cleanTitle = isGraphicOnly ? banner.title.replace('[GRAPHIC]', '').trim() : banner.title;
           
           return (
             <div
@@ -345,48 +351,58 @@ export default function Home() {
                 backgroundPosition: 'center',
                 backgroundColor: '#1C1C2E',
                 position: 'absolute',
-                inset: 0
+                inset: 0,
+                cursor: (isGraphicOnly && banner.link_url) ? 'pointer' : 'default'
+              }}
+              onClick={() => {
+                if (isGraphicOnly && banner.link_url) {
+                  navigate(banner.link_url);
+                }
               }}
             >
-              {/* Dark overlay for contrast */}
-              <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.55)', zIndex: 1 }} />
+              {/* Dark overlay for contrast - only if NOT graphic-only */}
+              {!isGraphicOnly && (
+                <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.55)', zIndex: 1 }} />
+              )}
               
-              <div className="container" style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', height: '100%' }}>
-                <div style={{ maxWidth: 620, animation: activeSlide === idx ? 'slideUp 0.7s ease' : 'none' }}>
-                  
-                  {/* category/deal pill */}
-                  <div className={`hero-pill ${isDeal ? 'hero-pill--gold' : 'hero-pill--primary-bright'}`}>
-                    {isDeal ? `🔥 Deal of the Day: ${banner.discount_percent?.toFixed(0)}% OFF` : '✨ Featured Deal'}
-                  </div>
-
-                  {/* title */}
-                  <h1 className="hero-title" style={{ color: 'white', lineHeight: 1.25, marginBottom: 16 }}>
-                    {banner.title}
-                  </h1>
-
-                  {/* subtitle */}
-                  {banner.subtitle && (
-                    <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.05rem', marginBottom: 20, lineHeight: 1.65 }}>
-                      {banner.subtitle}
-                    </p>
-                  )}
-
-                  {/* Price info for dynamic deals */}
-                  {isDeal && (
-                    <div className="flex align-center gap-16 mb-24">
-                      <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#FFD369' }}>₹{banner.offer_price}</span>
-                      <span style={{ fontSize: '1.4rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>₹{banner.mrp}</span>
+              {!isGraphicOnly && (
+                <div className="container" style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', height: '100%' }}>
+                  <div style={{ maxWidth: 620, animation: activeSlide === idx ? 'slideUp 0.7s ease' : 'none' }}>
+                    
+                    {/* category/deal pill */}
+                    <div className={`hero-pill ${isDeal ? 'hero-pill--gold' : 'hero-pill--primary-bright'}`}>
+                      {isDeal ? `🔥 Deal of the Day: ${banner.discount_percent?.toFixed(0)}% OFF` : '✨ Featured Deal'}
                     </div>
-                  )}
 
-                  {/* CTA button */}
-                  {banner.link_url && (
-                    <button className="btn btn-primary btn-lg" onClick={() => navigate(banner.link_url)}>
-                      {banner.button_text || 'Shop Now'}
-                    </button>
-                  )}
+                    {/* title */}
+                    <h1 className="hero-title" style={{ color: 'white', lineHeight: 1.25, marginBottom: 16 }}>
+                      {cleanTitle}
+                    </h1>
+
+                    {/* subtitle */}
+                    {banner.subtitle && (
+                      <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.05rem', marginBottom: 20, lineHeight: 1.65 }}>
+                        {banner.subtitle}
+                      </p>
+                    )}
+
+                    {/* Price info for dynamic deals */}
+                    {isDeal && (
+                      <div className="flex align-center gap-16 mb-24">
+                        <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#FFD369' }}>₹{banner.offer_price}</span>
+                        <span style={{ fontSize: '1.4rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>₹{banner.mrp}</span>
+                      </div>
+                    )}
+
+                    {/* CTA button */}
+                    {banner.link_url && (
+                      <button className="btn btn-primary btn-lg" onClick={() => navigate(banner.link_url)}>
+                        {banner.button_text || 'Shop Now'}
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Admin quick-edit badge on active slide only */}
               {isAdmin && activeSlide === idx && (
@@ -957,6 +973,7 @@ export default function Home() {
                 <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Subtitle</label>
                 <textarea 
                   className="textarea" 
+                  
                   rows="2"
                   value={heroForm.subtitle} 
                   onChange={e => setHeroForm(prev => ({ ...prev, subtitle: e.target.value }))}
@@ -1003,6 +1020,32 @@ export default function Home() {
                   onChange={e => setHeroForm(prev => ({ ...prev, link_url: e.target.value }))}
                   placeholder="e.g. /products?category=skincare"
                 />
+              </div>
+
+              {/* Graphic Only toggle */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: isGraphicOnly ? 'rgba(244,137,147,0.08)' : 'var(--color-bg)',
+                border: `1.5px solid ${isGraphicOnly ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                borderRadius: 10,
+                padding: '10px 14px',
+                transition: 'all 0.2s',
+                marginBottom: 10
+              }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-text-dark)' }}>🖼️ Graphic-Only Banner (Full Bleed)</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--color-text-medium)', marginTop: 2 }}>Hides title/subtitle text overlays. Shows full image without dark shading.</div>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={isGraphicOnly}
+                    onChange={e => setIsGraphicOnly(e.target.checked)}
+                  />
+                  <span className="toggle-slider" />
+                </label>
               </div>
 
               {/* Deal of the Day toggle */}
