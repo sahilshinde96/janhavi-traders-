@@ -15,14 +15,14 @@ const WHY_US = [
 ];
 
 const FALLBACK_BANNERS = [
-  { id: 1, name: "Good Vibes", image_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600", link_url: "/products?search=Good+Vibes", sort_order: 1 },
-  { id: 2, name: "Nivea", image_url: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600", link_url: "/products?search=Nivea", sort_order: 2 },
-  { id: 3, name: "NY Bae", image_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600", link_url: "/products?search=NY+Bae", sort_order: 3 },
-  { id: 4, name: "The Derma Co", image_url: "https://images.unsplash.com/photo-1608248597481-496100c80836?w=600", link_url: "/products?search=Derma", sort_order: 4 },
-  { id: 5, name: "DermDoc", image_url: "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=600", link_url: "/products?search=DermDoc", sort_order: 5 },
-  { id: 6, name: "Lakme", image_url: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=600", link_url: "/products?search=Lakme", sort_order: 6 },
-  { id: 7, name: "Alps Goodness", image_url: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600", link_url: "/products?search=Alps", sort_order: 7 },
-  { id: 8, name: "Swiss Beauty", image_url: "https://images.unsplash.com/photo-1619451334792-150fd785ee74?w=600", link_url: "/products?search=Swiss", sort_order: 8 },
+  { id: null, _isFallback: true, name: "Good Vibes", image_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600", link_url: "/products?search=Good+Vibes", sort_order: 1 },
+  { id: null, _isFallback: true, name: "Nivea", image_url: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600", link_url: "/products?search=Nivea", sort_order: 2 },
+  { id: null, _isFallback: true, name: "NY Bae", image_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600", link_url: "/products?search=NY+Bae", sort_order: 3 },
+  { id: null, _isFallback: true, name: "The Derma Co", image_url: "https://images.unsplash.com/photo-1608248597481-496100c80836?w=600", link_url: "/products?search=Derma", sort_order: 4 },
+  { id: null, _isFallback: true, name: "DermDoc", image_url: "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=600", link_url: "/products?search=DermDoc", sort_order: 5 },
+  { id: null, _isFallback: true, name: "Lakme", image_url: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=600", link_url: "/products?search=Lakme", sort_order: 6 },
+  { id: null, _isFallback: true, name: "Alps Goodness", image_url: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600", link_url: "/products?search=Alps", sort_order: 7 },
+  { id: null, _isFallback: true, name: "Swiss Beauty", image_url: "https://images.unsplash.com/photo-1619451334792-150fd785ee74?w=600", link_url: "/products?search=Swiss", sort_order: 8 },
 ];
 
 export default function Home() {
@@ -176,7 +176,10 @@ export default function Home() {
 
   // Modal handlers for Brand Banners
   const handleOpenEdit = (banner) => {
-    setSelectedBanner(banner);
+    // If this is a fallback banner (not in DB yet), open in CREATE mode
+    // so it does POST instead of trying to PATCH a non-existent ID
+    const isFallback = banner._isFallback === true;
+    setSelectedBanner(isFallback ? null : banner);
     setBannerForm({
       name: banner.name || '',
       image_url: banner.image_url || '',
@@ -777,7 +780,7 @@ export default function Home() {
             animation: 'slideUp 0.3s ease'
           }}>
             <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.25rem', marginBottom: 20, color: 'var(--color-text-dark)' }}>
-              Edit Brand Banner ({selectedBanner?.name || 'New'})
+              {selectedBanner ? `✏️ Edit Brand Banner (${selectedBanner.name})` : `➕ Create Brand Banner (${bannerForm.name || 'New'})`}
             </h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
@@ -802,7 +805,7 @@ export default function Home() {
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Redirect Redirect URL (optional)</label>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Redirect URL (optional)</label>
                 <input 
                   className="input" 
                   value={bannerForm.link_url} 
@@ -835,7 +838,7 @@ export default function Home() {
                 onClick={handleSaveBanner}
                 disabled={savingBanner}
               >
-                {savingBanner ? '⏳ Saving...' : 'Save Changes'}
+                {savingBanner ? '⏳ Saving...' : (selectedBanner ? 'Save Changes' : 'Create Banner')}
               </button>
             </div>
           </div>
