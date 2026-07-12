@@ -15,7 +15,7 @@ const WHY_US = [
 ];
 
 const FALLBACK_BANNERS = [
-  { id: null, _isFallback: true, name: "Good Vibes", image_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600", link_url: "/products?search=Good+Vibes", sort_order: 1 },
+  { id: null, _isFallback: true, name: "Pilgrim", image_url: "https://res.cloudinary.com/oowyxbny/image/upload/v1783784605/WhatsApp_Image_2026-07-11_at_9.01.17_PM_pwdyfb.jpg", link_url: "/products?search=pilgrim", sort_order: 1 },
   { id: null, _isFallback: true, name: "Nivea", image_url: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600", link_url: "/products?search=Nivea", sort_order: 2 },
   { id: null, _isFallback: true, name: "NY Bae", image_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600", link_url: "/products?search=NY+Bae", sort_order: 3 },
   { id: null, _isFallback: true, name: "The Derma Co", image_url: "https://images.unsplash.com/photo-1608248597481-496100c80836?w=600", link_url: "/products?search=Derma", sort_order: 4 },
