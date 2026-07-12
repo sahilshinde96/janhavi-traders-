@@ -65,7 +65,7 @@ def send_otp_sms_async(identifier, code):
         print(f"\n[SMS] [BlackSMS] Attempting to send OTP {code} to {cleaned_number}...\n", flush=True)
 
     try:
-        url = "https://blacksms.in/sms"
+        url = "https://www.blacksms.in/sms"
         payload = {
             "sender_id": sender_id,
             "variables_values": str(code),
@@ -80,7 +80,8 @@ def send_otp_sms_async(identifier, code):
             headers={
                 "Authorization": blacksms_key,
                 "Content-Type": "application/json",
-                "accept": "application/json"
+                "accept": "application/json",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             },
             method='POST'
         )
