@@ -8,18 +8,6 @@ export default function Footer() {
 
   return (
     <>
-      {/* Newsletter */}
-      <section className="newsletter-section">
-        <div className="container">
-          <div className="newsletter-title">✨ Get Beauty Tips &amp; Exclusive Offers</div>
-          <p className="newsletter-sub">Subscribe to our newsletter and get 10% off your first order</p>
-          <form className="newsletter-form" onSubmit={(e) => { e.preventDefault(); }}>
-            <input type="email" placeholder="Enter your email address" />
-            <button type="submit">Subscribe</button>
-          </form>
-        </div>
-      </section>
-
       <footer className="footer">
         <div className="container">
           <div className="footer-grid">
