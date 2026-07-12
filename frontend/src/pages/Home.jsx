@@ -30,8 +30,6 @@ export default function Home() {
   const [loadingHeroBanners, setLoadingHeroBanners] = useState(true);
   
   const [activeSlide, setActiveSlide] = useState(0);
-  const [bestDiscountProduct, setBestDiscountProduct] = useState(null);
-  const [maxDiscountPercent, setMaxDiscountPercent] = useState(0);
 
   // Modal Editor state for Brand Banners
   const [showModal, setShowModal] = useState(false);
@@ -90,70 +88,9 @@ export default function Home() {
     fetchBanners();
     fetchHeroBanners();
 
-    // Fetch all products to find the most discounted one
-    api.get('/products/')
-      .then(r => {
-        const prods = r.data.results || r.data;
-        if (prods && prods.length > 0) {
-          let bestProd = null;
-          let maxPct = 0;
-          prods.forEach(p => {
-            const mrp = parseFloat(p.mrp);
-            const offer = parseFloat(p.offer_price);
-            if (mrp && offer && mrp > offer) {
-              const pct = ((mrp - offer) / mrp) * 100;
-              if (pct > maxPct) {
-                maxPct = pct;
-                bestProd = p;
-              }
-            }
-          });
-          if (bestProd) {
-            setBestDiscountProduct(bestProd);
-            setMaxDiscountPercent(maxPct);
-          }
-        }
-      })
-      .catch(err => console.error("Error loading products for slider:", err));
   }, []);
 
-  // Get the special configuration banner for Deal of the Day from the DB
-  const dealConfig = heroBanners.find(b => b.is_deal_of_the_day);
-
-  // General custom hero banners
-  const generalBanners = heroBanners.filter(b => !b.is_deal_of_the_day);
-
-  // Build slide array dynamically to include the database-loaded custom slides AND the dynamic Deal of the Day slide
-  const displaySlides = [...generalBanners];
-  
-  if (bestDiscountProduct) {
-    displaySlides.push({
-      id: dealConfig?.id || 'dynamic-deal-of-the-day',
-      isDynamicDeal: true,
-      title: bestDiscountProduct.name,
-      // Use the background image from the database slide config, or fall back to a beautiful beauty deal unsplash image if none
-      image_url: dealConfig?.image_url || 'https://images.unsplash.com/photo-1515688594390-b649af70d282?w=1600',
-      link_url: `/products/${bestDiscountProduct.slug}`,
-      mrp: bestDiscountProduct.mrp,
-      offer_price: bestDiscountProduct.offer_price,
-      discount_percent: maxDiscountPercent,
-      subtitle: dealConfig?.subtitle || "Get this bestseller now at an unbeatable price! Only COD and free shipping above ₹299.",
-      button_text: dealConfig?.button_text || "Grab this  Offer",
-      configRecord: dealConfig
-    });
-  } else {
-    displaySlides.push({
-      id: dealConfig?.id || 'dynamic-deal-fallback',
-      isDynamicDealFallback: true,
-      title: dealConfig?.title || "Mega Beauty Discounts",
-      subtitle: dealConfig?.subtitle || "Don't miss our highest discount items. Quality makeup and skincare at unbeatable prices!",
-      image_url: dealConfig?.image_url || 'https://images.unsplash.com/photo-1515688594390-b649af70d282?w=1600',
-      link_url: dealConfig?.link_url || "/products?is_featured=true",
-      button_text: dealConfig?.button_text || "View Bestsellers",
-      configRecord: dealConfig
-    });
-  }
-
+  const displaySlides = heroBanners;
   const totalSlides = displaySlides.length;
 
   useEffect(() => {
