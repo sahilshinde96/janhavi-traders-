@@ -33,10 +33,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 class SendOTPSerializer(serializers.Serializer):
     identifier = serializers.CharField(max_length=255)
-    type = serializers.ChoiceField(choices=['email', 'phone', 'whatsapp'])
+    type = serializers.ChoiceField(choices=['email', 'phone'])
 
 
 class VerifyOTPSerializer(serializers.Serializer):
     identifier = serializers.CharField(max_length=255)
-    type = serializers.ChoiceField(choices=['email', 'phone', 'whatsapp'])
+    type = serializers.ChoiceField(choices=['email', 'phone'])
     code = serializers.CharField(max_length=6, min_length=6)

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Phone, ArrowRight, RefreshCw, MessageSquare } from 'lucide-react';
+import { Mail, Phone, ArrowRight, RefreshCw } from 'lucide-react';
 import api from '../api/axios';
 import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
@@ -162,8 +162,7 @@ export default function Login() {
             <div className="auth-tabs">
               {[
                 { type: 'email', icon: Mail, label: 'Email' }, 
-                { type: 'phone', icon: Phone, label: 'SMS' },
-                { type: 'whatsapp', icon: MessageSquare, label: 'WhatsApp' }
+                { type: 'phone', icon: Phone, label: 'SMS' }
               ].map(({ type, icon: Icon, label }) => (
                 <button key={type} onClick={() => {
                   setLoginType(type);

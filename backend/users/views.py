@@ -49,33 +49,36 @@ def send_otp_email_async(subject, message, from_email, recipient_list, code):
             print(f"\n[EMAIL] [DEV] (SMTP Failed: {e}) OTP for {recipient_list[0]}: {code}\n", flush=True)
 
 def send_otp_sms_async(identifier, code):
-    fast2sms_key = getattr(settings, 'FAST2SMS_API_KEY', '')
-    if not fast2sms_key:
-        logger.warning("[SMS] [Fast2SMS] No API Key configured.")
-        # Only output config warnings to console during local development.
+    blacksms_key = getattr(settings, 'BLACKSMS_API_KEY', '')
+    sender_id = getattr(settings, 'BLACKSMS_SENDER_ID', '')
+    dlt_template_id = getattr(settings, 'BLACKSMS_DLT_TEMPLATE_ID', '')
+
+    if not blacksms_key:
+        logger.warning("[SMS] [BlackSMS] No API Key configured.")
         if django_settings.DEBUG:
-            print("[SMS] [Fast2SMS] No API Key configured.", flush=True)
+            print("[SMS] [BlackSMS] No API Key configured.", flush=True)
         return
     
     cleaned_number = normalize_phone(identifier)
-    logger.info(f"[SMS] [Fast2SMS] Attempting to send OTP to {cleaned_number}...")
-    # Hide raw OTP codes from production server stdout/stderr logs (BUG-02 fix).
+    logger.info(f"[SMS] [BlackSMS] Attempting to send OTP to {cleaned_number}...")
     if django_settings.DEBUG:
-        print(f"\n[SMS] [Fast2SMS] Attempting to send OTP {code} to {cleaned_number}...\n", flush=True)
-
+        print(f"\n[SMS] [BlackSMS] Attempting to send OTP {code} to {cleaned_number}...\n", flush=True)
 
     try:
-        url = "https://www.fast2sms.com/dev/bulkV2"
+        url = "https://www.blacksms.in/sms"
         payload = {
-            "route": "otp",
+            "api_key": blacksms_key,
+            "sender_id": sender_id,
             "variables_values": str(code),
             "numbers": cleaned_number,
         }
+        if dlt_template_id:
+            payload["dlt_template_id"] = dlt_template_id
+
         req = urllib.request.Request(
             url,
             data=json.dumps(payload).encode('utf-8'),
             headers={
-                "authorization": fast2sms_key,
                 "Content-Type": "application/json",
                 "accept": "application/json"
             },
@@ -84,77 +87,24 @@ def send_otp_sms_async(identifier, code):
         with urllib.request.urlopen(req, timeout=10) as response:
             res_body = response.read().decode('utf-8')
             res_data = json.loads(res_body)
-            if res_data.get('return') is True:
-                success_msg = f"[SMS] [Fast2SMS] Sent successfully to {cleaned_number}! Message: {res_data.get('message')}"
+            if res_data.get('return') is True or res_data.get('status') == 'success' or res_data.get('status_code') == 200:
+                success_msg = f"[SMS] [BlackSMS] Sent successfully to {cleaned_number}!"
                 logger.info(success_msg)
             else:
-                fail_msg = f"[SMS] [Fast2SMS] Send failed to {cleaned_number}: {res_data.get('message')} (Response: {res_body})"
+                fail_msg = f"[SMS] [BlackSMS] Send failed to {cleaned_number}: {res_body}"
                 logger.error(fail_msg)
     except urllib.error.HTTPError as e:
         try:
             err_body = e.read().decode('utf-8')
-            err_msg = f"[SMS] [Fast2SMS] HTTP Error {e.code} sending SMS to {cleaned_number}: {err_body}"
+            err_msg = f"[SMS] [BlackSMS] HTTP Error {e.code} sending SMS to {cleaned_number}: {err_body}"
         except Exception:
-            err_msg = f"[SMS] [Fast2SMS] HTTP Error {e.code} sending SMS to {cleaned_number} (Could not read body)"
+            err_msg = f"[SMS] [BlackSMS] HTTP Error {e.code} sending SMS to {cleaned_number}"
         logger.error(err_msg)
     except Exception as e:
-        err_msg = f"[SMS] [Fast2SMS] Failed to send SMS to {identifier}: {e}"
+        err_msg = f"[SMS] [BlackSMS] Failed to send SMS to {identifier}: {e}"
         print(f"\n{err_msg}\n", flush=True)
         logger.error(err_msg)
 
-
-def send_otp_whatsapp_async(identifier, code):
-    fast2sms_key = getattr(settings, 'FAST2SMS_API_KEY', '')
-    template_id = getattr(settings, 'FAST2SMS_WHATSAPP_TEMPLATE_ID', '')
-    phone_number_id = getattr(settings, 'FAST2SMS_WHATSAPP_PHONE_NUMBER_ID', '')
-
-    if not fast2sms_key:
-        logger.warning("[WHATSAPP] [Fast2SMS] No API Key configured.")
-        if django_settings.DEBUG:
-            print("[WHATSAPP] [Fast2SMS] No API Key configured.", flush=True)
-        return
-
-    cleaned_number = normalize_phone(identifier)
-    logger.info(f"[WHATSAPP] [Fast2SMS] Attempting to send OTP to {cleaned_number}...")
-    if django_settings.DEBUG:
-        print(f"\n[WHATSAPP] [Fast2SMS] Attempting to send WhatsApp OTP {code} to {cleaned_number}...\n", flush=True)
-
-    if not template_id or not phone_number_id:
-        logger.warning("[WHATSAPP] [Fast2SMS] FAST2SMS_WHATSAPP_TEMPLATE_ID or FAST2SMS_WHATSAPP_PHONE_NUMBER_ID is not configured. Falling back to log print.")
-        return
-
-    try:
-        url = (
-            f"https://www.fast2sms.com/dev/whatsapp"
-            f"?message_id={template_id}"
-            f"&phone_number_id={phone_number_id}"
-            f"&numbers={cleaned_number}"
-            f"&variables_values={code}"
-        )
-        req = urllib.request.Request(
-            url,
-            headers={
-                "authorization": fast2sms_key,
-                "accept": "application/json"
-            },
-            method='GET'
-        )
-        with urllib.request.urlopen(req, timeout=10) as response:
-            res_body = response.read().decode('utf-8')
-            res_data = json.loads(res_body)
-            if res_data.get('return') is True or res_data.get('status') == 'success' or res_data.get('status_code') == 200:
-                logger.info(f"[WHATSAPP] [Fast2SMS] Sent successfully to {cleaned_number}!")
-            else:
-                logger.error(f"[WHATSAPP] [Fast2SMS] Send failed to {cleaned_number}: {res_body}")
-    except urllib.error.HTTPError as e:
-        try:
-            err_body = e.read().decode('utf-8')
-            err_msg = f"[WHATSAPP] [Fast2SMS] HTTP Error {e.code} sending WhatsApp to {cleaned_number}: {err_body}"
-        except Exception:
-            err_msg = f"[WHATSAPP] [Fast2SMS] HTTP Error {e.code} sending WhatsApp to {cleaned_number}"
-        logger.error(err_msg)
-    except Exception as e:
-        logger.error(f"[WHATSAPP] [Fast2SMS] Failed to send WhatsApp to {identifier}: {e}")
 
 
 # Custom rate throttle for OTP requests to prevent brute force or financial/resource abuse (BUG-04 fix).
@@ -178,7 +128,7 @@ class SendOTPView(APIView):
         identifier = serializer.validated_data['identifier'].strip().lower()
         otp_type = serializer.validated_data['type']
 
-        if otp_type in ['phone', 'whatsapp']:
+        if otp_type == 'phone':
             identifier = normalize_phone(identifier)
             if len(identifier) != 10 or not identifier.isdigit():
                 return Response({'error': 'Please enter a valid 10-digit Indian phone number.'}, status=400)
@@ -230,8 +180,8 @@ class SendOTPView(APIView):
                     print(f'\n[EMAIL] [DEV] (No SMTP/HTTPS Configured) OTP for {identifier}: {code}\n', flush=True)
 
         elif otp_type == 'phone':
-            fast2sms_key = getattr(settings, 'FAST2SMS_API_KEY', '')
-            if fast2sms_key:
+            blacksms_key = getattr(settings, 'BLACKSMS_API_KEY', '')
+            if blacksms_key:
                 threading.Thread(
                     target=send_otp_sms_async,
                     args=(identifier, code),
@@ -242,25 +192,10 @@ class SendOTPView(APIView):
                 if django_settings.DEBUG:
                     print(f'\n[SMS] [DEV] OTP for {identifier}: {code}\n', flush=True)
             else:
-                logger.warning(f"[SMS] No SMS provider configured for {identifier}")
+                logger.warning(f"[SMS] No BlackSMS provider configured for {identifier}")
                 # Only print the generated code to local development terminal (BUG-02 fix).
                 if django_settings.DEBUG:
                     print(f'\n[SMS] [DEV] (No SMS Configured) OTP for {identifier}: {code}\n', flush=True)
-        else: # whatsapp
-            fast2sms_key = getattr(settings, 'FAST2SMS_API_KEY', '')
-            if fast2sms_key:
-                threading.Thread(
-                    target=send_otp_whatsapp_async,
-                    args=(identifier, code),
-                    daemon=True
-                ).start()
-                logger.info(f"[WHATSAPP] OTP WhatsApp triggered for {identifier}")
-                if django_settings.DEBUG:
-                    print(f'\n[WHATSAPP] [DEV] OTP for {identifier}: {code}\n', flush=True)
-            else:
-                logger.warning(f"[WHATSAPP] No WhatsApp provider configured for {identifier}")
-                if django_settings.DEBUG:
-                    print(f'\n[WHATSAPP] [DEV] (No WhatsApp Configured) OTP for {identifier}: {code}\n', flush=True)
 
         return Response({
             'message': f'OTP sent to {identifier}',
@@ -280,7 +215,7 @@ class VerifyOTPView(APIView):
         otp_type = serializer.validated_data['type']
         code = serializer.validated_data['code']
 
-        if otp_type in ['phone', 'whatsapp']:
+        if otp_type == 'phone':
             identifier = normalize_phone(identifier)
 
         # Development test backdoor
