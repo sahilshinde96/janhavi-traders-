@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Phone, ArrowRight, RefreshCw } from 'lucide-react';
+import { Mail, Phone, ArrowRight, RefreshCw, MessageSquare } from 'lucide-react';
 import api from '../api/axios';
 import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
@@ -160,8 +160,15 @@ export default function Login() {
 
             {/* Type toggle */}
             <div className="auth-tabs">
-              {[{ type: 'email', icon: Mail, label: 'Email' }, { type: 'phone', icon: Phone, label: 'Phone' }].map(({ type, icon: Icon, label }) => (
-                <button key={type} onClick={() => setLoginType(type)}
+              {[
+                { type: 'email', icon: Mail, label: 'Email' }, 
+                { type: 'phone', icon: Phone, label: 'SMS' },
+                { type: 'whatsapp', icon: MessageSquare, label: 'WhatsApp' }
+              ].map(({ type, icon: Icon, label }) => (
+                <button key={type} onClick={() => {
+                  setLoginType(type);
+                  setIdentifier('');
+                }}
                   className={`auth-tab${loginType === type ? ' auth-tab--active' : ''}`}>
                   <Icon size={15} /> {label}
                 </button>

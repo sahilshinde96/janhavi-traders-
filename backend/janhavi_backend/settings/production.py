@@ -16,6 +16,8 @@ EMAIL_BACKEND = 'janhavi_backend.email_backends.HTTPSEmailBackend'
 RESEND_API_KEY = config('RESEND_API_KEY', default='')
 BREVO_API_KEY = config('BREVO_API_KEY', default='')
 FAST2SMS_API_KEY = config('FAST2SMS_API_KEY', default='')
+FAST2SMS_WHATSAPP_TEMPLATE_ID = config('FAST2SMS_WHATSAPP_TEMPLATE_ID', default='')
+FAST2SMS_WHATSAPP_PHONE_NUMBER_ID = config('FAST2SMS_WHATSAPP_PHONE_NUMBER_ID', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='BLUSHH <noreply@blushh.online>')
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

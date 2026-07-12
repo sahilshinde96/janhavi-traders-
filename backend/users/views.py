@@ -102,6 +102,61 @@ def send_otp_sms_async(identifier, code):
         print(f"\n{err_msg}\n", flush=True)
         logger.error(err_msg)
 
+
+def send_otp_whatsapp_async(identifier, code):
+    fast2sms_key = getattr(settings, 'FAST2SMS_API_KEY', '')
+    template_id = getattr(settings, 'FAST2SMS_WHATSAPP_TEMPLATE_ID', '')
+    phone_number_id = getattr(settings, 'FAST2SMS_WHATSAPP_PHONE_NUMBER_ID', '')
+
+    if not fast2sms_key:
+        logger.warning("[WHATSAPP] [Fast2SMS] No API Key configured.")
+        if django_settings.DEBUG:
+            print("[WHATSAPP] [Fast2SMS] No API Key configured.", flush=True)
+        return
+
+    cleaned_number = normalize_phone(identifier)
+    logger.info(f"[WHATSAPP] [Fast2SMS] Attempting to send OTP to {cleaned_number}...")
+    if django_settings.DEBUG:
+        print(f"\n[WHATSAPP] [Fast2SMS] Attempting to send WhatsApp OTP {code} to {cleaned_number}...\n", flush=True)
+
+    if not template_id or not phone_number_id:
+        logger.warning("[WHATSAPP] [Fast2SMS] FAST2SMS_WHATSAPP_TEMPLATE_ID or FAST2SMS_WHATSAPP_PHONE_NUMBER_ID is not configured. Falling back to log print.")
+        return
+
+    try:
+        url = (
+            f"https://www.fast2sms.com/dev/whatsapp"
+            f"?message_id={template_id}"
+            f"&phone_number_id={phone_number_id}"
+            f"&numbers={cleaned_number}"
+            f"&variables_values={code}"
+        )
+        req = urllib.request.Request(
+            url,
+            headers={
+                "authorization": fast2sms_key,
+                "accept": "application/json"
+            },
+            method='GET'
+        )
+        with urllib.request.urlopen(req, timeout=10) as response:
+            res_body = response.read().decode('utf-8')
+            res_data = json.loads(res_body)
+            if res_data.get('return') is True or res_data.get('status') == 'success' or res_data.get('status_code') == 200:
+                logger.info(f"[WHATSAPP] [Fast2SMS] Sent successfully to {cleaned_number}!")
+            else:
+                logger.error(f"[WHATSAPP] [Fast2SMS] Send failed to {cleaned_number}: {res_body}")
+    except urllib.error.HTTPError as e:
+        try:
+            err_body = e.read().decode('utf-8')
+            err_msg = f"[WHATSAPP] [Fast2SMS] HTTP Error {e.code} sending WhatsApp to {cleaned_number}: {err_body}"
+        except Exception:
+            err_msg = f"[WHATSAPP] [Fast2SMS] HTTP Error {e.code} sending WhatsApp to {cleaned_number}"
+        logger.error(err_msg)
+    except Exception as e:
+        logger.error(f"[WHATSAPP] [Fast2SMS] Failed to send WhatsApp to {identifier}: {e}")
+
+
 # Custom rate throttle for OTP requests to prevent brute force or financial/resource abuse (BUG-04 fix).
 # Limits requests per IP based on the 'otp' key rate configured under DEFAULT_THROTTLE_RATES in settings.
 class OTPRateThrottle(throttling.AnonRateThrottle):
@@ -123,7 +178,7 @@ class SendOTPView(APIView):
         identifier = serializer.validated_data['identifier'].strip().lower()
         otp_type = serializer.validated_data['type']
 
-        if otp_type == 'phone':
+        if otp_type in ['phone', 'whatsapp']:
             identifier = normalize_phone(identifier)
             if len(identifier) != 10 or not identifier.isdigit():
                 return Response({'error': 'Please enter a valid 10-digit Indian phone number.'}, status=400)
@@ -174,7 +229,7 @@ class SendOTPView(APIView):
                 if django_settings.DEBUG:
                     print(f'\n[EMAIL] [DEV] (No SMTP/HTTPS Configured) OTP for {identifier}: {code}\n', flush=True)
 
-        else:
+        elif otp_type == 'phone':
             fast2sms_key = getattr(settings, 'FAST2SMS_API_KEY', '')
             if fast2sms_key:
                 threading.Thread(
@@ -191,6 +246,21 @@ class SendOTPView(APIView):
                 # Only print the generated code to local development terminal (BUG-02 fix).
                 if django_settings.DEBUG:
                     print(f'\n[SMS] [DEV] (No SMS Configured) OTP for {identifier}: {code}\n', flush=True)
+        else: # whatsapp
+            fast2sms_key = getattr(settings, 'FAST2SMS_API_KEY', '')
+            if fast2sms_key:
+                threading.Thread(
+                    target=send_otp_whatsapp_async,
+                    args=(identifier, code),
+                    daemon=True
+                ).start()
+                logger.info(f"[WHATSAPP] OTP WhatsApp triggered for {identifier}")
+                if django_settings.DEBUG:
+                    print(f'\n[WHATSAPP] [DEV] OTP for {identifier}: {code}\n', flush=True)
+            else:
+                logger.warning(f"[WHATSAPP] No WhatsApp provider configured for {identifier}")
+                if django_settings.DEBUG:
+                    print(f'\n[WHATSAPP] [DEV] (No WhatsApp Configured) OTP for {identifier}: {code}\n', flush=True)
 
         return Response({
             'message': f'OTP sent to {identifier}',
@@ -210,7 +280,7 @@ class VerifyOTPView(APIView):
         otp_type = serializer.validated_data['type']
         code = serializer.validated_data['code']
 
-        if otp_type == 'phone':
+        if otp_type in ['phone', 'whatsapp']:
             identifier = normalize_phone(identifier)
 
         # Development test backdoor
