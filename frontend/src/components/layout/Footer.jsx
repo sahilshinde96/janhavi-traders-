@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Instagram, Facebook, Twitter, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Instagram, Facebook, Youtube, Mail, Phone, MapPin } from 'lucide-react';
 import logo from '../../assets/logo.png';
 
 export default function Footer() {
@@ -22,7 +22,7 @@ export default function Footer() {
                 Beauty that defines you. 💄
               </p>
               <div className="flex gap-12">
-                {[Instagram, Facebook, Twitter, Youtube].map((Icon, i) => (
+                {[Instagram, Facebook, Youtube].map((Icon, i) => (
                   <button key={i} className="social-btn">
                     <Icon size={16} />
                   </button>
@@ -68,7 +68,7 @@ export default function Footer() {
               <div className="flex-col gap-12">
                 {[
                   { Icon: Mail,    text: 'blushh1019@gmail.com' },
-                  { Icon: Phone,   text: '+91 8928762528' },
+                  { Icon: Phone,   text: '9867284216/ 8928762528' },
                   { Icon: MapPin,  text: 'Kalyan, Maharashtra, India' },
                 ].map(({ Icon, text }) => (
                   <div key={text} className="flex gap-10 align-center fs-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>

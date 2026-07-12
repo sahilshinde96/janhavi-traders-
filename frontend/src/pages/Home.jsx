@@ -14,17 +14,6 @@ const WHY_US = [
   { icon: '↩️', title: 'Easy Returns', desc: '7-day hassle-free return policy' },
 ];
 
-const FALLBACK_BANNERS = [
-  { id: null, _isFallback: true, name: "Pilgrim", image_url: "https://res.cloudinary.com/oowyxbny/image/upload/v1783784605/WhatsApp_Image_2026-07-11_at_9.01.17_PM_pwdyfb.jpg", link_url: "/products?search=pilgrim", sort_order: 1 },
-  { id: null, _isFallback: true, name: "Nivea", image_url: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600", link_url: "/products?search=Nivea", sort_order: 2 },
-  { id: null, _isFallback: true, name: "NY Bae", image_url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600", link_url: "/products?search=NY+Bae", sort_order: 3 },
-  { id: null, _isFallback: true, name: "The Derma Co", image_url: "https://images.unsplash.com/photo-1608248597481-496100c80836?w=600", link_url: "/products?search=Derma", sort_order: 4 },
-  { id: null, _isFallback: true, name: "DermDoc", image_url: "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=600", link_url: "/products?search=DermDoc", sort_order: 5 },
-  { id: null, _isFallback: true, name: "Lakme", image_url: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=600", link_url: "/products?search=Lakme", sort_order: 6 },
-  { id: null, _isFallback: true, name: "Alps Goodness", image_url: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600", link_url: "/products?search=Alps", sort_order: 7 },
-  { id: null, _isFallback: true, name: "Swiss Beauty", image_url: "https://images.unsplash.com/photo-1619451334792-150fd785ee74?w=600", link_url: "/products?search=Swiss", sort_order: 8 },
-];
-
 export default function Home() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
@@ -149,7 +138,7 @@ export default function Home() {
       offer_price: bestDiscountProduct.offer_price,
       discount_percent: maxDiscountPercent,
       subtitle: dealConfig?.subtitle || "Get this bestseller now at an unbeatable price! Only COD and free shipping above ₹299.",
-      button_text: dealConfig?.button_text || "Grab this Offer",
+      button_text: dealConfig?.button_text || "Grab this  Offer",
       configRecord: dealConfig
     });
   } else {
@@ -322,8 +311,8 @@ export default function Home() {
     }
   };
 
-  // Determine grid rendering data (use seeded/fetched DB banners, falling back to static layout)
-  const displayBanners = brandBanners.length > 0 ? brandBanners : FALLBACK_BANNERS;
+  // Determine grid rendering data (use seeded/fetched DB banners)
+  const displayBanners = brandBanners;
 
   return (
     <div>
@@ -627,98 +616,137 @@ export default function Home() {
       </section>
 
       {/* ─── Brand Promotional Banners Grid (Admin Uploadable) ────────────── */}
-      <section className="section" style={{ background: 'var(--color-secondary)', borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)' }}>
-        <div className="container">
-          <div className="text-center mb-40">
-            <h2 className="section-title">Shop by Brand Deals</h2>
-            <p className="section-subtitle" style={{ color: 'var(--color-text-medium)', fontSize: '0.95rem', marginTop: 8 }}>
-              Click on your favorite brands to view exclusive discounts and offers!
-            </p>
-          </div>
-          
-          <div className="grid-4" style={{ gap: 20 }}>
-            {displayBanners.map((banner) => (
-              <div 
-                key={banner.id} 
-                className="brand-banner-card"
-                style={{
-                  background: 'transparent',
-                  borderRadius: 'var(--radius-lg)',
-                  overflow: 'hidden',
-                  border: 'none',
-                  boxShadow: 'none',
-                  position: 'relative',
-                  aspectRatio: '1.1',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  cursor: banner.link_url ? 'pointer' : 'default',
-                  transition: 'all 0.3s ease'
-                }}
-                onClick={() => {
-                  if (banner.link_url) navigate(banner.link_url);
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'none';
-                }}
-              >
-                {/* Banner Image */}
-                <div style={{ flex: 1, overflow: 'hidden', background: 'transparent', position: 'relative', borderRadius: 'var(--radius-lg)' }}>
-                  <img 
-                    src={banner.image_url} 
-                    alt={banner.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                  
-                  {/* Admin Controls overlay */}
-                  {isAdmin && (
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation(); // Stop navigation redirect
-                        handleOpenEdit(banner);
-                      }}
-                      style={{
-                        position: 'absolute',
-                        top: 10,
-                        right: 10,
-                        backgroundColor: 'var(--color-primary)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: 34,
-                        height: 34,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-                        zIndex: 10,
-                        transition: 'transform 0.2s'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-                      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1.0)'}
-                      title="Edit Brand Banner"
-                    >
-                      <Edit2 size={15} />
-                    </button>
-                  )}
-                </div>
-
-                {/* Footer Label */}
-                <div style={{ padding: '12px 0 0 0', background: 'transparent', borderTop: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <h4 style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--color-text-dark)', marginBottom: 2 }}>{banner.name}</h4>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--color-primary)', fontWeight: 700 }}>Exclusive Deal</span>
-                  </div>
-                  {banner.link_url && <ExternalLink size={14} style={{ color: 'var(--color-text-light)' }} />}
-                </div>
+      {(displayBanners.length > 0 || isAdmin) && (
+        <section className="section" style={{ background: 'var(--color-secondary)', borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)' }}>
+          <div className="container">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40, flexWrap: 'wrap', gap: 16 }}>
+              <div>
+                <h2 className="section-title" style={{ margin: 0 }}>Shop by Brand Deals</h2>
+                <p className="section-subtitle" style={{ color: 'var(--color-text-medium)', fontSize: '0.95rem', marginTop: 8, textAlign: 'left' }}>
+                  Click on your favorite brands to view exclusive discounts and offers!
+                </p>
               </div>
-            ))}
+              {isAdmin && (
+                <button
+                  onClick={() => handleOpenEdit({ _isFallback: true })}
+                  style={{
+                    backgroundColor: 'var(--color-primary)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 20,
+                    padding: '8px 18px',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  ➕ Add Brand Banner
+                </button>
+              )}
+            </div>
+            
+            {displayBanners.length > 0 ? (
+              <div className="grid-4" style={{ gap: 20 }}>
+                {displayBanners.map((banner) => (
+                  <div 
+                    key={banner.id} 
+                    className="brand-banner-card"
+                    style={{
+                      background: 'transparent',
+                      borderRadius: 'var(--radius-lg)',
+                      overflow: 'hidden',
+                      border: 'none',
+                      boxShadow: 'none',
+                      position: 'relative',
+                      aspectRatio: '1.1',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      cursor: banner.link_url ? 'pointer' : 'default',
+                      transition: 'all 0.3s ease'
+                    }}
+                    onClick={() => {
+                      if (banner.link_url) navigate(banner.link_url);
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'none';
+                    }}
+                  >
+                    {/* Banner Image */}
+                    <div style={{ flex: 1, overflow: 'hidden', background: 'transparent', position: 'relative', borderRadius: 'var(--radius-lg)' }}>
+                      <img 
+                        src={banner.image_url} 
+                        alt={banner.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                      
+                      {/* Admin Controls overlay */}
+                      {isAdmin && (
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation(); // Stop navigation redirect
+                            handleOpenEdit(banner);
+                          }}
+                          style={{
+                            position: 'absolute',
+                            top: 10,
+                            right: 10,
+                            backgroundColor: 'var(--color-primary)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: 34,
+                            height: 34,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                            zIndex: 10,
+                            transition: 'transform 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1.0)'}
+                          title="Edit Brand Banner"
+                        >
+                          <Edit2 size={15} />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Footer Label */}
+                    <div style={{ padding: '12px 0 0 0', background: 'transparent', borderTop: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <h4 style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--color-text-dark)', marginBottom: 2 }}>{banner.name}</h4>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--color-primary)', fontWeight: 700 }}>Exclusive Deal</span>
+                      </div>
+                      {banner.link_url && <ExternalLink size={14} style={{ color: 'var(--color-text-light)' }} />}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{
+                textAlign: 'center',
+                padding: '48px 0',
+                color: 'var(--color-text-light)',
+                border: '1.5px dashed var(--color-border)',
+                borderRadius: 16,
+                background: 'rgba(255,255,255,0.4)',
+                fontSize: '0.9rem'
+              }}>
+                No brand promotional banners currently configured. Click "Add Brand Banner" above to create one.
+              </div>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ─── New Arrivals ─────────────────────────────────────────────────── */}
       <section className="section" style={{ background: 'white' }}>
