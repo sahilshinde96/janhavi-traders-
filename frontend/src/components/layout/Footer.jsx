@@ -22,10 +22,20 @@ export default function Footer() {
                 Beauty that defines you. 💄
               </p>
               <div className="flex gap-12">
-                {[Instagram, Facebook, Youtube].map((Icon, i) => (
-                  <button key={i} className="social-btn">
+                {[
+                  { Icon: Instagram, url: 'https://www.instagram.com/letsblushh/?utm_source=ig_web_button_share_sheet' },
+                  { Icon: Facebook, url: '#' },
+                  { Icon: Youtube, url: '#' }
+                ].map(({ Icon, url }, i) => (
+                  <a 
+                    key={i} 
+                    href={url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="social-btn"
+                  >
                     <Icon size={16} />
-                  </button>
+                  </a>
                 ))}
               </div>
             </div>
