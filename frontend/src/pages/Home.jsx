@@ -736,27 +736,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── Newsletter ───────────────────────────────────────────────────── */}
-      <section className="section-dark">
-        <div className="container">
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 3vw, 2.5rem)', marginBottom: 16 }}>
-            Stay in the Loop
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: 40, fontSize: '1.1rem' }}>
-            Subscribe for exclusive offers, new arrivals &amp; beauty tips
-          </p>
-          <div className="flex gap-12" style={{ justifyContent: 'center', maxWidth: 480, margin: '0 auto' }}>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="input flex-1"
-              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white' }}
-            />
-            <button className="btn btn-primary">Subscribe</button>
-          </div>
-        </div>
-      </section>
-
       {/* ─── Admin Edit Brand Banner Modal ───────────────────────────────── */}
       {showModal && (
         <div style={{
