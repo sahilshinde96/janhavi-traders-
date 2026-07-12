@@ -59,7 +59,6 @@ export default function Home() {
   const [showHeroModal, setShowHeroModal] = useState(false);
   const [selectedHero, setSelectedHero] = useState(null);
   const [savingHero, setSavingHero] = useState(false);
-  const [isGraphicOnly, setIsGraphicOnly] = useState(false);
   const [heroForm, setHeroForm] = useState({
     title: '',
     subtitle: '',
@@ -255,16 +254,14 @@ export default function Home() {
       sort_order: heroBanners.length + 1,
       is_deal_of_the_day: false
     });
-    setIsGraphicOnly(false);
     setShowHeroModal(true);
   };
 
   const handleOpenEditHero = (banner) => {
     const record = banner.configRecord || banner;
     setSelectedHero(record);
-    const graphicMode = record.title ? record.title.startsWith('[GRAPHIC]') : false;
     setHeroForm({
-      title: graphicMode ? record.title.replace('[GRAPHIC]', '').trim() : (record.title || ''),
+      title: record.title || '',
       subtitle: record.subtitle || '',
       image_url: record.image_url || '',
       link_url: record.link_url || '',
@@ -272,7 +269,6 @@ export default function Home() {
       sort_order: record.sort_order || 1,
       is_deal_of_the_day: record.is_deal_of_the_day || false
     });
-    setIsGraphicOnly(graphicMode);
     setShowHeroModal(true);
   };
 
@@ -289,19 +285,18 @@ export default function Home() {
   };
 
   const handleSaveHeroBanner = async () => {
-    if (!heroForm.title.trim() && !isGraphicOnly) {
-      toast.error("Title is required");
+    if (!heroForm.image_url.trim()) {
+      toast.error("Image URL is required");
       return;
     }
     setSavingHero(true);
     try {
-      const savedTitle = isGraphicOnly ? `[GRAPHIC] ${heroForm.title.trim()}`.trim() : heroForm.title.trim();
       const payload = {
-        title: savedTitle || '[GRAPHIC]',
-        subtitle: isGraphicOnly ? '' : heroForm.subtitle,
-        image_url: heroForm.image_url,
-        link_url: heroForm.link_url,
-        button_text: isGraphicOnly ? '' : heroForm.button_text,
+        title: heroForm.title.trim() || `Banner ${heroForm.sort_order || Date.now()}`,
+        subtitle: '',
+        image_url: heroForm.image_url.trim(),
+        link_url: heroForm.link_url.trim(),
+        button_text: 'Shop Now',
         sort_order: heroForm.sort_order,
         is_deal_of_the_day: heroForm.is_deal_of_the_day
       };
@@ -337,71 +332,38 @@ export default function Home() {
         <section className="hero-container">
         
         {displaySlides.map((banner, idx) => {
-          const isDeal = banner.isDynamicDeal;
-          const isGraphicOnly = banner.title && banner.title.startsWith('[GRAPHIC]');
-          const cleanTitle = isGraphicOnly ? banner.title.replace('[GRAPHIC]', '').trim() : banner.title;
-          
           return (
             <div
               key={banner.id}
               className={`hero-slide ${activeSlide === idx ? 'hero-slide--visible' : 'hero-slide--hidden'}`}
               style={{
-                backgroundImage: banner.image_url ? `url(${banner.image_url})` : 'none',
-                backgroundSize: isGraphicOnly ? 'contain' : 'cover',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'center',
-                backgroundColor: isGraphicOnly ? '#1e2630' : '#1C1C2E',
                 position: 'absolute',
                 inset: 0,
-                cursor: (isGraphicOnly && banner.link_url) ? 'pointer' : 'default'
+                cursor: banner.link_url ? 'pointer' : 'default',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden'
               }}
               onClick={() => {
-                if (isGraphicOnly && banner.link_url) {
+                if (banner.link_url) {
                   navigate(banner.link_url);
                 }
               }}
             >
-              {/* Dark overlay for contrast - only if NOT graphic-only */}
-              {!isGraphicOnly && (
-                <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.55)', zIndex: 1 }} />
-              )}
-              
-              {!isGraphicOnly && (
-                <div className="container" style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', height: '100%' }}>
-                  <div style={{ maxWidth: 620, animation: activeSlide === idx ? 'slideUp 0.7s ease' : 'none' }}>
-                    
-                    {/* category/deal pill */}
-                    <div className={`hero-pill ${isDeal ? 'hero-pill--gold' : 'hero-pill--primary-bright'}`}>
-                      {isDeal ? `🔥 Deal of the Day: ${banner.discount_percent?.toFixed(0)}% OFF` : '✨ Featured Deal'}
-                    </div>
-
-                    {/* title */}
-                    <h1 className="hero-title" style={{ color: 'white', lineHeight: 1.25, marginBottom: 16 }}>
-                      {cleanTitle}
-                    </h1>
-
-                    {/* subtitle */}
-                    {banner.subtitle && (
-                      <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.05rem', marginBottom: 20, lineHeight: 1.65 }}>
-                        {banner.subtitle}
-                      </p>
-                    )}
-
-                    {/* Price info for dynamic deals */}
-                    {isDeal && (
-                      <div className="flex align-center gap-16 mb-24">
-                        <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#FFD369' }}>₹{banner.offer_price}</span>
-                        <span style={{ fontSize: '1.4rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>₹{banner.mrp}</span>
-                      </div>
-                    )}
-
-                    {/* CTA button */}
-                    {banner.link_url && (
-                      <button className="btn btn-primary btn-lg" onClick={() => navigate(banner.link_url)}>
-                        {banner.button_text || 'Shop Now'}
-                      </button>
-                    )}
-                  </div>
+              {banner.image_url ? (
+                <img 
+                  src={banner.image_url} 
+                  alt={banner.title || "Hero Banner"} 
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+              ) : (
+                <div className="hero-image-placeholder" style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  GLOW
                 </div>
               )}
 
@@ -961,92 +923,33 @@ export default function Home() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 20 }}>
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Slide Title *</label>
-                <input 
-                  className="input" 
-                  value={heroForm.title} 
-                  onChange={e => setHeroForm(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="e.g. Your Glow Journey Begins Here"
-                />
-              </div>
-
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Subtitle</label>
-                <textarea 
-                  className="textarea" 
-                  
-                  rows="2"
-                  value={heroForm.subtitle} 
-                  onChange={e => setHeroForm(prev => ({ ...prev, subtitle: e.target.value }))}
-                  placeholder="e.g. Explore dermatologist-tested cosmetics..."
-                />
-              </div>
-
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Background Image URL</label>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Image URL *</label>
                 <input 
                   className="input" 
                   value={heroForm.image_url} 
                   onChange={e => setHeroForm(prev => ({ ...prev, image_url: e.target.value }))}
-                  placeholder="Paste Unsplash or Cloudinary URL..."
+                  placeholder="Paste Unsplash, Cloudinary, or any image URL..."
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: 12 }}>
-                <div className="form-group flex-1" style={{ marginBottom: 0 }}>
-                  <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Button Text</label>
-                  <input 
-                    className="input" 
-                    value={heroForm.button_text} 
-                    onChange={e => setHeroForm(prev => ({ ...prev, button_text: e.target.value }))}
-                    placeholder="Shop Now"
-                  />
-                </div>
-                <div className="form-group" style={{ marginBottom: 0, width: 90 }}>
-                  <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Order</label>
-                  <input 
-                    className="input" 
-                    type="number"
-                    value={heroForm.sort_order} 
-                    onChange={e => setHeroForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 1 }))}
-                  />
-                </div>
-              </div>
-
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Redirect URL (on button click)</label>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Redirect URL (connected to image button click)</label>
                 <input 
                   className="input" 
                   value={heroForm.link_url} 
                   onChange={e => setHeroForm(prev => ({ ...prev, link_url: e.target.value }))}
-                  placeholder="e.g. /products?category=skincare"
+                  placeholder="e.g. /products?category=skincare or /products/slug"
                 />
               </div>
 
-              {/* Graphic Only toggle */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                background: isGraphicOnly ? 'rgba(244,137,147,0.08)' : 'var(--color-bg)',
-                border: `1.5px solid ${isGraphicOnly ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                borderRadius: 10,
-                padding: '10px 14px',
-                transition: 'all 0.2s',
-                marginBottom: 10
-              }}>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-text-dark)' }}>🖼️ Graphic-Only Banner (Full Bleed)</div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--color-text-medium)', marginTop: 2 }}>Hides title/subtitle text overlays. Shows full image without dark shading.</div>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={isGraphicOnly}
-                    onChange={e => setIsGraphicOnly(e.target.checked)}
-                  />
-                  <span className="toggle-slider" />
-                </label>
+              <div className="form-group" style={{ marginBottom: 0, width: 120 }}>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>Sort Order</label>
+                <input 
+                  className="input" 
+                  type="number"
+                  value={heroForm.sort_order} 
+                  onChange={e => setHeroForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 1 }))}
+                />
               </div>
 
               {/* Deal of the Day toggle */}
@@ -1062,7 +965,7 @@ export default function Home() {
               }}>
                 <div>
                   <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-text-dark)' }}>🔥 Deal of the Day Slide</div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--color-text-medium)', marginTop: 2 }}>Shows the product with highest discount automatically</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--color-text-medium)', marginTop: 2 }}>Uses this slide image as the background for the highest discount product deal</div>
                 </div>
                 <label className="toggle-switch">
                   <input
