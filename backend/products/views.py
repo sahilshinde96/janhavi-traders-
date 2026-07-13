@@ -63,6 +63,25 @@ class ProductListView(generics.ListCreateAPIView):
 
         return qs
 
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+        ordering = self.request.query_params.get('ordering', '')
+        if 'name' in ordering:
+            from django.db.models.functions import Lower
+            fields = [f.strip() for f in ordering.split(',')]
+            new_ordering = []
+            for field in fields:
+                if field == 'name':
+                    queryset = queryset.annotate(lower_name=Lower('name'))
+                    new_ordering.append('lower_name')
+                elif field == '-name':
+                    queryset = queryset.annotate(lower_name=Lower('name'))
+                    new_ordering.append('-lower_name')
+                else:
+                    new_ordering.append(field)
+            queryset = queryset.order_by(*new_ordering)
+        return queryset
+
     def get_serializer_class(self):
         return ProductDetailSerializer if self.request.method == 'POST' else ProductListSerializer
 
