@@ -258,6 +258,24 @@ export default function Login() {
                 </button>
               )}
             </div>
+
+            <div className="text-center" style={{ marginTop: 28, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: '0.72rem', color: 'var(--color-text-light)', fontWeight: 500 }}>
+                Powered by
+              </span>
+              <span style={{
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                color: '#FFFFFF',
+                background: '#000000',
+                padding: '3px 8px',
+                borderRadius: '6px',
+                letterSpacing: '0.75px',
+                fontFamily: 'Inter, sans-serif'
+              }}>
+                BLACKSMS
+              </span>
+            </div>
           </>
         )}
 
