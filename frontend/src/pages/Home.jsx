@@ -533,24 +533,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── Why Choose Us ────────────────────────────────────────────────── */}
-      <section className="section" style={{ background: 'white' }}>
-        <div className="container">
-          <div className="text-center mb-48">
-            <h2 className="section-title">Why <span style={{ color: 'var(--color-primary)' }}>BLUSHH</span>?</h2>
-            <p className="section-subtitle">We take pride in what we deliver</p>
-          </div>
-          <div className="grid-4">
-            {WHY_US.map((item, i) => (
-              <div key={i} className="feature-card">
-                <div className="feature-icon" style={{ background: 'var(--color-secondary)', boxShadow: 'none' }}>{item.icon}</div>
-                <h4 className="feature-title">{item.title}</h4>
-                <p className="feature-desc">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* ─── Brand Promotional Banners Grid (Admin Uploadable) ────────────── */}
       {(displayBanners.length > 0 || isAdmin) && (
@@ -698,6 +681,25 @@ export default function Home() {
             </Link>
           </div>
           <ProductGrid products={newArrivals} loading={loadingNew} />
+        </div>
+      </section>
+
+      {/* ─── Why Choose Us ────────────────────────────────────────────────── */}
+      <section className="section" style={{ background: 'white' }}>
+        <div className="container">
+          <div className="text-center mb-48">
+            <h2 className="section-title">Why <span style={{ color: 'var(--color-primary)' }}>BLUSHH</span>?</h2>
+            <p className="section-subtitle">We take pride in what we deliver</p>
+          </div>
+          <div className="grid-4">
+            {WHY_US.map((item, i) => (
+              <div key={i} className="feature-card">
+                <div className="feature-icon" style={{ background: 'var(--color-secondary)', boxShadow: 'none' }}>{item.icon}</div>
+                <h4 className="feature-title">{item.title}</h4>
+                <p className="feature-desc">{item.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
