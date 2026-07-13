@@ -5,6 +5,7 @@ import { Component } from 'react';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import CartDrawer from './components/cart/CartDrawer';
+import ScrollToTop from './components/common/ScrollToTop';
 
 import Home from './pages/Home';
 import Products from './pages/Products';
@@ -108,6 +109,7 @@ const Layout = ({ children }) => (
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Toaster
         position="top-right"
         toastOptions={{

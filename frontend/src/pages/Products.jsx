@@ -78,6 +78,24 @@ export default function Products() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [loading, loadingMore, products.length, totalCount]);
 
+  // Scroll to top when products load on page 1
+  useEffect(() => {
+    if (!loading && page === 1) {
+      const performScroll = () => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        if (document.body) {
+          document.body.scrollTop = 0;
+        }
+      };
+
+      performScroll();
+      requestAnimationFrame(performScroll);
+      const timer = setTimeout(performScroll, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, page]);
+
   const updateParam = (key, value) => {
     const p = new URLSearchParams(searchParams);
     if (value) p.set(key, value); else p.delete(key);

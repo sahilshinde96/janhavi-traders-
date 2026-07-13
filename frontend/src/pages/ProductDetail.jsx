@@ -37,6 +37,24 @@ export default function ProductDetail() {
     }).catch(() => { setLoading(false); navigate('/products'); });
   }, [slug]);
 
+  // Scroll to top when product finishes loading
+  useEffect(() => {
+    if (!loading) {
+      const performScroll = () => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        if (document.body) {
+          document.body.scrollTop = 0;
+        }
+      };
+
+      performScroll();
+      requestAnimationFrame(performScroll);
+      const timer = setTimeout(performScroll, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
+
   const handleAddToCart = async () => {
     if (!isAuthenticated) { toast.error('Please login first'); navigate('/login'); return; }
     const r = await addToCart(product.id, qty);

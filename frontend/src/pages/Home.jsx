@@ -96,7 +96,7 @@ export default function Home() {
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveSlide(current => (current + 1) % totalSlides);
-    }, 6000);
+    }, 3000);
     return () => clearInterval(interval);
   }, [totalSlides, activeSlide]);
 
