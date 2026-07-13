@@ -324,8 +324,10 @@ input, select, textarea { font-family: inherit; }
 .navbar-link {
   padding: 8px 14px;
   border-radius: var(--radius-md);
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   color: var(--color-text-dark);
   transition: all var(--transition);
   background: none;

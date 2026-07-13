@@ -106,7 +106,7 @@ export default function Navbar() {
                       key={cat.slug}
                       className="nav-dropdown-item"
                       onClick={() => {
-                        navigate(`/products?category=${cat.slug}`);
+                        navigate(`/products?category_slug=${cat.slug}`);
                         setCatDropdown(false);
                       }}
                     >
@@ -220,7 +220,7 @@ export default function Navbar() {
                 key={cat.slug}
                 className="mobile-menu-link"
                 style={{ paddingLeft: 28, fontSize: '0.875rem' }}
-                onClick={() => { navigate(`/products?category=${cat.slug}`); closeMobileMenu(); }}
+                onClick={() => { navigate(`/products?category_slug=${cat.slug}`); closeMobileMenu(); }}
               >
                 {cat.name}
               </button>
