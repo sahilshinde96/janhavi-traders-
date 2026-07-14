@@ -23,7 +23,7 @@ export default function Footer() {
               </p>
               <div className="flex gap-12">
                 {[
-                  { Icon: Instagram, url: 'https://www.instagram.com/letsblushh/?utm_source=ig_web_button_share_sheet' },
+                  { Icon: Instagram, url: 'https://www.instagram.com/letz.blushh?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==' },
                   { Icon: Facebook, url: '#' },
                   { Icon: Youtube, url: '#' }
                 ].map(({ Icon, url }, i) => (
