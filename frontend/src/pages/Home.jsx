@@ -94,9 +94,25 @@ export default function Home() {
   const totalSlides = displaySlides.length;
 
   useEffect(() => {
+    if (totalSlides <= 0) {
+      if (activeSlide !== 0) setActiveSlide(0);
+      return;
+    }
+
+    if (isNaN(activeSlide) || activeSlide >= totalSlides || activeSlide < 0) {
+      setActiveSlide(0);
+      return;
+    }
+
     const interval = setInterval(() => {
-      setActiveSlide(current => (current + 1) % totalSlides);
+      setActiveSlide(current => {
+        if (isNaN(current) || current >= totalSlides || current < 0) {
+          return 0;
+        }
+        return (current + 1) % totalSlides;
+      });
     }, 3000);
+
     return () => clearInterval(interval);
   }, [totalSlides, activeSlide]);
 
