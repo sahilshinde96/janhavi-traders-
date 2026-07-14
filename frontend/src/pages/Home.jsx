@@ -1,18 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Edit2, ExternalLink, Home as HomeIcon, ShoppingBag, Grid } from 'lucide-react';
+import { Edit2, ExternalLink } from 'lucide-react';
 import api from '../api/axios';
 import ProductGrid from '../components/product/ProductGrid';
 import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
 import hero1 from '../assets/hero1.jpg';
-
-const FALLBACK_CATEGORIES = [
-  { name: 'Makeup', slug: 'makeup' },
-  { name: 'Skincare', slug: 'skincare' },
-  { name: 'Haircare', slug: 'haircare' },
-  { name: 'Fragrances', slug: 'fragrances' },
-];
+import MobileQuickNav from '../components/layout/MobileQuickNav';
 
 const WHY_US = [
   { icon: '✅', title: '100% Authentic', desc: 'All products are sourced directly from brands' },
@@ -37,8 +31,6 @@ export default function Home() {
   const [loadingHeroBanners, setLoadingHeroBanners] = useState(true);
   
   const [activeSlide, setActiveSlide] = useState(0);
-  const [categories, setCategories] = useState(FALLBACK_CATEGORIES);
-  const [showMobileCategories, setShowMobileCategories] = useState(false);
 
   // Modal Editor state for Brand Banners
   const [showModal, setShowModal] = useState(false);
@@ -96,12 +88,6 @@ export default function Home() {
     api.get('/products/new-arrivals/').then(r => { setNewArrivals(r.data.results || r.data); setLoadingNew(false); }).catch(() => setLoadingNew(false));
     fetchBanners();
     fetchHeroBanners();
-    api.get('/products/categories/')
-      .then(r => {
-        const cats = r.data.results || r.data;
-        if (cats && cats.length > 0) setCategories(cats);
-      })
-      .catch(() => {});
   }, []);
 
   const displaySlides = heroBanners;
@@ -288,41 +274,7 @@ export default function Home() {
       <div className="container mt-24 mb-32">
 
         {/* Mobile Quick Navigation */}
-        <div className="mobile-quick-nav">
-          <Link to="/" className="quick-nav-btn active">
-            <HomeIcon size={20} />
-            <span>Home</span>
-          </Link>
-          <Link to="/products" className="quick-nav-btn">
-            <ShoppingBag size={20} />
-            <span>Products</span>
-          </Link>
-          <button 
-            className={`quick-nav-btn ${showMobileCategories ? 'active' : ''}`}
-            onClick={() => setShowMobileCategories(!showMobileCategories)}
-          >
-            <Grid size={20} />
-            <span>Categories</span>
-          </button>
-        </div>
-
-        {/* Mobile Categories list dropdown */}
-        {showMobileCategories && (
-          <div className="mobile-quick-categories">
-            {categories.map((cat) => (
-              <button
-                key={cat.slug}
-                className="mobile-category-btn"
-                onClick={() => {
-                  navigate(`/products?category_slug=${cat.slug}`);
-                  setShowMobileCategories(false);
-                }}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
-        )}
+        <MobileQuickNav />
 
         <section className="hero-container">
         

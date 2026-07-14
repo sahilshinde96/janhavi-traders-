@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import api from '../api/axios';
 import ProductGrid from '../components/product/ProductGrid';
+import MobileQuickNav from '../components/layout/MobileQuickNav';
 
 const SORT_OPTIONS = [
   { value: '-created_at', label: 'Newest First' },
@@ -115,6 +116,9 @@ export default function Products() {
 
   return (
     <div className="container page-container-sm">
+      {/* Mobile Quick Navigation */}
+      <MobileQuickNav />
+
       {/* Header */}
       <div className="page-header">
         <h1 className="page-title">
