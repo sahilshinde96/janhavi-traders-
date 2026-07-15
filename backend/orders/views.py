@@ -15,7 +15,7 @@ from .serializers import OrderSerializer
 
 # --- Delivery Charge Settings ---
 DELIVERY_CHARGE = Decimal('20.00')
-FREE_DELIVERY_ABOVE = Decimal('299.00')
+FREE_DELIVERY_ABOVE = Decimal('199.00')
 
 
 class PlaceOrderView(APIView):

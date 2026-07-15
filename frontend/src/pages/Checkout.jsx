@@ -95,7 +95,7 @@ export default function Checkout() {
   const items = cart?.items || [];
   const subtotal = parseFloat(cart?.total || 0);
   const discount = appliedCoupon ? parseFloat(appliedCoupon.discount_amount) : 0;
-  const deliveryCharge = subtotal >= 299 ? 0 : 20;
+  const deliveryCharge = subtotal >= 199 ? 0 : 20;
   const total = subtotal - discount + deliveryCharge;
 
   const handleAddAddress = async () => {
