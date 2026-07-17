@@ -3,7 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { useAuthStore } from './store/authStore';
-import { Component } from 'react';
+import { Component, Suspense, lazy } from 'react';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import CartDrawer from './components/cart/CartDrawer';
@@ -24,16 +24,18 @@ import ReturnPolicy from './pages/ReturnPolicy';
 import TermsOfService from './pages/TermsOfService';
 import ContactUs from './pages/ContactUs';
 
-import AdminLayout from './pages/admin/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminProducts from './pages/admin/AdminProducts';
-import AdminAddProduct from './pages/admin/AdminAddProduct';
-import AdminCategories from './pages/admin/AdminCategories';
-import AdminOrders from './pages/admin/AdminOrders';
-import AdminOrderDetail from './pages/admin/AdminOrderDetail';
-import AdminDiscounts from './pages/admin/AdminDiscounts';
-import AdminInventory from './pages/admin/AdminInventory';
-import AdminFeatured from './pages/admin/AdminFeatured';
+// Lazy-load admin pages so they are only downloaded when an admin visits /admin.
+// This keeps the initial customer-facing bundle ~100KB+ smaller (P2-9 fix).
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
+const AdminAddProduct = lazy(() => import('./pages/admin/AdminAddProduct'));
+const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'));
+const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminOrderDetail = lazy(() => import('./pages/admin/AdminOrderDetail'));
+const AdminDiscounts = lazy(() => import('./pages/admin/AdminDiscounts'));
+const AdminInventory = lazy(() => import('./pages/admin/AdminInventory'));
+const AdminFeatured = lazy(() => import('./pages/admin/AdminFeatured'));
 
 // Error Boundary to prevent white screen crashes (BUG-13 fix).
 // This React Class Component catches JavaScript errors anywhere in their child component tree,
@@ -128,8 +130,21 @@ export default function App() {
         {/* Public */}
         <Route path="/login" element={<Login />} />
 
-        {/* Admin */}
-        <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+        {/* Admin — wrapped in Suspense since these are lazy-loaded (P2-9 fix) */}
+        <Route path="/admin" element={
+          <AdminRoute>
+            <Suspense fallback={
+              <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '2rem', marginBottom: 12, animation: 'pulse 1.5s ease infinite' }}>⏳</div>
+                  <p style={{ color: 'var(--color-text-medium)', fontSize: '0.9rem' }}>Loading admin panel...</p>
+                </div>
+              </div>
+            }>
+              <AdminLayout />
+            </Suspense>
+          </AdminRoute>
+        }>
           <Route index element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="products/add" element={<AdminAddProduct />} />

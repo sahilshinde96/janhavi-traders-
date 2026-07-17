@@ -25,6 +25,9 @@ export default function Checkout() {
   const [fetchingLocation, setFetchingLocation] = useState(false);
   const [calculatedDistance, setCalculatedDistance] = useState(null);
 
+  // Delivery config fetched from backend (P1-1: single source of truth)
+  const [deliveryConfig, setDeliveryConfig] = useState({ free_delivery_above: 199, delivery_charge: 20 });
+
   const STORE_LAT = 19.213000;
   const STORE_LON = 73.151000;
 
@@ -90,12 +93,13 @@ export default function Checkout() {
       if (def) setSelectedAddress(def);
       if (r.data.length === 0) setShowNewForm(true);
     }).catch(() => setShowNewForm(true));
+    api.get('/orders/delivery-settings/').then(r => setDeliveryConfig(r.data)).catch(() => {});
   }, []);
 
   const items = cart?.items || [];
   const subtotal = parseFloat(cart?.total || 0);
   const discount = appliedCoupon ? parseFloat(appliedCoupon.discount_amount) : 0;
-  const deliveryCharge = subtotal >= 199 ? 0 : 20;
+  const deliveryCharge = subtotal >= deliveryConfig.free_delivery_above ? 0 : deliveryConfig.delivery_charge;
   const total = subtotal - discount + deliveryCharge;
 
   const handleAddAddress = async () => {

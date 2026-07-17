@@ -186,4 +186,9 @@ BLACKSMS_SENDER_ID = config('BLACKSMS_SENDER_ID', default='')
 BLACKSMS_DLT_TEMPLATE_ID = config('BLACKSMS_DLT_TEMPLATE_ID', default='')
 GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
 
+# When True, allows the test OTP code '123456' to bypass real OTP verification.
+# Decoupled from DEBUG so production can never accidentally enable it (P1-4 fix).
+# Set ALLOW_TEST_OTP=true in .env for local development only.
+ALLOW_TEST_OTP = config('ALLOW_TEST_OTP', default=False, cast=bool)
+
 

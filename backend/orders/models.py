@@ -27,7 +27,7 @@ class Order(models.Model):
     longitude = models.FloatField(null=True, blank=True)
 
 
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='placed')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='placed', db_index=True)
     payment_method = models.CharField(max_length=20, default='cod')
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -35,7 +35,7 @@ class Order(models.Model):
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     coupon_code = models.CharField(max_length=50, blank=True)
     notes = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -61,3 +61,4 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f'{self.product_name} ×{self.quantity}'
+    

@@ -1,13 +1,21 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, X, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import toast from 'react-hot-toast';
+import api from '../../api/axios';
 
 export default function CartDrawer() {
   const { cart, isOpen, closeCart, updateItem, removeItem, loading } = useCartStore();
   const navigate = useNavigate();
   const drawerRef = useRef(null);
+
+  // Delivery config fetched from backend (P1-1: single source of truth)
+  const [deliveryConfig, setDeliveryConfig] = useState({ free_delivery_above: 199, delivery_charge: 20 });
+
+  useEffect(() => {
+    api.get('/orders/delivery-settings/').then(r => setDeliveryConfig(r.data)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const handleKey = (e) => { if (e.key === 'Escape') closeCart(); };
@@ -19,7 +27,7 @@ export default function CartDrawer() {
 
   const items = cart?.items || [];
   const total = parseFloat(cart?.total || 0);
-  const deliveryCharge = total >= 199 ? 0 : 20;
+  const deliveryCharge = total >= deliveryConfig.free_delivery_above ? 0 : deliveryConfig.delivery_charge;
   const finalTotal = total + deliveryCharge;
 
   const handleCheckout = () => {

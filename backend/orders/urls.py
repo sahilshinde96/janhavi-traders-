@@ -9,4 +9,5 @@ urlpatterns = [
     path('admin/<int:pk>/status/', views.UpdateOrderStatusView.as_view(), name='update-status'),
     path('<int:pk>/', views.OrderDetailView.as_view(), name='order-detail'),
     path('<int:pk>/cancel/', views.CancelOrderView.as_view(), name='cancel-order'),
+    path('delivery-settings/', views.DeliverySettingsView.as_view(), name='delivery-settings'),
 ]

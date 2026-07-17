@@ -12,12 +12,18 @@ export default function Cart() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
 
-  useEffect(() => { fetchCart(); }, []);
+  // Delivery config fetched from backend (P1-1: single source of truth)
+  const [deliveryConfig, setDeliveryConfig] = useState({ free_delivery_above: 199, delivery_charge: 20 });
+
+  useEffect(() => {
+    fetchCart();
+    api.get('/orders/delivery-settings/').then(r => setDeliveryConfig(r.data)).catch(() => {});
+  }, []);
 
   const items = cart?.items || [];
   const subtotal = parseFloat(cart?.total || 0);
   const discount = appliedCoupon ? parseFloat(appliedCoupon.discount_amount) : 0;
-  const deliveryCharge = subtotal >= 199 ? 0 : 20;
+  const deliveryCharge = subtotal >= deliveryConfig.free_delivery_above ? 0 : deliveryConfig.delivery_charge;
   const total = subtotal - discount + deliveryCharge;
 
   const handleApplyCoupon = async () => {

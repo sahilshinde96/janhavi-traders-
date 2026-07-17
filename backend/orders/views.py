@@ -1,3 +1,6 @@
+
+
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions, generics
@@ -83,6 +86,9 @@ class PlaceOrderView(APIView):
                 coupon = Coupon.objects.get(code=coupon_code)
                 valid, msg = coupon.is_valid()
                 if valid:
+                    # Enforce per-user coupon usage limit — each user can only use a coupon once (BUG-04 fix).
+                    if CouponUsage.objects.filter(coupon=coupon, user=request.user).exists():
+                        return Response({'error': 'You have already used this coupon.'}, status=400)
                     discount = coupon.calculate_discount(subtotal)
             except Coupon.DoesNotExist:
                 pass  # Silent – coupon already validated on frontend
@@ -248,6 +254,20 @@ class AdminDashboardView(APIView):
         })
 
 
+class DeliverySettingsView(APIView):
+    """Public endpoint that serves delivery charge configuration.
+    This ensures frontend reads from a single source of truth instead of
+    hardcoding delivery thresholds and charges in multiple files (P1-1 fix).
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        return Response({
+            'free_delivery_above': float(FREE_DELIVERY_ABOVE),
+            'delivery_charge': float(DELIVERY_CHARGE),
+        })
+
+
 class CancelOrderView(APIView):
     def post(self, request, pk):
         try:
@@ -266,8 +286,12 @@ class CancelOrderView(APIView):
             
             for item in order.items.select_related('product').all():
                 if item.product:
-                    item.product.stock_qty += item.quantity
-                    item.product.save(update_fields=['stock_qty'])
+                    # Use atomic F() expression for stock restoration to prevent race conditions,
+                    # matching the pattern used in PlaceOrderView for stock decrement (BUG-01 fix).
+                    from products.models import Product
+                    Product.objects.filter(pk=item.product.pk).update(
+                        stock_qty=F('stock_qty') + item.quantity
+                    )
                     
         return Response(OrderSerializer(order).data)
 

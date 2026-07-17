@@ -219,8 +219,9 @@ class VerifyOTPView(APIView):
         if otp_type == 'phone':
             identifier = normalize_phone(identifier)
 
-        # Development test backdoor
-        is_backdoor = (code == "123456" and settings.DEBUG)
+        # Development test backdoor — gated behind dedicated ALLOW_TEST_OTP setting
+        # instead of DEBUG to prevent accidental exposure in production (P1-4 fix).
+        is_backdoor = (code == "123456" and getattr(settings, 'ALLOW_TEST_OTP', False))
 
         if not is_backdoor:
             # Find latest valid OTP

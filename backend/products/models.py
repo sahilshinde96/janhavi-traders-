@@ -44,8 +44,8 @@ class Product(models.Model):
     stock_qty = models.IntegerField(default=0)
     sku = models.CharField(max_length=100, unique=True, blank=True)
     net_quantity = models.CharField(max_length=50, blank=True, null=True)
-    is_active = models.BooleanField(default=True)
-    is_featured = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True, db_index=True)
+    is_featured = models.BooleanField(default=False, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

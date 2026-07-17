@@ -2,11 +2,16 @@ from rest_framework import generics, permissions, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 from .models import Category, Product, BrandBanner, HeroBanner
 from .serializers import CategorySerializer, ProductListSerializer, ProductDetailSerializer, BrandBannerSerializer, HeroBannerSerializer
 
 
+# Cache public GET responses for 5 minutes to reduce DB load (P2-8 fix).
+# POST/PATCH/DELETE bypass caching since cache_page only applies to GET.
+@method_decorator(cache_page(300), name='list')
 class CategoryListView(generics.ListCreateAPIView):
     serializer_class = CategorySerializer
     filter_backends = [filters.SearchFilter]
@@ -102,6 +107,7 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
         return [permissions.AllowAny()]
 
 
+@method_decorator(cache_page(300), name='list')
 class FeaturedProductsView(generics.ListAPIView):
     serializer_class = ProductListSerializer
     permission_classes = [permissions.AllowAny]
@@ -114,6 +120,7 @@ class FeaturedProductsView(generics.ListAPIView):
         )
 
 
+@method_decorator(cache_page(300), name='list')
 class NewArrivalsView(generics.ListAPIView):
     serializer_class = ProductListSerializer
     permission_classes = [permissions.AllowAny]
@@ -135,6 +142,7 @@ class LowStockView(generics.ListAPIView):
         return Product.objects.filter(stock_qty__lte=10).prefetch_related('images')
 
 
+@method_decorator(cache_page(300), name='list')
 class BrandBannerListView(generics.ListCreateAPIView):
     serializer_class = BrandBannerSerializer
 
@@ -170,6 +178,7 @@ class BrandBannerDetailView(generics.RetrieveUpdateDestroyAPIView):
         return [permissions.AllowAny()]
 
 
+@method_decorator(cache_page(300), name='list')
 class HeroBannerListView(generics.ListCreateAPIView):
     serializer_class = HeroBannerSerializer
 
