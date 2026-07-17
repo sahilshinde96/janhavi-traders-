@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { useAuthStore } from './store/authStore';
 import { Component } from 'react';
 import Navbar from './components/layout/Navbar';
@@ -119,6 +120,7 @@ export default function App() {
         }}
       />
       <Analytics />
+      <SpeedInsights />
       {/* Wrap all application routes inside the ErrorBoundary so that any page render crash */}
       {/* shows the user-friendly fallback screen instead of failing entirely (BUG-13 fix). */}
       <ErrorBoundary>
