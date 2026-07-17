@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './store/authStore';
 import { Component } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import CartDrawer from './components/cart/CartDrawer';
@@ -117,6 +118,7 @@ export default function App() {
           success: { iconTheme: { primary: '#f48993', secondary: '#fff' } },
         }}
       />
+      <SpeedInsights />
       {/* Wrap all application routes inside the ErrorBoundary so that any page render crash */}
       {/* shows the user-friendly fallback screen instead of failing entirely (BUG-13 fix). */}
       <ErrorBoundary>
