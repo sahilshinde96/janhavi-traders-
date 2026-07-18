@@ -1,12 +1,12 @@
-from rest_framework import generics, permissions, filters
+from rest_framework import generics, permissions, filters, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
-from .models import Category, Product, BrandBanner, HeroBanner
-from .serializers import CategorySerializer, ProductListSerializer, ProductDetailSerializer, BrandBannerSerializer, HeroBannerSerializer
+from .models import Category, Product, BrandBanner, HeroBanner, Wishlist
+from .serializers import CategorySerializer, ProductListSerializer, ProductDetailSerializer, BrandBannerSerializer, HeroBannerSerializer, WishlistSerializer
 
 
 # Cache public GET responses for 5 minutes to reduce DB load (P2-8 fix).
@@ -225,3 +225,58 @@ class HeroBannerDetailView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ['PUT', 'PATCH', 'DELETE']:
             return [permissions.IsAdminUser()]
         return [permissions.AllowAny()]
+
+
+class WishlistView(generics.ListCreateAPIView):
+    """GET: list user's wishlist. POST: add product by {product_id}."""
+    serializer_class = WishlistSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Wishlist.objects.filter(user=self.request.user).select_related(
+            'product', 'product__category'
+        ).prefetch_related('product__images')
+
+    def create(self, request, *args, **kwargs):
+        product_id = request.data.get('product_id')
+        if not product_id:
+            return Response({'error': 'product_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+        obj, created = Wishlist.objects.get_or_create(user=request.user, product=product)
+        if not created:
+            return Response({'message': 'Already in wishlist'}, status=status.HTTP_200_OK)
+        serializer = self.get_serializer(obj)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class WishlistDetailView(APIView):
+    """DELETE: remove a product from wishlist by product ID."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, product_id):
+        deleted, _ = Wishlist.objects.filter(user=request.user, product_id=product_id).delete()
+        if deleted:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'error': 'Not in wishlist'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class WishlistCheckView(APIView):
+    """GET: check which product IDs from ?ids=1,2,3 are in the user's wishlist."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        ids_param = request.query_params.get('ids', '')
+        if not ids_param:
+            return Response([])
+        try:
+            product_ids = [int(x) for x in ids_param.split(',') if x.strip()]
+        except ValueError:
+            return Response({'error': 'Invalid IDs'}, status=status.HTTP_400_BAD_REQUEST)
+        wishlisted = set(
+            Wishlist.objects.filter(user=request.user, product_id__in=product_ids)
+            .values_list('product_id', flat=True)
+        )
+        return Response(list(wishlisted))

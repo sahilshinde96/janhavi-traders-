@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingCart, ChevronLeft, Plus, Minus } from 'lucide-react';
+import { ShoppingCart, ChevronLeft, Plus, Minus, Heart, Share2, Link2, Check } from 'lucide-react';
 import api from '../api/axios';
 import { useCartStore } from '../store/cartStore';
 import { useAuthStore } from '../store/authStore';
+import { useWishlistStore } from '../store/wishlistStore';
 import ProductGrid from '../components/product/ProductGrid';
 import toast from 'react-hot-toast';
 
@@ -15,6 +16,7 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { addToCart, loading: cartLoading } = useCartStore();
   const { isAuthenticated } = useAuthStore();
+  const { isWishlisted, toggleWishlist } = useWishlistStore();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,6 +24,8 @@ export default function ProductDetail() {
   const [qty, setQty] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
   const [related, setRelated] = useState([]);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -62,6 +66,65 @@ export default function ProductDetail() {
     else toast.error(r.error || 'Failed to add to cart');
   };
 
+  const handleWishlist = async () => {
+    if (!isAuthenticated) { toast.error('Please login first'); navigate('/login'); return; }
+    const result = await toggleWishlist(product.id);
+    if (result.added) {
+      toast.success('Added to wishlist ♡');
+    } else {
+      toast('Removed from wishlist', { icon: '💔' });
+    }
+  };
+
+  const handleShare = async () => {
+    const shareUrl = window.location.href;
+    const shareData = {
+      title: product.name,
+      text: `Check out ${product.name} on BLUSHH — ₹${parseFloat(product.offer_price).toFixed(0)}`,
+      url: shareUrl,
+    };
+
+    // Try native Web Share API (works on mobile)
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err) {
+        // User cancelled — do nothing
+        if (err.name === 'AbortError') return;
+      }
+    }
+
+    // Fallback: show share options
+    setShareOpen(!shareOpen);
+  };
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      toast.success('Link copied to clipboard!');
+      setTimeout(() => { setCopied(false); setShareOpen(false); }, 1500);
+    } catch {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = window.location.href;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      toast.success('Link copied to clipboard!');
+      setTimeout(() => { setCopied(false); setShareOpen(false); }, 1500);
+    }
+  };
+
+  const shareToWhatsApp = () => {
+    const text = `Check out ${product.name} on BLUSHH — ₹${parseFloat(product.offer_price).toFixed(0)}\n${window.location.href}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    setShareOpen(false);
+  };
+
   if (loading) return (
     <div className="container page-container-sm">
       <div className="product-detail-grid">
@@ -81,6 +144,7 @@ export default function ProductDetail() {
   const currentImage = images[selectedImage]?.image_url || product.primary_image;
   const discountPct = product.discount_percent || 0;
   const inStock = product.stock_qty > 0;
+  const wishlisted = isWishlisted(product.id);
 
   return (
     <div style={{ background: 'white', minHeight: '100vh' }}>
@@ -185,6 +249,38 @@ export default function ProductDetail() {
               <ShoppingCart size={20} />
               {inStock ? 'Add to Cart' : 'Out of Stock'}
             </button>
+
+            {/* Wishlist + Share row */}
+            <div className="detail-action-row">
+              <button
+                className={`detail-action-btn${wishlisted ? ' detail-action-btn--active' : ''}`}
+                onClick={handleWishlist}
+              >
+                <Heart size={18} fill={wishlisted ? 'var(--color-primary)' : 'none'} />
+                {wishlisted ? 'Wishlisted' : 'Add to Wishlist'}
+              </button>
+
+              <div style={{ position: 'relative' }}>
+                <button className="detail-action-btn" onClick={handleShare}>
+                  <Share2 size={18} />
+                  Share
+                </button>
+
+                {/* Share dropdown (desktop fallback) */}
+                {shareOpen && (
+                  <div className="share-dropdown">
+                    <button className="share-dropdown-item" onClick={copyLink}>
+                      {copied ? <Check size={16} /> : <Link2 size={16} />}
+                      {copied ? 'Copied!' : 'Copy link'}
+                    </button>
+                    <button className="share-dropdown-item" onClick={shareToWhatsApp}>
+                      <span style={{ fontSize: '1rem' }}>💬</span>
+                      WhatsApp
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* Delivery info */}
             <div className="delivery-info-box">

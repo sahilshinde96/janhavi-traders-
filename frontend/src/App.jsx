@@ -23,6 +23,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import ReturnPolicy from './pages/ReturnPolicy';
 import TermsOfService from './pages/TermsOfService';
 import ContactUs from './pages/ContactUs';
+import Wishlist from './pages/Wishlist';
 
 // Lazy-load admin pages so they are only downloaded when an admin visits /admin.
 // This keeps the initial customer-facing bundle ~100KB+ smaller (P2-9 fix).
@@ -167,6 +168,7 @@ export default function App() {
         <Route path="/orders" element={<ProtectedRoute><Layout><MyOrders /></Layout></ProtectedRoute>} />
         <Route path="/orders/:id" element={<ProtectedRoute><Layout><OrderDetail /></Layout></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>} />
+        <Route path="/wishlist" element={<ProtectedRoute><Layout><Wishlist /></Layout></ProtectedRoute>} />
         <Route path="/privacy-policy" element={<Layout><PrivacyPolicy /></Layout>} />
         <Route path="/returns-policy" element={<Layout><ReturnPolicy /></Layout>} />
         <Route path="/terms-of-service" element={<Layout><TermsOfService /></Layout>} />

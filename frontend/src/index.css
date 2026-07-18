@@ -702,6 +702,173 @@ input, select, textarea { font-family: inherit; }
   .product-wishlist-btn { opacity: 1; }
 }
 
+/* Wishlisted active state */
+.product-wishlist-btn.wishlisted {
+  color: var(--color-primary);
+  opacity: 1;
+  background: var(--color-secondary);
+}
+.product-wishlist-btn.wishlisted:hover {
+  transform: scale(1.15);
+}
+
+/* Product detail — wishlist + share action row */
+.detail-action-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.detail-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: white;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-medium);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.detail-action-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-secondary);
+}
+.detail-action-btn--active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-secondary);
+}
+
+/* Share dropdown */
+.share-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  min-width: 180px;
+  z-index: 50;
+  overflow: hidden;
+  animation: fadeSlideDown 0.18s ease;
+}
+.share-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-dark);
+  transition: background var(--transition);
+}
+.share-dropdown-item:hover {
+  background: var(--color-secondary);
+}
+
+@keyframes fadeSlideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===================== WISHLIST PAGE ===================== */
+.wishlist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  padding-top: 8px;
+}
+.wishlist-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.wishlist-count {
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+  margin-top: 4px;
+}
+.wishlist-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 20px;
+  min-height: 40vh;
+}
+.wishlist-empty-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-secondary) 0%, #ffe0e4 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  color: var(--color-primary);
+  animation: gentlePulse 3s ease infinite;
+}
+@keyframes gentlePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+.wishlist-empty-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--color-text-dark);
+}
+.wishlist-empty-desc {
+  color: var(--color-text-medium);
+  font-size: 0.95rem;
+  max-width: 360px;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+.wishlist-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+/* Navbar wishlist badge */
+.wishlist-badge {
+  background: var(--color-primary) !important;
+}
+
+/* Mobile wishlist count pill */
+.mobile-wishlist-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
 /* ===================== CART DRAWER ===================== */
 .cart-drawer-overlay {
   position: fixed;

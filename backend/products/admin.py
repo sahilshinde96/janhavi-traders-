@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, ProductImage, BrandBanner, HeroBanner
+from .models import Category, Product, ProductImage, BrandBanner, HeroBanner, Wishlist
 
 
 class ProductImageInline(admin.TabularInline):
@@ -39,3 +39,11 @@ class HeroBannerAdmin(admin.ModelAdmin):
     list_display = ['title', 'sort_order', 'created_at']
     list_editable = ['sort_order']
     search_fields = ['title', 'subtitle']
+
+
+@admin.register(Wishlist)
+class WishlistAdmin(admin.ModelAdmin):
+    list_display = ['user', 'product', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['user__email', 'product__name']
+    raw_id_fields = ['user', 'product']

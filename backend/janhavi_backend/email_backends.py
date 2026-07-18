@@ -80,9 +80,9 @@ class HTTPSEmailBackend(BaseEmailBackend):
                 )
                 if status in (200, 201):
                     sent = True
-                    print(f"[EMAIL] [Resend] Sent successfully. ID: {data.get('id')}")
+                    logger.info(f"[EMAIL] [Resend] Sent successfully. ID: {data.get('id')}")
                 else:
-                    print(f"[EMAIL] [Resend] Failed: {data.get('error')}")
+                    logger.error(f"[EMAIL] [Resend] Failed: {data.get('error')}")
 
             # 2. Brevo implementation
             elif brevo_api_key:
@@ -113,9 +113,9 @@ class HTTPSEmailBackend(BaseEmailBackend):
                 )
                 if status in (200, 201):
                     sent = True
-                    print(f"[EMAIL] [Brevo] Sent successfully. ID: {data.get('messageId')}")
+                    logger.info(f"[EMAIL] [Brevo] Sent successfully. ID: {data.get('messageId')}")
                 else:
-                    print(f"[EMAIL] [Brevo] Failed: {data.get('error')}")
+                    logger.error(f"[EMAIL] [Brevo] Failed: {data.get('error')}")
 
             if sent:
                 num_sent += 1

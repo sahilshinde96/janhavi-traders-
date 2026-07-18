@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useCartStore } from './cartStore';
+import { useWishlistStore } from './wishlistStore';
 
 export const useAuthStore = create(
   persist(
@@ -17,6 +18,7 @@ export const useAuthStore = create(
         localStorage.removeItem('refresh_token');
         set({ user: null, isAuthenticated: false });
         useCartStore.setState({ cart: null });
+        useWishlistStore.getState().clearWishlist();
       },
       updateUser: (user) => set({ user }),
     }),

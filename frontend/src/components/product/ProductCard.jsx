@@ -2,12 +2,16 @@ import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Heart } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
+import { useWishlistStore } from '../../store/wishlistStore';
 import toast from 'react-hot-toast';
 
 export default function ProductCard({ product, isMerged = false }) {
   const navigate = useNavigate();
   const { addToCart, loading } = useCartStore();
   const { isAuthenticated } = useAuthStore();
+  const { isWishlisted, toggleWishlist } = useWishlistStore();
+
+  const wishlisted = isWishlisted(product.id);
 
   const handleAddToCart = async (e) => {
     e.stopPropagation();
@@ -21,6 +25,21 @@ export default function ProductCard({ product, isMerged = false }) {
       toast.success(`${product.name} added to cart!`);
     } else {
       toast.error(result.error || 'Failed to add to cart');
+    }
+  };
+
+  const handleWishlist = async (e) => {
+    e.stopPropagation();
+    if (!isAuthenticated) {
+      toast.error('Please login to use wishlist');
+      navigate('/login');
+      return;
+    }
+    const result = await toggleWishlist(product.id);
+    if (result.added) {
+      toast.success('Added to wishlist ♡');
+    } else {
+      toast('Removed from wishlist', { icon: '💔' });
     }
   };
 
@@ -81,6 +100,15 @@ export default function ProductCard({ product, isMerged = false }) {
             {product.category_name}
           </div>
         )}
+
+        {/* Wishlist button */}
+        <button
+          className={`product-wishlist-btn${wishlisted ? ' wishlisted' : ''}`}
+          onClick={handleWishlist}
+          title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+        >
+          <Heart size={16} fill={wishlisted ? 'var(--color-primary)' : 'none'} />
+        </button>
 
         {/* Out of stock overlay */}
         {isOutOfStock && (

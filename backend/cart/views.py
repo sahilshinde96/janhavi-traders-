@@ -8,6 +8,8 @@ from .serializers import CartSerializer
 class CartView(APIView):
     def get(self, request):
         cart, _ = Cart.objects.get_or_create(user=request.user)
+        # Prefetch items with their products and images to avoid N+1 queries (BUG-06 fix)
+        cart = Cart.objects.prefetch_related('items__product__images', 'items__product__category').get(pk=cart.pk)
         return Response(CartSerializer(cart).data)
 
     def delete(self, request):

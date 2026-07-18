@@ -12,5 +12,8 @@ urlpatterns = [
     path('brand-banners/<int:pk>/', views.BrandBannerDetailView.as_view(), name='brand-banner-detail'),
     path('hero-banners/', views.HeroBannerListView.as_view(), name='hero-banners'),
     path('hero-banners/<int:pk>/', views.HeroBannerDetailView.as_view(), name='hero-banner-detail'),
+    path('wishlist/', views.WishlistView.as_view(), name='wishlist'),
+    path('wishlist/check/', views.WishlistCheckView.as_view(), name='wishlist-check'),
+    path('wishlist/<int:product_id>/', views.WishlistDetailView.as_view(), name='wishlist-detail'),
     path('<slug:slug>/', views.ProductDetailView.as_view(), name='product-detail'),
 ]

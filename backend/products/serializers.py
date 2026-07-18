@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Product, ProductImage, BrandBanner, HeroBanner
+from .models import Category, Product, ProductImage, BrandBanner, HeroBanner, Wishlist
 
 
 
@@ -95,4 +95,13 @@ class HeroBannerSerializer(serializers.ModelSerializer):
     class Meta:
         model = HeroBanner
         fields = ['id', 'title', 'subtitle', 'image_url', 'link_url', 'button_text', 'sort_order', 'is_deal_of_the_day', 'created_at']
+        read_only_fields = ['created_at']
+
+
+class WishlistSerializer(serializers.ModelSerializer):
+    product = ProductListSerializer(read_only=True)
+
+    class Meta:
+        model = Wishlist
+        fields = ['id', 'product', 'created_at']
         read_only_fields = ['created_at']

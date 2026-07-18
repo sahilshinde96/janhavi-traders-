@@ -2,10 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   ShoppingBag, User, Search, Menu, X, ChevronDown,
-  Home, Package, Tag, LogOut, Settings
+  Home, Package, Tag, LogOut, Settings, Heart
 } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
+import { useWishlistStore } from '../../store/wishlistStore';
 import { useUiStore } from '../../store/uiStore';
 import api from '../../api/axios';
 import logo from '../../assets/logo.png';
@@ -23,6 +24,7 @@ export default function Navbar() {
   const { cart, toggleCart } = useCartStore();
   const { isAuthenticated, user, logout } = useAuthStore();
   const { mobileMenuOpen, openMobileMenu, closeMobileMenu } = useUiStore();
+  const { wishlistedIds, fetchWishlist, fetched: wishlistFetched } = useWishlistStore();
   const [catDropdown, setCatDropdown] = useState(false);
   const [accountDropdown, setAccountDropdown] = useState(false);
   const [searchVal, setSearchVal] = useState('');
@@ -33,6 +35,7 @@ export default function Navbar() {
   const catRef = useRef(null);
   const accRef = useRef(null);
   const itemCount = cart?.item_count || 0;
+  const wishlistCount = wishlistedIds.size;
 
   // Fetch categories dynamically from the Django backend API instead of using hardcoded links.
   // This ensures categories are kept in sync with the database dashboard updates.
@@ -45,6 +48,13 @@ export default function Navbar() {
       // so the store remains browseable.
     });
   }, []);
+
+  // Auto-fetch wishlist when user is authenticated
+  useEffect(() => {
+    if (isAuthenticated && !wishlistFetched) {
+      fetchWishlist();
+    }
+  }, [isAuthenticated, wishlistFetched]);
 
 
   // Close dropdowns on outside click
@@ -141,6 +151,12 @@ export default function Navbar() {
               </button>
             )}
 
+            {/* Wishlist */}
+            <button className="navbar-icon-btn" onClick={() => navigate('/wishlist')} title="Wishlist">
+              <Heart size={20} />
+              {wishlistCount > 0 && <span className="cart-badge wishlist-badge">{wishlistCount}</span>}
+            </button>
+
             {/* Cart */}
             <button className="navbar-icon-btn" onClick={toggleCart} title="Cart">
               <ShoppingBag size={20} />
@@ -212,6 +228,11 @@ export default function Navbar() {
             <button className="mobile-menu-link" onClick={() => { navigate('/products'); closeMobileMenu(); }}>
               <Package size={18} /> All Products
             </button>
+            {isAuthenticated && (
+              <button className="mobile-menu-link" onClick={() => { navigate('/wishlist'); closeMobileMenu(); }}>
+                <Heart size={18} /> Wishlist {wishlistCount > 0 && <span className="mobile-wishlist-count">{wishlistCount}</span>}
+              </button>
+            )}
             <div style={{ padding: '8px 16px 4px', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--color-text-light)' }}>
               Shop by Categories
             </div>
