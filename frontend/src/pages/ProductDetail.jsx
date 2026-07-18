@@ -250,37 +250,37 @@ export default function ProductDetail() {
               {inStock ? 'Add to Cart' : 'Out of Stock'}
             </button>
 
-            {/* Wishlist + Share row */}
-            <div className="detail-action-row">
-              <button
-                className={`detail-action-btn${wishlisted ? ' detail-action-btn--active' : ''}`}
-                onClick={handleWishlist}
-              >
-                <Heart size={18} fill={wishlisted ? 'var(--color-primary)' : 'none'} />
-                {wishlisted ? 'Wishlisted' : 'Add to Wishlist'}
+            {/* Share button (above wishlist) */}
+            <div style={{ position: 'relative', marginBottom: 12 }}>
+              <button className="detail-action-btn" onClick={handleShare} style={{ width: '100%', justifyContent: 'center' }}>
+                <Share2 size={18} />
+                Share Product
               </button>
 
-              <div style={{ position: 'relative' }}>
-                <button className="detail-action-btn" onClick={handleShare}>
-                  <Share2 size={18} />
-                  Share
-                </button>
-
-                {/* Share dropdown (desktop fallback) */}
-                {shareOpen && (
-                  <div className="share-dropdown">
-                    <button className="share-dropdown-item" onClick={copyLink}>
-                      {copied ? <Check size={16} /> : <Link2 size={16} />}
-                      {copied ? 'Copied!' : 'Copy link'}
-                    </button>
-                    <button className="share-dropdown-item" onClick={shareToWhatsApp}>
-                      <span style={{ fontSize: '1rem' }}>💬</span>
-                      WhatsApp
-                    </button>
-                  </div>
-                )}
-              </div>
+              {/* Share dropdown (desktop fallback) */}
+              {shareOpen && (
+                <div className="share-dropdown" style={{ left: 0, right: 0, width: '100%' }}>
+                  <button className="share-dropdown-item" onClick={copyLink}>
+                    {copied ? <Check size={16} /> : <Link2 size={16} />}
+                    {copied ? 'Copied!' : 'Copy link'}
+                  </button>
+                  <button className="share-dropdown-item" onClick={shareToWhatsApp}>
+                    <span style={{ fontSize: '1rem' }}>💬</span>
+                    WhatsApp
+                  </button>
+                </div>
+              )}
             </div>
+
+            {/* Wishlist button */}
+            <button
+              className={`detail-action-btn${wishlisted ? ' detail-action-btn--active' : ''}`}
+              onClick={handleWishlist}
+              style={{ width: '100%', justifyContent: 'center', marginBottom: 24 }}
+            >
+              <Heart size={18} fill={wishlisted ? 'var(--color-primary)' : 'none'} />
+              {wishlisted ? 'Wishlisted' : 'Add to Wishlist'}
+            </button>
 
             {/* Delivery info */}
             <div className="delivery-info-box">
