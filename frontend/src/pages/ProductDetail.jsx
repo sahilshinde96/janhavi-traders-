@@ -250,8 +250,18 @@ export default function ProductDetail() {
               {inStock ? 'Add to Cart' : 'Out of Stock'}
             </button>
 
-            {/* Share button (above wishlist) */}
-            <div style={{ position: 'relative', marginBottom: 12 }}>
+            {/* Wishlist button */}
+            <button
+              className={`detail-action-btn${wishlisted ? ' detail-action-btn--active' : ''}`}
+              onClick={handleWishlist}
+              style={{ width: '100%', justifyContent: 'center', marginBottom: 12 }}
+            >
+              <Heart size={18} fill={wishlisted ? 'var(--color-primary)' : 'none'} />
+              {wishlisted ? 'Wishlisted' : 'Add to Wishlist'}
+            </button>
+
+            {/* Share button */}
+            <div style={{ position: 'relative', marginBottom: 24 }}>
               <button className="detail-action-btn" onClick={handleShare} style={{ width: '100%', justifyContent: 'center' }}>
                 <Share2 size={18} />
                 Share Product
@@ -271,16 +281,6 @@ export default function ProductDetail() {
                 </div>
               )}
             </div>
-
-            {/* Wishlist button */}
-            <button
-              className={`detail-action-btn${wishlisted ? ' detail-action-btn--active' : ''}`}
-              onClick={handleWishlist}
-              style={{ width: '100%', justifyContent: 'center', marginBottom: 24 }}
-            >
-              <Heart size={18} fill={wishlisted ? 'var(--color-primary)' : 'none'} />
-              {wishlisted ? 'Wishlisted' : 'Add to Wishlist'}
-            </button>
 
             {/* Delivery info */}
             <div className="delivery-info-box">
