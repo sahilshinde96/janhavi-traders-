@@ -629,7 +629,7 @@ input, select, textarea { font-family: inherit; }
 }
 .product-wishlist-btn {
   position: absolute;
-  bottom: 10px;
+  top: 10px;
   right: 10px;
   width: 34px; height: 34px;
   background: white;
@@ -643,6 +643,7 @@ input, select, textarea { font-family: inherit; }
   transition: all var(--transition);
   color: var(--color-text-light);
   opacity: 0;
+  z-index: 10;
 }
 .product-card:hover .product-wishlist-btn { opacity: 1; }
 .product-wishlist-btn:hover { color: var(--color-primary); transform: scale(1.1); }

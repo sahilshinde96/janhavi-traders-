@@ -78,28 +78,30 @@ export default function ProductCard({ product, isMerged = false }) {
           </div>
         )}
 
-        {/* Discount badge */}
-        {discountPct > 0 && (
-          <div style={{
-            position: 'absolute', top: 10, right: 10,
-            background: 'var(--color-error)', color: 'white',
-            padding: '3px 8px', borderRadius: 4, fontSize: '0.7rem', fontWeight: 700,
-          }}>
-            -{discountPct}%
-          </div>
-        )}
-
-        {/* Category badge */}
-        {product.category_name && (
-          <div style={{
-            position: 'absolute', top: 10, left: 10,
-            background: 'rgba(255,255,255,0.9)', color: 'var(--color-text-medium)',
-            padding: '3px 8px', borderRadius: 4, fontSize: '0.65rem', fontWeight: 600,
-            backdropFilter: 'blur(4px)',
-          }}>
-            {product.category_name}
-          </div>
-        )}
+        {/* Badges on top-left */}
+        <div style={{
+          position: 'absolute', top: 10, left: 10,
+          display: 'flex', gap: 6, flexDirection: 'column',
+          alignItems: 'flex-start', zIndex: 10
+        }}>
+          {product.category_name && (
+            <div style={{
+              background: 'rgba(255,255,255,0.9)', color: 'var(--color-text-medium)',
+              padding: '3px 8px', borderRadius: 4, fontSize: '0.65rem', fontWeight: 600,
+              backdropFilter: 'blur(4px)',
+            }}>
+              {product.category_name}
+            </div>
+          )}
+          {discountPct > 0 && (
+            <div style={{
+              background: 'var(--color-error)', color: 'white',
+              padding: '3px 8px', borderRadius: 4, fontSize: '0.7rem', fontWeight: 700,
+            }}>
+              -{discountPct}%
+            </div>
+          )}
+        </div>
 
         {/* Wishlist button */}
         <button
