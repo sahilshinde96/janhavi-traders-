@@ -647,6 +647,27 @@ input, select, textarea { font-family: inherit; }
 }
 .product-card:hover .product-wishlist-btn { opacity: 1; }
 .product-wishlist-btn:hover { color: var(--color-primary); transform: scale(1.1); }
+
+.product-share-btn {
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  width: 34px; height: 34px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+  color: var(--color-text-light);
+  opacity: 0;
+  z-index: 10;
+}
+.product-card:hover .product-share-btn { opacity: 1; }
+.product-share-btn:hover { color: var(--color-primary); transform: scale(1.1); }
 .out-of-stock-overlay {
   position: absolute;
   inset: 0;
@@ -701,6 +722,7 @@ input, select, textarea { font-family: inherit; }
 @media (max-width: 640px) {
   .product-add-btn { opacity: 1; transform: none; }
   .product-wishlist-btn { opacity: 1; }
+  .product-share-btn { opacity: 1; }
 }
 
 /* Wishlisted active state */

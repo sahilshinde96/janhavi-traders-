@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart } from 'lucide-react';
+import { ShoppingCart, Heart, Share2 } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
 import { useWishlistStore } from '../../store/wishlistStore';
@@ -40,6 +40,38 @@ export default function ProductCard({ product, isMerged = false }) {
       toast.success('Added to wishlist ♡');
     } else {
       toast('Removed from wishlist', { icon: '💔' });
+    }
+  };
+
+  const handleShare = async (e) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/products/${product.slug}`;
+    const shareData = {
+      title: product.name,
+      text: `Check out ${product.name} on BLUSHH — ₹${parseFloat(product.offer_price).toFixed(0)}`,
+      url: shareUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success('Link copied to clipboard!');
+    } catch {
+      const textArea = document.createElement('textarea');
+      textArea.value = shareUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      toast.success('Link copied to clipboard!');
     }
   };
 
@@ -110,6 +142,15 @@ export default function ProductCard({ product, isMerged = false }) {
           title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >
           <Heart size={16} fill={wishlisted ? 'var(--color-primary)' : 'none'} />
+        </button>
+
+        {/* Share button */}
+        <button
+          className="product-share-btn"
+          onClick={handleShare}
+          title="Share product"
+        >
+          <Share2 size={16} />
         </button>
 
         {/* Out of stock overlay */}
