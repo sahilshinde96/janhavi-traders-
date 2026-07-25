@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Edit2, ExternalLink } from 'lucide-react';
+import { Edit2, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '../api/axios';
 import ProductGrid from '../components/product/ProductGrid';
 import { useAuthStore } from '../store/authStore';
@@ -31,6 +31,11 @@ export default function Home() {
   const [loadingHeroBanners, setLoadingHeroBanners] = useState(true);
   
   const [activeSlide, setActiveSlide] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Touch gesture state for mobile swiping
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
 
   // Modal Editor state for Brand Banners
   const [showModal, setShowModal] = useState(false);
@@ -54,7 +59,8 @@ export default function Home() {
     link_url: '',
     button_text: 'Shop Now',
     sort_order: 1,
-    is_deal_of_the_day: false
+    is_deal_of_the_day: false,
+    is_active: true
   });
 
   const fetchBanners = () => {
@@ -90,19 +96,30 @@ export default function Home() {
     fetchHeroBanners();
   }, []);
 
+  // Preload slide images in background to avoid visual flicker during transitions
+  useEffect(() => {
+    if (heroBanners && heroBanners.length > 0) {
+      heroBanners.forEach(banner => {
+        if (banner.image_url) {
+          const img = new Image();
+          img.src = banner.image_url;
+        }
+      });
+    }
+  }, [heroBanners]);
+
   const displaySlides = heroBanners;
   const totalSlides = displaySlides.length;
 
   useEffect(() => {
-    if (totalSlides <= 0) {
-      if (activeSlide !== 0) setActiveSlide(0);
+    if (totalSlides <= 0 || isHovered) {
+      if (totalSlides <= 0 && activeSlide !== 0) setActiveSlide(0);
       return;
     }
 
     if (isNaN(activeSlide) || activeSlide >= totalSlides || activeSlide < 0) {
       setActiveSlide(0);
       return;
-      
     }
 
     const interval = setInterval(() => {
@@ -115,7 +132,36 @@ export default function Home() {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [totalSlides, activeSlide]);
+  }, [totalSlides, activeSlide, isHovered]);
+
+  const handlePrevSlide = (e) => {
+    if (e) e.stopPropagation();
+    setActiveSlide(current => (current - 1 + totalSlides) % totalSlides);
+  };
+
+  const handleNextSlide = (e) => {
+    if (e) e.stopPropagation();
+    setActiveSlide(current => (current + 1) % totalSlides);
+  };
+
+  const handleTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    if (distance > 50) {
+      handleNextSlide();
+    } else if (distance < -50) {
+      handlePrevSlide();
+    }
+  };
 
   // Modal handlers for Brand Banners
   const handleOpenEdit = (banner) => {
@@ -276,7 +322,15 @@ export default function Home() {
         {/* Mobile Quick Navigation */}
         <MobileQuickNav />
 
-        <section className="hero-container">
+        <section 
+          className="hero-container"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          style={{ position: 'relative' }}
+        >
         
         {displaySlides.map((banner, idx) => {
           return (
@@ -343,6 +397,66 @@ export default function Home() {
             </div>
           );
         })}
+
+        {/* Previous & Next Navigation Overlay Buttons */}
+        {totalSlides > 1 && (
+          <>
+            <button
+              onClick={handlePrevSlide}
+              className="hero-nav-btn hero-nav-btn--prev"
+              style={{
+                position: 'absolute',
+                left: 16,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 10,
+                backgroundColor: 'rgba(0, 0, 0, 0.45)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50%',
+                width: 42,
+                height: 42,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                backdropFilter: 'blur(6px)',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+              }}
+              aria-label="Previous slide"
+            >
+              <ChevronLeft size={22} />
+            </button>
+            <button
+              onClick={handleNextSlide}
+              className="hero-nav-btn hero-nav-btn--next"
+              style={{
+                position: 'absolute',
+                right: 16,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 10,
+                backgroundColor: 'rgba(0, 0, 0, 0.45)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50%',
+                width: 42,
+                height: 42,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                backdropFilter: 'blur(6px)',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+              }}
+              aria-label="Next slide"
+            >
+              <ChevronRight size={22} />
+            </button>
+          </>
+        )}
 
         </section>
 

@@ -124,6 +124,7 @@ class HeroBanner(models.Model):
     button_text = models.CharField(max_length=100, default='Shop Now')
     sort_order = models.IntegerField(default=0)
     is_deal_of_the_day = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -166,6 +166,10 @@ class BrandBannerListView(generics.ListCreateAPIView):
         if self.request.method == 'POST':
             return [permissions.IsAdminUser()]
         return [permissions.AllowAny()]
+    
+    def perform_create(self, serializer):
+        serializer.save()
+        cache.clear()
 
 
 class BrandBannerDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -176,6 +180,14 @@ class BrandBannerDetailView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ['PUT', 'PATCH', 'DELETE']:
             return [permissions.IsAdminUser()]
         return [permissions.AllowAny()]
+    
+    def perform_update(self, serializer):
+        serializer.save()
+        cache.clear()
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        cache.clear()
 
 
 @method_decorator(cache_page(300), name='list')
@@ -209,12 +221,19 @@ class HeroBannerListView(generics.ListCreateAPIView):
                 sort_order=3,
                 is_deal_of_the_day=True
             )
-        return HeroBanner.objects.all()
+        qs = HeroBanner.objects.all()
+        if not (self.request.user.is_authenticated and self.request.user.is_staff):
+            qs = qs.filter(is_active=True)
+        return qs
 
     def get_permissions(self):
         if self.request.method == 'POST':
             return [permissions.IsAdminUser()]
         return [permissions.AllowAny()]
+
+    def perform_create(self, serializer):
+        serializer.save()
+        cache.clear()
 
 
 class HeroBannerDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -225,6 +244,14 @@ class HeroBannerDetailView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ['PUT', 'PATCH', 'DELETE']:
             return [permissions.IsAdminUser()]
         return [permissions.AllowAny()]
+    
+    def perform_update(self, serializer):
+        serializer.save()
+        cache.clear()
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        cache.clear()
 
 
 class WishlistView(generics.ListCreateAPIView):

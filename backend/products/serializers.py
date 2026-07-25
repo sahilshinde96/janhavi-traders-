@@ -94,7 +94,7 @@ class HeroBannerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HeroBanner
-        fields = ['id', 'title', 'subtitle', 'image_url', 'link_url', 'button_text', 'sort_order', 'is_deal_of_the_day', 'created_at']
+        fields = ['id', 'title', 'subtitle', 'image_url', 'link_url', 'button_text', 'sort_order', 'is_deal_of_the_day', 'is_active', 'created_at']
         read_only_fields = ['created_at']
 
 
