@@ -221,7 +221,7 @@ class HeroBannerListView(generics.ListCreateAPIView):
                 sort_order=3,
                 is_deal_of_the_day=True
             )
-        qs = HeroBanner.objects.all()
+        qs = HeroBanner.objects.only('id', 'title', 'subtitle', 'image_url', 'link_url', 'button_text', 'sort_order', 'is_deal_of_the_day', 'is_active', 'created_at')
         if not (self.request.user.is_authenticated and self.request.user.is_staff):
             qs = qs.filter(is_active=True)
         return qs

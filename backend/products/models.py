@@ -129,6 +129,9 @@ class HeroBanner(models.Model):
 
     class Meta:
         ordering = ['sort_order', 'id']
+        indexes = [
+            models.Index(fields=['is_active', 'sort_order']),
+        ]
 
     def __str__(self):
         return self.title

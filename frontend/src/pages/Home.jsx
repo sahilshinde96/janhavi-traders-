@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Edit2, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '../api/axios';
@@ -33,9 +33,9 @@ export default function Home() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Touch gesture state for mobile swiping
-  const [touchStart, setTouchStart] = useState(null);
-  const [touchEnd, setTouchEnd] = useState(null);
+  // Touch gesture refs for mobile swiping (prevents re-renders during move)
+  const touchStartRef = useRef(null);
+  const touchEndRef = useRef(null);
 
   // Modal Editor state for Brand Banners
   const [showModal, setShowModal] = useState(false);
@@ -134,28 +134,28 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [totalSlides, activeSlide, isHovered]);
 
-  const handlePrevSlide = (e) => {
+  const handlePrevSlide = useCallback((e) => {
     if (e) e.stopPropagation();
     setActiveSlide(current => (current - 1 + totalSlides) % totalSlides);
-  };
+  }, [totalSlides]);
 
-  const handleNextSlide = (e) => {
+  const handleNextSlide = useCallback((e) => {
     if (e) e.stopPropagation();
     setActiveSlide(current => (current + 1) % totalSlides);
-  };
+  }, [totalSlides]);
 
   const handleTouchStart = (e) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
+    touchEndRef.current = null;
+    touchStartRef.current = e.targetTouches[0].clientX;
   };
 
   const handleTouchMove = (e) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    touchEndRef.current = e.targetTouches[0].clientX;
   };
 
   const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
+    if (!touchStartRef.current || !touchEndRef.current) return;
+    const distance = touchStartRef.current - touchEndRef.current;
     if (distance > 50) {
       handleNextSlide();
     } else if (distance < -50) {
@@ -282,12 +282,13 @@ export default function Home() {
     try {
       const payload = {
         title: heroForm.title.trim() || `Banner ${heroForm.sort_order || Date.now()}`,
-        subtitle: '',
+        subtitle: heroForm.subtitle ? heroForm.subtitle.trim() : '',
         image_url: heroForm.image_url.trim(),
         link_url: heroForm.link_url.trim(),
-        button_text: 'Shop Now',
+        button_text: heroForm.button_text ? heroForm.button_text.trim() : 'Shop Now',
         sort_order: heroForm.sort_order,
-        is_deal_of_the_day: heroForm.is_deal_of_the_day
+        is_deal_of_the_day: heroForm.is_deal_of_the_day,
+        is_active: heroForm.is_active !== undefined ? heroForm.is_active : true
       };
       if (selectedHero && selectedHero.id) {
         await api.patch(`/products/hero-banners/${selectedHero.id}/`, payload);
@@ -324,12 +325,17 @@ export default function Home() {
 
         <section 
           className="hero-container"
+          tabIndex={0}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          style={{ position: 'relative' }}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowLeft') handlePrevSlide(e);
+            if (e.key === 'ArrowRight') handleNextSlide(e);
+          }}
+          style={{ position: 'relative', outline: 'none' }}
         >
         
         {displaySlides.map((banner, idx) => {
@@ -356,6 +362,8 @@ export default function Home() {
                 <img 
                   src={banner.image_url} 
                   alt={banner.title || "Hero Banner"} 
+                  loading={activeSlide === idx ? "eager" : "lazy"}
+                  fetchpriority={activeSlide === idx ? "high" : "low"}
                   style={{
                     width: '100%',
                     height: '100%',
