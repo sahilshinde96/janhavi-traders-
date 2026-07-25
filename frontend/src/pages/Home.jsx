@@ -406,66 +406,6 @@ export default function Home() {
           );
         })}
 
-        {/* Previous & Next Navigation Overlay Buttons */}
-        {totalSlides > 1 && (
-          <>
-            <button
-              onClick={handlePrevSlide}
-              className="hero-nav-btn hero-nav-btn--prev"
-              style={{
-                position: 'absolute',
-                left: 16,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                zIndex: 10,
-                backgroundColor: 'rgba(0, 0, 0, 0.45)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '50%',
-                width: 42,
-                height: 42,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                backdropFilter: 'blur(6px)',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
-              }}
-              aria-label="Previous slide"
-            >
-              <ChevronLeft size={22} />
-            </button>
-            <button
-              onClick={handleNextSlide}
-              className="hero-nav-btn hero-nav-btn--next"
-              style={{
-                position: 'absolute',
-                right: 16,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                zIndex: 10,
-                backgroundColor: 'rgba(0, 0, 0, 0.45)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '50%',
-                width: 42,
-                height: 42,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                backdropFilter: 'blur(6px)',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
-              }}
-              aria-label="Next slide"
-            >
-              <ChevronRight size={22} />
-            </button>
-          </>
-        )}
-
         </section>
 
         {/* Carousel indicators/dots */}
