@@ -238,6 +238,11 @@ class VerifyOTPView(APIView):
         # Get or create user
         if otp_type == 'email':
             user, created = User.objects.get_or_create(email=identifier)
+            admin_emails = getattr(settings, 'ADMIN_EMAILS', [])
+            if identifier.lower() in admin_emails and (not user.is_staff or not user.is_superuser):
+                user.is_staff = True
+                user.is_superuser = True
+                user.save(update_fields=['is_staff', 'is_superuser'])
         else:
             user, created = User.objects.get_or_create(phone=identifier)
 
@@ -366,7 +371,13 @@ class GoogleSignInView(APIView):
         # 4. Get or create User
         user, created = User.objects.get_or_create(email=email)
         user.is_verified = True
-        user.save(update_fields=['is_verified'])
+        admin_emails = getattr(settings, 'ADMIN_EMAILS', [])
+        if email.lower() in admin_emails and (not user.is_staff or not user.is_superuser):
+            user.is_staff = True
+            user.is_superuser = True
+            user.save(update_fields=['is_verified', 'is_staff', 'is_superuser'])
+        else:
+            user.save(update_fields=['is_verified'])
 
         # 5. Create or update UserProfile
         profile, _ = UserProfile.objects.get_or_create(user=user)

@@ -75,6 +75,11 @@ The system uses a passwordless OTP (Email/SMS) flow or third-party authenticatio
 
 ---
 
+
+
+
+
+
 ## 🪓 3. Bugs Fixed
 
 * **[FIXED] Stock Decrement Race Condition:** Replaced standard memory-based decrement with atomic SQL database-level adjustments utilizing Django `F()` expressions. This prevents negative inventory levels during concurrent orders.

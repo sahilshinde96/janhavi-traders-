@@ -191,4 +191,11 @@ GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
 # Set ALLOW_TEST_OTP=true in .env for local development only.
 ALLOW_TEST_OTP = config('ALLOW_TEST_OTP', default=False, cast=bool)
 
+# Admin emails list that automatically receive staff/superuser privileges upon login.
+ADMIN_EMAILS = [email.strip().lower() for email in config(
+    'ADMIN_EMAILS',
+    default='janhavitraderss@gmail.com,blushh1019@gmail.com,admin@janhavi.com,admin@blushh.com'
+).split(',') if email.strip()]
+
+
 
